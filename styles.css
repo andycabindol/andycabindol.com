@@ -43,6 +43,7 @@ body {
   background: var(--bg);
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
 }
 
 .grain {
@@ -84,6 +85,8 @@ body {
 /* Main layout */
 
 main {
+  position: relative;
+  z-index: 1;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 var(--page-padding);
@@ -279,11 +282,18 @@ main {
   cursor: pointer;
   opacity: 0;
   animation: revealUp 0.8s var(--ease-smooth) 0.19s forwards;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease);
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
 }
 
 .contact-button:hover {
-  opacity: 0.8;
+  background: #2f2f2f;
+}
+
+.contact-button:active {
+  background: #141414;
 }
 
 .contact-button--copied {
@@ -293,7 +303,8 @@ main {
 }
 
 .contact-button--copied:hover {
-  opacity: 1;
+  background: rgba(26, 26, 26, 0.04);
+  border-color: rgba(26, 26, 26, 0.55);
 }
 
 .toast {
@@ -324,6 +335,24 @@ main {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ASCII glitch field */
+
+.ascii-field-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ascii-field {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 /* Sections */
@@ -568,6 +597,8 @@ main {
 }
 
 .footer {
+  position: relative;
+  z-index: 1;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 3rem var(--page-padding) 4rem;
@@ -577,9 +608,43 @@ main {
   border-top: 1px solid var(--border);
 }
 
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .footer-text {
   font-size: 13px;
   color: var(--text-muted);
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+
+.footer-social a:hover {
+  color: var(--text);
+}
+
+.footer-social svg {
+  width: 18px;
+  height: 18px;
 }
 
 .footer-note {
