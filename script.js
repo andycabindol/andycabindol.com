@@ -275,3 +275,231 @@ function initAsciiField() {
 }
 
 initAsciiField();
+
+function initCursorBubble() {
+  const bubble = document.getElementById('cursor-bubble');
+  const ring = bubble?.querySelector('.cursor-bubble__ring');
+  const canUseBubble = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!bubble || !ring || !canUseBubble) {
+    return;
+  }
+
+  const DEFAULT_SIZE = 28;
+  const INTERACTIVE_SELECTOR = 'button, a, .experience-group';
+
+  bubble.hidden = false;
+
+  let cursorX = 0;
+  let cursorY = 0;
+  let posX = 0;
+  let posY = 0;
+  let sizeW = DEFAULT_SIZE;
+  let sizeH = DEFAULT_SIZE;
+  let morph = 0;
+  let targetMorph = 0;
+  let morphX = 0;
+  let morphY = 0;
+  let targetW = DEFAULT_SIZE;
+  let targetH = DEFAULT_SIZE;
+  let targetRadius = '50%';
+  let hoverType = '';
+  let hoverEl = null;
+  let velocityX = 0;
+  let velocityY = 0;
+  let smoothVx = 0;
+  let smoothVy = 0;
+  let lastX = 0;
+  let lastY = 0;
+  let lastTime = performance.now();
+  let visible = false;
+  let targetPress = 0;
+  let press = 0;
+  let jiggle = 0;
+  let jiggleV = 0;
+  let isMouseDown = false;
+
+  function isContactButton(element) {
+    return Boolean(element?.closest('.contact-button'));
+  }
+
+  function canUsePressEffect() {
+    return hoverType !== 'button';
+  }
+
+  function triggerJiggle() {
+    jiggleV = 0.32;
+  }
+
+  function getHoverType(element) {
+    if (!element) {
+      return '';
+    }
+    if (element.matches('.experience-group')) {
+      return 'experience';
+    }
+    if (element.matches('button')) {
+      return 'button';
+    }
+    if (element.matches('a')) {
+      return 'link';
+    }
+    return '';
+  }
+
+  function setMorphTarget(element) {
+    hoverEl = element;
+
+    if (!element) {
+      targetMorph = 0;
+      hoverType = '';
+      targetW = DEFAULT_SIZE;
+      targetH = DEFAULT_SIZE;
+      targetRadius = '50%';
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+
+    morphX = rect.left + rect.width / 2;
+    morphY = rect.top + rect.height / 2;
+    targetW = rect.width;
+    targetH = rect.height;
+    targetRadius = style.borderRadius && style.borderRadius !== '0px'
+      ? style.borderRadius
+      : '50%';
+    targetMorph = 1;
+    hoverType = getHoverType(element);
+  }
+
+  function refreshMorphTarget() {
+    if (hoverEl && document.body.contains(hoverEl)) {
+      setMorphTarget(hoverEl);
+    }
+  }
+
+  document.addEventListener('mousemove', (event) => {
+    const now = performance.now();
+    const delta = Math.max(now - lastTime, 1);
+    const nextVx = ((event.clientX - lastX) / delta) * 16;
+    const nextVy = ((event.clientY - lastY) / delta) * 16;
+
+    velocityX = nextVx;
+    velocityY = nextVy;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    lastTime = now;
+    cursorX = event.clientX;
+    cursorY = event.clientY;
+
+    const interactive = event.target.closest(INTERACTIVE_SELECTOR);
+    if (interactive !== hoverEl) {
+      setMorphTarget(interactive);
+    } else if (interactive) {
+      refreshMorphTarget();
+    }
+
+    if (!visible) {
+      visible = true;
+      bubble.classList.add('cursor-bubble--visible');
+      posX = cursorX;
+      posY = cursorY;
+    }
+  }, { passive: true });
+
+  document.documentElement.addEventListener('mouseleave', () => {
+    visible = false;
+    targetPress = 0;
+    press = 0;
+    isMouseDown = false;
+    jiggle = 0;
+    jiggleV = 0;
+    setMorphTarget(null);
+    bubble.classList.remove('cursor-bubble--visible', 'cursor-bubble--pressed');
+  });
+
+  document.addEventListener('mousedown', (event) => {
+    if (isContactButton(event.target)) {
+      return;
+    }
+    isMouseDown = true;
+    targetPress = 1;
+    bubble.classList.add('cursor-bubble--pressed');
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isMouseDown && canUsePressEffect()) {
+      triggerJiggle();
+    }
+    isMouseDown = false;
+    targetPress = 0;
+    bubble.classList.remove('cursor-bubble--pressed');
+  });
+
+  window.addEventListener('scroll', refreshMorphTarget, { passive: true });
+  window.addEventListener('resize', refreshMorphTarget);
+
+  function animateBubble() {
+    morph += (targetMorph - morph) * 0.17;
+
+    const destX = cursorX + (morphX - cursorX) * morph;
+    const destY = cursorY + (morphY - cursorY) * morph;
+    const destW = DEFAULT_SIZE + (targetW - DEFAULT_SIZE) * morph;
+    const destH = DEFAULT_SIZE + (targetH - DEFAULT_SIZE) * morph;
+
+    posX += (destX - posX) * 0.2;
+    posY += (destY - posY) * 0.2;
+    sizeW += (destW - sizeW) * 0.18;
+    sizeH += (destH - sizeH) * 0.18;
+
+    smoothVx += (velocityX - smoothVx) * 0.18;
+    smoothVy += (velocityY - smoothVy) * 0.18;
+    velocityX *= 0.82;
+    velocityY *= 0.82;
+
+    const effectiveTargetPress = canUsePressEffect() ? targetPress : 0;
+    press += (effectiveTargetPress - press) * 0.1;
+    jiggleV += -jiggle * 0.48;
+    jiggleV *= 0.8;
+    jiggle += jiggleV;
+
+    const pressScale = 1 + press * 0.09;
+    const jiggleScale = canUsePressEffect() ? 1 + jiggle * 0.1 : 1;
+    const interactionScale = pressScale * jiggleScale;
+
+    bubble.style.width = `${sizeW}px`;
+    bubble.style.height = `${sizeH}px`;
+    bubble.style.transform = `translate3d(${posX}px, ${posY}px, 0) translate(-50%, -50%) scale(${interactionScale})`;
+    bubble.classList.toggle('cursor-bubble--pressed', press > 0.04 && canUsePressEffect());
+
+    bubble.classList.toggle('cursor-bubble--experience', hoverType === 'experience' && morph > 0.2);
+    bubble.classList.toggle('cursor-bubble--button', hoverType === 'button' && morph > 0.2);
+    bubble.classList.toggle('cursor-bubble--link', hoverType === 'link' && morph > 0.2);
+
+    if (morph > 0.2) {
+      ring.style.transform = 'none';
+      ring.style.borderRadius = targetRadius;
+    } else {
+      const speed = Math.hypot(smoothVx, smoothVy);
+      const angle = Math.atan2(smoothVy, smoothVx) * (180 / Math.PI);
+      const stretch = Math.min(speed * 0.028, 0.5);
+      const scaleX = 1 + stretch;
+      const scaleY = Math.max(1 - stretch * 0.6, 0.55);
+      const radiusShift = Math.min(speed * 0.35, 14);
+      const jiggleWobble = jiggle * 7;
+      const rx = 50 + (smoothVx / (speed || 1)) * radiusShift + jiggleWobble;
+      const ry = 50 + (smoothVy / (speed || 1)) * radiusShift - jiggleWobble * 0.6;
+
+      ring.style.transform = `rotate(${angle}deg) scale(${scaleX}, ${scaleY})`;
+      ring.style.borderRadius = `${rx}% ${100 - rx}% ${rx}% ${100 - rx}% / ${ry}% ${100 - ry}% ${ry}% ${100 - ry}%`;
+    }
+
+    requestAnimationFrame(animateBubble);
+  }
+
+  animateBubble();
+}
+
+initCursorBubble();
