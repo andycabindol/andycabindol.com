@@ -120,8 +120,9 @@ function initAsciiField() {
 
   const wrap = document.createElement('div');
   wrap.className = 'ascii-field-wrap';
+  wrap.setAttribute('aria-hidden', 'true');
   wrap.appendChild(canvas);
-  document.body.insertBefore(wrap, document.body.firstChild);
+  document.body.appendChild(wrap);
 
   const ctx = canvas.getContext('2d');
   const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+=<>?/\\|~.:';
