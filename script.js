@@ -4,12 +4,197 @@ if ('scrollRestoration' in history) {
 
 window.scrollTo(0, 0);
 
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function debounce(fn, wait) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), wait);
+  };
+}
+
+const frameLoop = (() => {
+  const tasks = new Set();
+  let rafId = 0;
+
+  function tick(time) {
+    rafId = 0;
+    for (const task of tasks) {
+      task(time);
+    }
+    if (tasks.size > 0) {
+      rafId = requestAnimationFrame(tick);
+    }
+  }
+
+  return {
+    add(task) {
+      tasks.add(task);
+      if (!rafId) {
+        rafId = requestAnimationFrame(tick);
+      }
+    },
+    remove(task) {
+      tasks.delete(task);
+      if (tasks.size === 0 && rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    },
+  };
+})();
+
+function initSmoothScroll() {
+  if (prefersReducedMotion) {
+    return null;
+  }
+  if (typeof Lenis !== 'function') {
+    return null;
+  }
+  if (window.__lenis) {
+    return window.__lenis;
+  }
+
+  document.documentElement.classList.add('lenis');
+
+  const lenis = new Lenis({
+    lerp: 0.08,
+    smoothWheel: true,
+  });
+
+  window.__lenis = lenis;
+
+  function workFrameTask(time) {
+    lenis.raf(time);
+    window.__navUpdate?.();
+  }
+
+  window.__workFrameTask = workFrameTask;
+  frameLoop.add(workFrameTask);
+
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const href = link.getAttribute('href');
+      if (!href || href === '#') {
+        return;
+      }
+      const target = document.querySelector(href);
+      if (!target) {
+        return;
+      }
+      event.preventDefault();
+      lenis.scrollTo(target, { offset: -72 });
+    });
+  });
+
+  return lenis;
+}
+
+function bootWorkPage() {
+  if (document.body.dataset.page !== 'work') {
+    return;
+  }
+
+  initSmoothScroll();
+  bindContactButtons();
+  bindWorkGradientOrb();
+}
+
+function bootAboutPage() {
+  if (document.body.dataset.page !== 'about') {
+    return;
+  }
+
+  initSmoothScroll();
+  bindContactButtons();
+  bindWorkGradientOrb();
+}
+
+function stopWorkPage() {
+  if (window.__workFrameTask) {
+    frameLoop.remove(window.__workFrameTask);
+    window.__workFrameTask = null;
+  }
+
+  if (window.__lenis) {
+    window.__lenis.destroy();
+    window.__lenis = null;
+  }
+
+  document.documentElement.classList.remove('lenis');
+  unbindWorkGradientOrb();
+}
+
+function stopAboutPage() {
+  stopWorkPage();
+}
+
 const contactButton = document.querySelector('.contact-button');
 const toast = document.getElementById('toast');
 const main = document.querySelector('main');
-const gradientContainer = document.querySelector('.hero-gradient');
+const body = document.body;
+let gradientContainer = document.querySelector('.hero-gradient');
 let toastTimeout;
-let buttonTimeout;
+let contactPopover;
+let contactPopoverTimeout;
+let contactPopoverAnchor = null;
+
+function getContactPopover() {
+  if (!contactPopover) {
+    contactPopover = document.createElement('div');
+    contactPopover.id = 'contact-popover';
+    contactPopover.className = 'contact-popover';
+    contactPopover.setAttribute('role', 'status');
+    contactPopover.setAttribute('aria-live', 'polite');
+    contactPopover.setAttribute('data-liquid-ignore', '');
+    contactPopover.innerHTML = '<span class="contact-popover__text"></span>';
+    document.body.appendChild(contactPopover);
+
+    contactPopover._reposition = () => {
+      if (contactPopoverAnchor) {
+        positionContactPopover(contactPopoverAnchor);
+      }
+    };
+
+    window.addEventListener('scroll', contactPopover._reposition, { passive: true });
+    window.addEventListener('resize', contactPopover._reposition, { passive: true });
+  }
+
+  return contactPopover;
+}
+
+function positionContactPopover(button) {
+  const popover = getContactPopover();
+  const rect = button.getBoundingClientRect();
+
+  popover.style.left = `${rect.left + rect.width / 2}px`;
+  popover.style.top = `${rect.bottom}px`;
+}
+
+function hideContactPopover() {
+  contactPopoverAnchor = null;
+  contactPopover?.classList.remove('contact-popover--visible');
+}
+
+function showContactPopover(button, message) {
+  const popover = getContactPopover();
+  const text = popover.querySelector('.contact-popover__text');
+
+  contactPopoverAnchor = button;
+  text.textContent = message;
+  positionContactPopover(button);
+
+  popover.classList.remove('contact-popover--visible');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      popover.classList.add('contact-popover--visible');
+    });
+  });
+
+  clearTimeout(contactPopoverTimeout);
+  contactPopoverTimeout = setTimeout(hideContactPopover, 3000);
+}
 
 let orbTargetX = 0;
 let orbTargetY = 0;
@@ -19,44 +204,39 @@ let orbCurrentX = 0;
 let orbCurrentY = 0;
 let orbCurrentScale = 1;
 let orbCurrentRotate = 0;
+let orbLoopActive = false;
 
-function animateGradientOrb() {
+function tickGradientOrb() {
+  gradientContainer = document.querySelector('.hero-gradient');
   orbCurrentX += (orbTargetX - orbCurrentX) * 0.16;
   orbCurrentY += (orbTargetY - orbCurrentY) * 0.16;
   orbCurrentScale += (orbTargetScale - orbCurrentScale) * 0.12;
   orbCurrentRotate += (orbTargetRotate - orbCurrentRotate) * 0.14;
 
+  const settled =
+    Math.abs(orbTargetX - orbCurrentX) < 0.2
+    && Math.abs(orbTargetY - orbCurrentY) < 0.2
+    && Math.abs(orbTargetScale - orbCurrentScale) < 0.002
+    && Math.abs(orbTargetRotate - orbCurrentRotate) < 0.2;
+
   if (gradientContainer) {
-    gradientContainer.style.setProperty('--orb-x', `${orbCurrentX}px`);
-    gradientContainer.style.setProperty('--orb-y', `${orbCurrentY}px`);
+    gradientContainer.style.setProperty('--orb-x', `${orbCurrentX.toFixed(1)}px`);
+    gradientContainer.style.setProperty('--orb-y', `${orbCurrentY.toFixed(1)}px`);
     gradientContainer.style.setProperty('--orb-scale', orbCurrentScale.toFixed(3));
-    gradientContainer.style.setProperty('--orb-rotate', `${orbCurrentRotate.toFixed(2)}deg`);
+    gradientContainer.style.setProperty('--orb-rotate', `${orbCurrentRotate.toFixed(1)}deg`);
   }
 
-  requestAnimationFrame(animateGradientOrb);
+  if (settled) {
+    frameLoop.remove(tickGradientOrb);
+    orbLoopActive = false;
+  }
 }
 
-if (main && gradientContainer && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  main.addEventListener('mousemove', (event) => {
-    const rect = main.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    const intensity = Math.min(Math.hypot(x, y) * 1.4, 1);
-
-    orbTargetX = x * 90;
-    orbTargetY = y * 70;
-    orbTargetScale = 1 + intensity * 0.1;
-    orbTargetRotate = x * 14;
-  });
-
-  main.addEventListener('mouseleave', () => {
-    orbTargetX = 0;
-    orbTargetY = 0;
-    orbTargetScale = 1;
-    orbTargetRotate = 0;
-  });
-
-  animateGradientOrb();
+function startOrbLoop() {
+  if (!orbLoopActive) {
+    orbLoopActive = true;
+    frameLoop.add(tickGradientOrb);
+  }
 }
 
 function showToast(message) {
@@ -77,40 +257,89 @@ function showToast(message) {
   }, 3000);
 }
 
-function resetContactButton(button, defaultLabel) {
-  button.textContent = defaultLabel;
-  button.classList.remove('contact-button--copied');
-}
-
-if (contactButton) {
-  contactButton.addEventListener('click', async () => {
-    const email = contactButton.dataset.email;
-    const defaultLabel = 'Contact';
-
-    try {
-      await navigator.clipboard.writeText(email);
-      contactButton.textContent = 'Copied!';
-      contactButton.classList.add('contact-button--copied');
-      showToast("Andy's email was copied to your clipboard");
-
-      clearTimeout(buttonTimeout);
-      buttonTimeout = setTimeout(() => {
-        resetContactButton(contactButton, defaultLabel);
-      }, 5000);
-    } catch {
-      contactButton.textContent = email;
-      contactButton.classList.add('contact-button--copied');
-
-      clearTimeout(buttonTimeout);
-      buttonTimeout = setTimeout(() => {
-        resetContactButton(contactButton, defaultLabel);
-      }, 3000);
+function bindContactButtons() {
+  document.querySelectorAll('.contact-button').forEach((button) => {
+    if (button.dataset.bound === 'true') {
+      return;
     }
+    button.dataset.bound = 'true';
+
+    const isNavContact = Boolean(button.closest('.site-nav'));
+
+    button.addEventListener('click', async () => {
+      const email = button.dataset.email;
+
+      try {
+        await navigator.clipboard.writeText(email);
+        if (isNavContact) {
+          showContactPopover(button, "Andy's email was copied to your clipboard");
+        } else {
+          showToast("Andy's email was copied to your clipboard");
+        }
+      } catch {
+        if (isNavContact) {
+          showContactPopover(button, email);
+        } else {
+          showToast(email);
+        }
+      }
+    });
   });
 }
 
+let workGradientTarget = null;
+
+function bindWorkGradientOrb() {
+  unbindWorkGradientOrb();
+
+  const trackTarget = document.querySelector('main') || document.body;
+  const container = document.querySelector('.hero-gradient');
+  if (!trackTarget || !container || prefersReducedMotion) {
+    return;
+  }
+
+  function onMove(event) {
+    const rect = trackTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    const intensity = Math.min(Math.hypot(x, y) * 1.4, 1);
+
+    orbTargetX = x * 90;
+    orbTargetY = y * 70;
+    orbTargetScale = 1 + intensity * 0.1;
+    orbTargetRotate = x * 14;
+    startOrbLoop();
+  }
+
+  function onLeave() {
+    orbTargetX = 0;
+    orbTargetY = 0;
+    orbTargetScale = 1;
+    orbTargetRotate = 0;
+    startOrbLoop();
+  }
+
+  trackTarget.addEventListener('mousemove', onMove, { passive: true });
+  trackTarget.addEventListener('mouseleave', onLeave);
+  workGradientTarget = { trackTarget, onMove, onLeave };
+}
+
+function unbindWorkGradientOrb() {
+  if (!workGradientTarget) {
+    return;
+  }
+
+  workGradientTarget.trackTarget.removeEventListener('mousemove', workGradientTarget.onMove);
+  workGradientTarget.trackTarget.removeEventListener('mouseleave', workGradientTarget.onLeave);
+  workGradientTarget = null;
+}
+
+if (contactButton) {
+  bindContactButtons();
+}
+
 function initAsciiField() {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (prefersReducedMotion) {
     return;
   }
 
@@ -121,17 +350,18 @@ function initAsciiField() {
   const wrap = document.createElement('div');
   wrap.className = 'ascii-field-wrap';
   wrap.setAttribute('aria-hidden', 'true');
+  wrap.setAttribute('data-liquid-ignore', '');
   wrap.appendChild(canvas);
   document.body.appendChild(wrap);
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: true });
   const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+=<>?/\\|~.:';
-  const CELL = 13;
-  const GLITCH_INTERVAL = 70;
+  const CELL = 14;
+  const GLITCH_INTERVAL = 90;
   const CHAR_RGB = '122, 110, 92';
-  const RIPPLE_MAX_RADIUS = 480;
-  const RIPPLE_DURATION = 700;
-  const RIPPLE_RING = 72;
+  const RIPPLE_MAX_RADIUS = 420;
+  const RIPPLE_DURATION = 650;
+  const RIPPLE_RING = 64;
   const RIPPLE_PEAK = 0.42;
 
   let cols = 0;
@@ -142,25 +372,18 @@ function initAsciiField() {
   let height = 0;
   let dpr = 1;
   let lastGlitch = 0;
+  let drawActive = false;
 
   function randomChar() {
     return CHARSET[Math.floor(Math.random() * CHARSET.length)];
   }
 
-  function getDocumentHeight() {
-    return Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight
-    );
-  }
-
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     width = window.innerWidth;
-    height = getDocumentHeight();
-    wrap.style.height = `${height}px`;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    height = window.innerHeight;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -182,13 +405,13 @@ function initAsciiField() {
 
     lastGlitch = now;
 
-    const swapCount = Math.floor(grid.length * 0.03);
+    const swapCount = Math.floor(grid.length * 0.02);
     for (let i = 0; i < swapCount; i += 1) {
       grid[Math.floor(Math.random() * grid.length)] = randomChar();
     }
   }
 
-  function getRippleBoost(x, y, now) {
+  function getRippleBoost(viewX, viewY, now, scrollX, scrollY) {
     let boost = 0;
 
     for (const ripple of ripples) {
@@ -197,10 +420,12 @@ function initAsciiField() {
         continue;
       }
 
+      const rippleX = ripple.pageX - scrollX;
+      const rippleY = ripple.pageY - scrollY;
       const progress = elapsed / RIPPLE_DURATION;
       const fade = Math.max(0, 1 - progress ** 1.35);
       const wave = progress * RIPPLE_MAX_RADIUS;
-      const dist = Math.hypot(x - ripple.x, y - ripple.y);
+      const dist = Math.hypot(viewX - rippleX, viewY - rippleY);
       const ringDelta = Math.abs(dist - wave);
 
       if (ringDelta < RIPPLE_RING) {
@@ -222,34 +447,30 @@ function initAsciiField() {
   }
 
   function draw(now) {
-    glitchChars(now);
     ripples = ripples.filter((ripple) => now - ripple.start <= RIPPLE_DURATION);
 
-    ctx.clearRect(0, 0, width, height);
-
     if (ripples.length === 0) {
-      requestAnimationFrame(draw);
+      drawActive = false;
+      ctx.clearRect(0, 0, width, height);
       return;
     }
 
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    glitchChars(now);
+    ctx.clearRect(0, 0, width, height);
     ctx.font = '11px ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace';
     ctx.textBaseline = 'top';
 
-    const scrollY = window.scrollY;
-    const viewHeight = window.innerHeight;
-    const startRow = Math.max(0, Math.floor(scrollY / CELL) - 2);
-    const endRow = Math.min(rows, Math.ceil((scrollY + viewHeight) / CELL) + 2);
-
-    for (let row = startRow; row < endRow; row += 1) {
+    for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
         const index = row * cols + col;
         const x = col * CELL;
         const y = row * CELL;
-        const centerX = x + CELL * 0.5;
-        const centerY = y + CELL * 0.5;
-        const reveal = getRippleBoost(centerX, centerY, now);
+        const reveal = getRippleBoost(x + CELL * 0.5, y + CELL * 0.5, now, scrollX, scrollY);
 
-        if (reveal < 0.008) {
+        if (reveal < 0.01) {
           continue;
         }
 
@@ -261,34 +482,46 @@ function initAsciiField() {
     requestAnimationFrame(draw);
   }
 
+  function startDraw() {
+    if (!drawActive) {
+      drawActive = true;
+      requestAnimationFrame(draw);
+    }
+  }
+
   document.addEventListener('click', (event) => {
     ripples.push({
-      x: event.pageX,
-      y: event.pageY,
+      pageX: event.pageX,
+      pageY: event.pageY,
       start: performance.now(),
     });
-  });
+    startDraw();
+  }, { passive: true });
 
-  window.addEventListener('resize', resize);
-  window.addEventListener('load', resize);
+  window.addEventListener('scroll', () => {
+    if (ripples.length > 0) {
+      startDraw();
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', debounce(resize, 150), { passive: true });
   resize();
-  requestAnimationFrame(draw);
+  window.__asciiRemeasure = resize;
 }
-
-initAsciiField();
 
 function initCursorBubble() {
   const bubble = document.getElementById('cursor-bubble');
   const ring = bubble?.querySelector('.cursor-bubble__ring');
   const canUseBubble = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    && !prefersReducedMotion;
 
   if (!bubble || !ring || !canUseBubble) {
     return;
   }
 
   const DEFAULT_SIZE = 28;
-  const INTERACTIVE_SELECTOR = 'button, a, .experience-group';
+  const HOVER_SCALE = 1.5;
+  const INTERACTIVE_SELECTOR = 'button, a, .project-item';
 
   bubble.hidden = false;
 
@@ -296,17 +529,9 @@ function initCursorBubble() {
   let cursorY = 0;
   let posX = 0;
   let posY = 0;
-  let sizeW = DEFAULT_SIZE;
-  let sizeH = DEFAULT_SIZE;
-  let morph = 0;
-  let targetMorph = 0;
-  let morphX = 0;
-  let morphY = 0;
-  let targetW = DEFAULT_SIZE;
-  let targetH = DEFAULT_SIZE;
-  let targetRadius = '50%';
+  let hover = 0;
+  let targetHover = 0;
   let hoverType = '';
-  let hoverEl = null;
   let velocityX = 0;
   let velocityY = 0;
   let smoothVx = 0;
@@ -320,6 +545,7 @@ function initCursorBubble() {
   let jiggle = 0;
   let jiggleV = 0;
   let isMouseDown = false;
+  let bubbleLoopActive = false;
 
   function isContactButton(element) {
     return Boolean(element?.closest('.contact-button'));
@@ -331,14 +557,18 @@ function initCursorBubble() {
 
   function triggerJiggle() {
     jiggleV = 0.32;
+    startBubbleLoop();
   }
 
   function getHoverType(element) {
     if (!element) {
       return '';
     }
-    if (element.matches('.experience-group')) {
+    if (element.closest('.experience-group')) {
       return 'experience';
+    }
+    if (element.closest('.project-item')) {
+      return 'project';
     }
     if (element.matches('button')) {
       return 'button';
@@ -349,35 +579,109 @@ function initCursorBubble() {
     return '';
   }
 
-  function setMorphTarget(element) {
-    hoverEl = element;
+  function getInteractiveElement(target) {
+    if (target.closest('.site-nav')) {
+      return null;
+    }
 
+    if (document.body.dataset.page === 'about') {
+      return target.closest('.experience-group') || target.closest(INTERACTIVE_SELECTOR);
+    }
+
+    return target.closest('.project-item') || target.closest(INTERACTIVE_SELECTOR);
+  }
+
+  function setHoverTarget(element) {
     if (!element) {
-      targetMorph = 0;
+      targetHover = 0;
       hoverType = '';
-      targetW = DEFAULT_SIZE;
-      targetH = DEFAULT_SIZE;
-      targetRadius = '50%';
       return;
     }
 
-    const rect = element.getBoundingClientRect();
-    const style = getComputedStyle(element);
-
-    morphX = rect.left + rect.width / 2;
-    morphY = rect.top + rect.height / 2;
-    targetW = rect.width;
-    targetH = rect.height;
-    targetRadius = style.borderRadius && style.borderRadius !== '0px'
-      ? style.borderRadius
-      : '50%';
-    targetMorph = 1;
+    targetHover = 1;
     hoverType = getHoverType(element);
   }
 
-  function refreshMorphTarget() {
-    if (hoverEl && document.body.contains(hoverEl)) {
-      setMorphTarget(hoverEl);
+  function startBubbleLoop() {
+    if (!bubbleLoopActive) {
+      bubbleLoopActive = true;
+      frameLoop.add(tickBubble);
+    }
+  }
+
+  function tickBubble() {
+    if (!visible) {
+      bubbleLoopActive = false;
+      frameLoop.remove(tickBubble);
+      return;
+    }
+
+    hover += (targetHover - hover) * 0.17;
+
+    posX += (cursorX - posX) * 0.2;
+    posY += (cursorY - posY) * 0.2;
+
+    smoothVx += (velocityX - smoothVx) * 0.18;
+    smoothVy += (velocityY - smoothVy) * 0.18;
+    velocityX *= 0.82;
+    velocityY *= 0.82;
+
+    const effectiveTargetPress = canUsePressEffect() ? targetPress : 0;
+    press += (effectiveTargetPress - press) * 0.1;
+    jiggleV += -jiggle * 0.48;
+    jiggleV *= 0.8;
+    jiggle += jiggleV;
+
+    const hoverScale = 1 + hover * (HOVER_SCALE - 1);
+    const pressScale = 1 + press * 0.09;
+    const jiggleScale = canUsePressEffect() ? 1 + jiggle * 0.1 : 1;
+    const totalScale = hoverScale * pressScale * jiggleScale;
+
+    bubble.style.transform = `translate3d(${posX}px, ${posY}px, 0) translate(-50%, -50%) scale(${totalScale.toFixed(3)})`;
+    bubble.classList.toggle('cursor-bubble--pressed', press > 0.04 && canUsePressEffect());
+
+    bubble.classList.toggle('cursor-bubble--project', hoverType === 'project' && hover > 0.2);
+    bubble.classList.toggle('cursor-bubble--experience', hoverType === 'experience' && hover > 0.2);
+    bubble.classList.toggle('cursor-bubble--button', hoverType === 'button' && hover > 0.2);
+    bubble.classList.toggle('cursor-bubble--link', hoverType === 'link' && hover > 0.2);
+
+    const speed = Math.hypot(smoothVx, smoothVy);
+    const angle = Math.atan2(smoothVy, smoothVx) * (180 / Math.PI);
+    const stretch = Math.min(speed * 0.028, 0.5);
+
+    if (stretch > 0.04) {
+      const scaleX = 1 + stretch;
+      const scaleY = Math.max(1 - stretch * 0.6, 0.55);
+      const radiusShift = Math.min(speed * 0.35, 14);
+      const rx = 50 + (smoothVx / (speed || 1)) * radiusShift;
+      const ry = 50 + (smoothVy / (speed || 1)) * radiusShift;
+
+      ring.style.transform = `rotate(${angle.toFixed(1)}deg) scale(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)})`;
+      ring.style.borderRadius = `${rx.toFixed(1)}% ${(100 - rx).toFixed(1)}% ${rx.toFixed(1)}% ${(100 - rx).toFixed(1)}% / ${ry.toFixed(1)}% ${(100 - ry).toFixed(1)}% ${ry.toFixed(1)}% ${(100 - ry).toFixed(1)}%`;
+    } else if (Math.abs(jiggle) > 0.002 && canUsePressEffect()) {
+      const jiggleWobble = jiggle * 7;
+      const rx = 50 + jiggleWobble;
+      const ry = 50 - jiggleWobble * 0.6;
+
+      ring.style.transform = 'none';
+      ring.style.borderRadius = `${rx.toFixed(1)}% ${(100 - rx).toFixed(1)}% ${rx.toFixed(1)}% ${(100 - rx).toFixed(1)}% / ${ry.toFixed(1)}% ${(100 - ry).toFixed(1)}% ${ry.toFixed(1)}% ${(100 - ry).toFixed(1)}%`;
+    } else {
+      ring.style.transform = 'none';
+      ring.style.borderRadius = '50%';
+    }
+
+    const settled =
+      !isMouseDown
+      && Math.abs(cursorX - posX) < 0.35
+      && Math.abs(cursorY - posY) < 0.35
+      && Math.abs(targetHover - hover) < 0.01
+      && Math.abs(targetPress - press) < 0.01
+      && Math.abs(jiggle) < 0.002
+      && Math.hypot(velocityX, velocityY) < 0.05;
+
+    if (settled) {
+      bubbleLoopActive = false;
+      frameLoop.remove(tickBubble);
     }
   }
 
@@ -395,12 +699,7 @@ function initCursorBubble() {
     cursorX = event.clientX;
     cursorY = event.clientY;
 
-    const interactive = event.target.closest(INTERACTIVE_SELECTOR);
-    if (interactive !== hoverEl) {
-      setMorphTarget(interactive);
-    } else if (interactive) {
-      refreshMorphTarget();
-    }
+    setHoverTarget(getInteractiveElement(event.target));
 
     if (!visible) {
       visible = true;
@@ -408,6 +707,8 @@ function initCursorBubble() {
       posX = cursorX;
       posY = cursorY;
     }
+
+    startBubbleLoop();
   }, { passive: true });
 
   document.documentElement.addEventListener('mouseleave', () => {
@@ -417,8 +718,10 @@ function initCursorBubble() {
     isMouseDown = false;
     jiggle = 0;
     jiggleV = 0;
-    setMorphTarget(null);
+    setHoverTarget(null);
     bubble.classList.remove('cursor-bubble--visible', 'cursor-bubble--pressed');
+    bubbleLoopActive = false;
+    frameLoop.remove(tickBubble);
   });
 
   document.addEventListener('mousedown', (event) => {
@@ -428,6 +731,7 @@ function initCursorBubble() {
     isMouseDown = true;
     targetPress = 1;
     bubble.classList.add('cursor-bubble--pressed');
+    startBubbleLoop();
   });
 
   document.addEventListener('mouseup', () => {
@@ -437,70 +741,19 @@ function initCursorBubble() {
     isMouseDown = false;
     targetPress = 0;
     bubble.classList.remove('cursor-bubble--pressed');
+    startBubbleLoop();
   });
-
-  window.addEventListener('scroll', refreshMorphTarget, { passive: true });
-  window.addEventListener('resize', refreshMorphTarget);
-
-  function animateBubble() {
-    morph += (targetMorph - morph) * 0.17;
-
-    const destX = cursorX + (morphX - cursorX) * morph;
-    const destY = cursorY + (morphY - cursorY) * morph;
-    const destW = DEFAULT_SIZE + (targetW - DEFAULT_SIZE) * morph;
-    const destH = DEFAULT_SIZE + (targetH - DEFAULT_SIZE) * morph;
-
-    posX += (destX - posX) * 0.2;
-    posY += (destY - posY) * 0.2;
-    sizeW += (destW - sizeW) * 0.18;
-    sizeH += (destH - sizeH) * 0.18;
-
-    smoothVx += (velocityX - smoothVx) * 0.18;
-    smoothVy += (velocityY - smoothVy) * 0.18;
-    velocityX *= 0.82;
-    velocityY *= 0.82;
-
-    const effectiveTargetPress = canUsePressEffect() ? targetPress : 0;
-    press += (effectiveTargetPress - press) * 0.1;
-    jiggleV += -jiggle * 0.48;
-    jiggleV *= 0.8;
-    jiggle += jiggleV;
-
-    const pressScale = 1 + press * 0.09;
-    const jiggleScale = canUsePressEffect() ? 1 + jiggle * 0.1 : 1;
-    const interactionScale = pressScale * jiggleScale;
-
-    bubble.style.width = `${sizeW}px`;
-    bubble.style.height = `${sizeH}px`;
-    bubble.style.transform = `translate3d(${posX}px, ${posY}px, 0) translate(-50%, -50%) scale(${interactionScale})`;
-    bubble.classList.toggle('cursor-bubble--pressed', press > 0.04 && canUsePressEffect());
-
-    bubble.classList.toggle('cursor-bubble--experience', hoverType === 'experience' && morph > 0.2);
-    bubble.classList.toggle('cursor-bubble--button', hoverType === 'button' && morph > 0.2);
-    bubble.classList.toggle('cursor-bubble--link', hoverType === 'link' && morph > 0.2);
-
-    if (morph > 0.2) {
-      ring.style.transform = 'none';
-      ring.style.borderRadius = targetRadius;
-    } else {
-      const speed = Math.hypot(smoothVx, smoothVy);
-      const angle = Math.atan2(smoothVy, smoothVx) * (180 / Math.PI);
-      const stretch = Math.min(speed * 0.028, 0.5);
-      const scaleX = 1 + stretch;
-      const scaleY = Math.max(1 - stretch * 0.6, 0.55);
-      const radiusShift = Math.min(speed * 0.35, 14);
-      const jiggleWobble = jiggle * 7;
-      const rx = 50 + (smoothVx / (speed || 1)) * radiusShift + jiggleWobble;
-      const ry = 50 + (smoothVy / (speed || 1)) * radiusShift - jiggleWobble * 0.6;
-
-      ring.style.transform = `rotate(${angle}deg) scale(${scaleX}, ${scaleY})`;
-      ring.style.borderRadius = `${rx}% ${100 - rx}% ${rx}% ${100 - rx}% / ${ry}% ${100 - ry}% ${ry}% ${100 - ry}%`;
-    }
-
-    requestAnimationFrame(animateBubble);
-  }
-
-  animateBubble();
 }
 
+initAsciiField();
 initCursorBubble();
+
+window.sitePages = window.sitePages || {};
+window.sitePages.work = { boot: bootWorkPage, stop: stopWorkPage };
+window.sitePages.about = { boot: bootAboutPage, stop: stopAboutPage };
+
+if (document.body.dataset.page === 'work') {
+  bootWorkPage();
+} else if (document.body.dataset.page === 'about') {
+  bootAboutPage();
+}

@@ -24,11 +24,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;450;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="styles.css" id="page-stylesheet">
 </head>
-<body>
-  <main>
-    <section class="hero">
+<body data-page="work">
+  <header class="site-header">
+    <div class="nav-pill">
+      <div class="nav-pill__content">
+        <a class="site-mark" href="./index.html" aria-label="Andy Cabindol">
+          <img src="favicon.svg" alt="" width="32" height="32">
+        </a>
+        <span class="nav-pill__spacer" aria-hidden="true"></span>
+        <nav class="site-nav" aria-label="Primary">
+          <span class="site-nav-indicator" aria-hidden="true"></span>
+          <a href="./index.html" class="site-nav-item site-nav-item--active" data-nav="work" aria-current="page">Work</a>
+          <a href="./about.html" class="site-nav-item" data-nav="about">About</a>
+          <button type="button" class="site-nav-item site-nav-link contact-button" data-email="andy.cabindol@gmail.com">Contact</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="page-main">
+    <section class="intro">
       <div class="hero-gradient" aria-hidden="true">
         <div class="hero-gradient-orb">
           <div class="hero-gradient-layer hero-gradient-layer--a"></div>
@@ -36,153 +54,129 @@
           <div class="hero-gradient-layer hero-gradient-layer--c"></div>
         </div>
       </div>
-      <div class="hero-content">
-        <h1 class="hero-title">UX Motion Designer</h1>
-        <p class="hero-description">
-          Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC &amp; Bay Area.
+      <div class="intro-content">
+        <p class="intro-lede">
+          Andy Cabindol is a product and motion designer at
+          <img class="intro-logo" src="logos/google.svg" alt="" width="20" height="20">
+          Google<br>
+          with 3+ years in fast-paced AI startups and big tech in NYC&nbsp;&amp;&nbsp;Bay Area.
         </p>
-        <button type="button" class="contact-button" data-email="andy.cabindol@gmail.com">Contact</button>
       </div>
     </section>
 
-    <section id="experience" class="section experience">
-      <ul class="experience-list">
+    <section id="work" class="portfolio">
+      <div class="portfolio-grid">
 
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/google.png" alt="" width="16" height="16">Google</p>
-          <ul class="timeline">
-            <li class="timeline-entry timeline-entry--present">
-              <span class="present-dot-ripple" aria-hidden="true"></span>
-              <div class="timeline-entry-content">
-                <span class="role-title">UX Designer</span>
-                <span class="role-date">May 2026 — Present</span>
-              </div>
-            </li>
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">UX Design Intern</span>
-                <span class="role-date">May 2025 — Aug 2025</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/baton.png" alt="" width="16" height="16">Baton</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">UX Designer</span>
-                <span class="role-date">Oct 2025 — May 2026</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/forcefactor.png" alt="" width="16" height="16">Force Factor</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Design Engineer</span>
-                <span class="role-date">Aug 2024 — May 2025</span>
-              </div>
-            </li>
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Graphic Design Intern</span>
-                <span class="role-date">May 2024 — Aug 2024</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/prof-g.jpeg" alt="" width="16" height="16">Prof G Media</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Motion Designer</span>
-                <span class="role-date">Nov 2024 — May 2025</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/phia.png" alt="" width="16" height="16">Phia</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Founding Product Designer</span>
-                <span class="role-date">Nov 2024 — Jan 2025</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/sellraze.png" alt="" width="16" height="16">SellRaze</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Founding Designer</span>
-                <span class="role-date">May 2023 — Jun 2024</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/generic.svg" alt="" width="16" height="16">Sense Realm LLC</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Design Engineer</span>
-                <span class="role-date">May 2023 — Dec 2023</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-        <li class="experience-group">
-          <p class="company-name"><img class="company-logo" src="logos/generic.svg" alt="" width="16" height="16">Swanton Video Media</p>
-          <ul class="timeline">
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Product Design Intern</span>
-                <span class="role-date">Jun 2021 — Aug 2021</span>
-              </div>
-            </li>
-            <li class="timeline-entry">
-              <div class="timeline-entry-content">
-                <span class="role-title">Print Design Intern</span>
-                <span class="role-date">May 2021 — Jun 2021</span>
-              </div>
-            </li>
-          </ul>
-        </li>
-
-      </ul>
-    </section>
-
-    <section id="education" class="section education">
-      <ul class="education-list">
-        <li class="education-entry">
-          <p class="company-name"><img class="company-logo" src="logos/nyu.png" alt="" width="16" height="16">New York University</p>
-          <div class="education-entry-row">
-            <svg class="entry-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>
-            </svg>
-            <div class="timeline-entry-content">
-              <span class="role-title">Interactive Media Arts &amp; Computer Science</span>
-              <span class="role-date">2026</span>
-              <span class="role-note">Bachelor of Fine Arts</span>
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Gemini onboarding motion">
+            <div class="project-media project-media--tall">
+              <div class="project-placeholder" style="--ph-a: #d6e8fc; --ph-b: #8ebef5;"></div>
             </div>
-          </div>
-        </li>
-      </ul>
+            <div class="project-meta">
+              <h2 class="project-title">Gemini Onboarding</h2>
+              <p class="project-tags">Motion · Product</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Baton dashboard">
+            <div class="project-media">
+              <div class="project-placeholder" style="--ph-a: #dce8f5; --ph-b: #b8cfe8;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Baton Dashboard</h2>
+              <p class="project-tags">UX Design · Web</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Phia brand system">
+            <div class="project-media project-media--wide">
+              <div class="project-placeholder" style="--ph-a: #f0e6d4; --ph-b: #e2d0b8;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Phia Brand System</h2>
+              <p class="project-tags">Brand · Product Design</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="SellRaze mobile flows">
+            <div class="project-media">
+              <!-- Replace with: <video autoplay muted loop playsinline><source src="projects/sellraze.mp4" type="video/mp4"></video> -->
+              <div class="project-placeholder" style="--ph-a: #d4e4f7; --ph-b: #9ec5ef;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">SellRaze Mobile</h2>
+              <p class="project-tags">Mobile · Product Design</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Prof G motion graphics">
+            <div class="project-media project-media--tall">
+              <div class="project-placeholder" style="--ph-a: #1a1a1a; --ph-b: #3d3d3d;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Prof G Motion</h2>
+              <p class="project-tags">Motion · Video</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Force Factor design engineering">
+            <div class="project-media">
+              <div class="project-placeholder" style="--ph-a: #e8f0ea; --ph-b: #c5d9cc;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Force Factor Web</h2>
+              <p class="project-tags">Design Engineering · Web</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="AI interaction prototype">
+            <div class="project-media project-media--wide">
+              <div class="project-placeholder" style="--ph-a: #ebe4f8; --ph-b: #c9b8ef;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">AI Interaction Prototype</h2>
+              <p class="project-tags">AI · Prototype</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Cursor micro-interactions">
+            <div class="project-media">
+              <div class="project-placeholder" style="--ph-a: #f8f3e9; --ph-b: #efe0c8;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Cursor Micro-interactions</h2>
+              <p class="project-tags">Motion · Interaction</p>
+            </div>
+          </a>
+        </article>
+
+        <article class="project-item">
+          <a class="project-link" href="#" aria-label="Typography exploration">
+            <div class="project-media project-media--tall">
+              <div class="project-placeholder" style="--ph-a: #f5f0e8; --ph-b: #ddd2c0;"></div>
+            </div>
+            <div class="project-meta">
+              <h2 class="project-title">Type Exploration</h2>
+              <p class="project-tags">Visual · Print</p>
+            </div>
+          </a>
+        </article>
+
+      </div>
     </section>
   </main>
 
@@ -206,15 +200,18 @@
         </a>
       </div>
     </div>
-    <p class="footer-note">Full portfolio coming soon.</p>
   </footer>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="page-transition" id="page-transition" aria-hidden="true"></div>
 
-  <div class="cursor-bubble" id="cursor-bubble" aria-hidden="true" hidden>
+  <div class="toast" id="toast" role="status" aria-live="polite" data-liquid-ignore></div>
+
+  <div class="cursor-bubble" id="cursor-bubble" aria-hidden="true" hidden data-liquid-ignore>
     <div class="cursor-bubble__ring"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.1/dist/lenis.min.js" defer></script>
+  <script src="nav.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
