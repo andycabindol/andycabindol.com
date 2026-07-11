@@ -91,11 +91,206 @@ function initSmoothScroll() {
   return lenis;
 }
 
+const PLACEHOLDER_PALETTES = [
+  ['#dce8fc', '#6ba8e8'],
+  ['#eef4fc', '#4a8fd4'],
+  ['#f5f5f5', '#cccccc'],
+  ['#ebebeb', '#b3b3b3'],
+  ['#e8e8e8', '#999999'],
+  ['#f0f0f0', '#d4d4d4'],
+  ['#dde8f5', '#5b8fc9'],
+  ['#fafafa', '#e0e0e0'],
+  ['#e5e5e5', '#a8a8a8'],
+  ['#edf2f8', '#7aa3cc'],
+];
+
+function shuffleArray(items) {
+  const next = [...items];
+  for (let i = next.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
+
+function randomizeProjectPlaceholders() {
+  const placeholders = document.querySelectorAll('#work .project-placeholder');
+  if (!placeholders.length) {
+    return;
+  }
+
+  const palettes = shuffleArray(PLACEHOLDER_PALETTES);
+  placeholders.forEach((placeholder, index) => {
+    const [colorA, colorB] = palettes[index % palettes.length];
+    placeholder.style.setProperty('--ph-a', colorA);
+    placeholder.style.setProperty('--ph-b', colorB);
+  });
+}
+
+let portfolioMasonryFrame = null;
+let portfolioMasonryResizeObserver = null;
+
+function measureCssLength(customProperty) {
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;visibility:hidden;height:var(${customProperty});pointer-events:none;`;
+  document.body.appendChild(probe);
+  const length = probe.offsetHeight || 16;
+  probe.remove();
+  return length;
+}
+
+function getPortfolioGaps() {
+  return {
+    column: measureCssLength('--grid-gap'),
+    row: measureCssLength('--grid-row-gap'),
+  };
+}
+
+function getPortfolioColumnCount() {
+  if (window.matchMedia('(max-width: 600px)').matches) {
+    return 1;
+  }
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    return 2;
+  }
+  return 3;
+}
+
+function resetPortfolioMasonry(grid) {
+  grid.removeAttribute('data-masonry');
+  grid.style.height = '';
+  grid.querySelectorAll('.project-item').forEach((item) => {
+    item.style.position = '';
+    item.style.width = '';
+    item.style.left = '';
+    item.style.top = '';
+    item.style.visibility = '';
+    item.style.pointerEvents = '';
+  });
+}
+
+function layoutPortfolioMasonry() {
+  const grid = document.querySelector('#work .portfolio-grid');
+  if (!grid) {
+    return;
+  }
+
+  const items = [...grid.querySelectorAll('.project-item')];
+  if (!items.length) {
+    return;
+  }
+
+  const { column: columnGap, row: rowGap } = getPortfolioGaps();
+  const columns = getPortfolioColumnCount();
+  resetPortfolioMasonry(grid);
+
+  if (columns === 1) {
+    return;
+  }
+
+  const gridWidth = grid.clientWidth;
+  if (!gridWidth) {
+    return;
+  }
+
+  const columnWidth = (gridWidth - columnGap * (columns - 1)) / columns;
+  grid.style.position = 'relative';
+  grid.dataset.masonry = 'true';
+
+  const heights = items.map((item) => {
+    item.style.width = `${columnWidth}px`;
+    item.style.position = 'absolute';
+    item.style.visibility = 'hidden';
+    item.style.pointerEvents = 'none';
+    item.style.left = '0';
+    item.style.top = '0';
+    return item.offsetHeight;
+  });
+
+  const columnHeights = Array(columns).fill(0);
+
+  items.forEach((item, index) => {
+    const columnIndex = columnHeights.indexOf(Math.min(...columnHeights));
+    const top = columnHeights[columnIndex];
+    const left = columnIndex * (columnWidth + columnGap);
+
+    item.style.visibility = '';
+    item.style.pointerEvents = '';
+    item.style.left = `${left}px`;
+    item.style.top = `${top}px`;
+
+    columnHeights[columnIndex] += heights[index] + rowGap;
+  });
+
+  grid.style.height = `${Math.max(0, Math.max(...columnHeights) - rowGap)}px`;
+}
+
+function schedulePortfolioMasonry() {
+  if (portfolioMasonryFrame) {
+    cancelAnimationFrame(portfolioMasonryFrame);
+  }
+
+  portfolioMasonryFrame = requestAnimationFrame(() => {
+    portfolioMasonryFrame = null;
+    layoutPortfolioMasonry();
+  });
+}
+
+function bindPortfolioMasonry() {
+  unbindPortfolioMasonry();
+
+  const grid = document.querySelector('#work .portfolio-grid');
+  if (!grid) {
+    return;
+  }
+
+  window.__portfolioMasonryResize = schedulePortfolioMasonry;
+  window.addEventListener('resize', window.__portfolioMasonryResize);
+
+  if ('ResizeObserver' in window) {
+    portfolioMasonryResizeObserver = new ResizeObserver(schedulePortfolioMasonry);
+    portfolioMasonryResizeObserver.observe(grid);
+    grid.querySelectorAll('.project-item').forEach((item) => {
+      portfolioMasonryResizeObserver.observe(item);
+    });
+  }
+
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(schedulePortfolioMasonry);
+  }
+
+  schedulePortfolioMasonry();
+}
+
+function unbindPortfolioMasonry() {
+  if (portfolioMasonryFrame) {
+    cancelAnimationFrame(portfolioMasonryFrame);
+    portfolioMasonryFrame = null;
+  }
+
+  if (window.__portfolioMasonryResize) {
+    window.removeEventListener('resize', window.__portfolioMasonryResize);
+    window.__portfolioMasonryResize = null;
+  }
+
+  if (portfolioMasonryResizeObserver) {
+    portfolioMasonryResizeObserver.disconnect();
+    portfolioMasonryResizeObserver = null;
+  }
+
+  const grid = document.querySelector('#work .portfolio-grid');
+  if (grid) {
+    resetPortfolioMasonry(grid);
+  }
+}
+
 function bootWorkPage() {
   if (document.body.dataset.page !== 'work') {
     return;
   }
 
+  randomizeProjectPlaceholders();
+  bindPortfolioMasonry();
   initSmoothScroll();
   bindContactButtons();
   bindWorkGradientOrb();
@@ -124,6 +319,7 @@ function stopWorkPage() {
 
   document.documentElement.classList.remove('lenis');
   unbindWorkGradientOrb();
+  unbindPortfolioMasonry();
 }
 
 function stopAboutPage() {
@@ -272,9 +468,9 @@ function bindContactButtons() {
       try {
         await navigator.clipboard.writeText(email);
         if (isNavContact) {
-          showContactPopover(button, "Andy's email was copied to your clipboard");
+          showContactPopover(button, "Email copied!");
         } else {
-          showToast("Andy's email was copied to your clipboard");
+          showToast('Email copied!');
         }
       } catch {
         if (isNavContact) {
@@ -358,7 +554,7 @@ function initAsciiField() {
   const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+=<>?/\\|~.:';
   const CELL = 14;
   const GLITCH_INTERVAL = 90;
-  const CHAR_RGB = '122, 110, 92';
+  const CHAR_RGB = '120, 120, 120';
   const RIPPLE_MAX_RADIUS = 420;
   const RIPPLE_DURATION = 650;
   const RIPPLE_RING = 64;

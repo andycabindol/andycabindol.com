@@ -7,20 +7,23 @@
 }
 
 :root {
-  --bg: #f8f3e9;
-  --bg-subtle: #efe8dc;
-  --text: #1a1a1a;
-  --text-muted: #6b6b6b;
-  --text-faint: #a3a3a3;
-  --border: rgba(26, 26, 26, 0.08);
-  --border-hover: rgba(26, 26, 26, 0.16);
-  --cream-dark: #7a6e5c;
-  --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #faf9f6;
+  --bg-subtle: #f3f1ec;
+  --text: #0a0a0a;
+  --text-muted: #666666;
+  --text-faint: #999999;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+  --cream-dark: #262626;
+  --display: "Crimson Pro", Georgia, "Times New Roman", serif;
+  --serif: var(--display);
+  --sans: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --mono: var(--sans);
   --max-width: 100%;
   --content-width: 720px;
-  --page-padding: clamp(0.875rem, 2.5vw, 1.25rem);
+  --page-padding: clamp(1.25rem, 4vw, 2.5rem);
   --grid-gap: 1rem;
+  --grid-row-gap: 2.25rem;
   --nav-padding: clamp(0.875rem, 2.5vw, 1.25rem);
   --nav-transition: 0.45s;
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -111,7 +114,7 @@ body {
 .hero-gradient-layer--c {
   background: radial-gradient(
     circle at 50% 50%,
-    rgba(250, 243, 232, 0.62) 0%,
+    rgba(255, 255, 255, 0.62) 0%,
     rgba(165, 205, 245, 0.34) 38%,
     rgba(130, 180, 235, 0.2) 58%,
     transparent 74%
@@ -156,7 +159,7 @@ main {
   z-index: 1;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: calc(var(--page-padding) + 4.25rem) var(--page-padding) 0;
+  padding: calc(var(--nav-padding) + 4.25rem) var(--page-padding) 0;
   opacity: 0;
   overflow: visible;
   pointer-events: auto;
@@ -175,7 +178,7 @@ main.page-main--instant {
 /* Intro */
 
 .intro {
-  padding: clamp(5rem, 18vh, 12rem) 0 2rem;
+  padding: clamp(2.5rem, 15vh, 8rem) 0 2rem;
   opacity: 0;
   animation: revealUp 0.85s var(--ease-smooth) 0.12s forwards;
 }
@@ -185,20 +188,28 @@ main.page-main--instant {
   max-width: none;
 }
 
-.intro-lede {
+.intro-title {
   font-family: var(--serif);
-  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  font-size: clamp(3rem, 8vw, 4.75rem);
   font-weight: 400;
-  line-height: 1.45;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   color: var(--text);
+  margin-bottom: 1rem;
+  /* max-width: 12ch; */
+  text-wrap: balance;
+}
+
+.intro-lede {
+  font-family: var(--sans);
+  font-size: clamp(16px, 2.5vw, 18px);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: -0.04em;
+  color: var(--text-muted);
   width: 100%;
   max-width: 38em;
   text-wrap: pretty;
-}
-
-.intro-lede em {
-  font-style: italic;
 }
 
 .intro-logo {
@@ -226,15 +237,15 @@ main.page-main--instant {
 }
 
 .portfolio-grid {
-  column-count: 3;
-  column-gap: var(--grid-gap);
+  position: relative;
 }
 
 .project-item {
-  break-inside: avoid;
-  margin-bottom: var(--grid-gap);
-  content-visibility: auto;
-  contain-intrinsic-size: auto 360px;
+  margin-bottom: var(--grid-row-gap);
+}
+
+.portfolio-grid[data-masonry="true"] .project-item {
+  margin-bottom: 0;
 }
 
 .project-link {
@@ -256,7 +267,7 @@ main.page-main--instant {
 .project-media {
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 3px;
   background: var(--bg-subtle);
   line-height: 0;
 }
@@ -294,7 +305,7 @@ main.page-main--instant {
 .project-placeholder {
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: linear-gradient(145deg, var(--ph-a, #efe8dc), var(--ph-b, #ddd2c0));
+  background: linear-gradient(145deg, var(--ph-a, #f0f0f0), var(--ph-b, #d9d9d9));
 }
 
 .project-meta {
@@ -302,8 +313,8 @@ main.page-main--instant {
 }
 
 .project-title {
-  font-family: var(--sans);
-  font-size: 14px;
+  font-family: var(--display);
+  font-size: 18px;
   font-weight: 500;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -312,10 +323,13 @@ main.page-main--instant {
 
 .project-tags {
   margin-top: 0.15rem;
-  font-size: 13px;
+  font-family: var(--mono);
+  font-size: 14px;
   line-height: 1.3;
+  font-weight: 400;
+  text-transform: uppercase;
   color: var(--text-faint);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
 }
 
 /* Info */
@@ -332,7 +346,7 @@ main.page-main--instant {
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  color: var(--cream-dark);
+  color: var(--text);
   margin-bottom: 0.75rem;
 }
 
@@ -359,7 +373,7 @@ main.page-main--instant {
   border: 1px solid var(--border);
   box-shadow: 0 8px 32px rgba(26, 26, 26, 0.08);
   font-size: 13px;
-  font-weight: 450;
+  font-weight: 400;
   letter-spacing: -0.01em;
   border-radius: 12px;
   opacity: 0;
@@ -421,16 +435,16 @@ main.page-main--instant {
 }
 
 .cursor-bubble--pressed .cursor-bubble__ring {
-  border-color: rgba(255, 252, 247, 0.72);
-  background: rgba(255, 252, 247, 0.48);
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .cursor-bubble__ring {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 1.5px solid rgba(122, 110, 92, 0.35);
-  background: rgba(248, 243, 233, 0.15);
+  border: 1.5px solid rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.35);
   transform-origin: center center;
   transition:
     background 0.35s var(--ease),
@@ -438,8 +452,8 @@ main.page-main--instant {
 }
 
 .cursor-bubble--project .cursor-bubble__ring {
-  background: rgba(239, 232, 220, 0.42);
-  border-color: rgba(122, 110, 92, 0.18);
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.14);
 }
 
 .cursor-bubble--button .cursor-bubble__ring {
@@ -448,8 +462,8 @@ main.page-main--instant {
 }
 
 .cursor-bubble--link .cursor-bubble__ring {
-  background: rgba(248, 243, 233, 0.28);
-  border-color: rgba(122, 110, 92, 0.32);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.22);
 }
 
 /* Footer */
@@ -517,17 +531,7 @@ main.page-main--instant {
 
 /* Responsive */
 
-@media (max-width: 900px) {
-  .portfolio-grid {
-    column-count: 2;
-  }
-}
-
 @media (max-width: 600px) {
-  .portfolio-grid {
-    column-count: 1;
-  }
-
   .hero-gradient {
     top: -2%;
     right: -20%;
