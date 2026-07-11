@@ -150,10 +150,7 @@ function getPortfolioColumnCount() {
   if (window.matchMedia('(max-width: 600px)').matches) {
     return 1;
   }
-  if (window.matchMedia('(max-width: 900px)').matches) {
-    return 2;
-  }
-  return 3;
+  return 2;
 }
 
 function resetPortfolioMasonry(grid) {

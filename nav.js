@@ -228,6 +228,7 @@ function initNavMorph() {
   let lastScrollY = NaN;
   let scrollUpFromY = null;
   let preserveNavCompact = false;
+  let preserveNavScrollUp = false;
   let pendingScrollReset = false;
   const restored = restoreNavState();
   header.classList.add('site-header--bootstrapping');
@@ -314,9 +315,14 @@ function initNavMorph() {
       lastScrollY = scrollY;
 
       if (scrollY <= SCROLL_THRESHOLD) {
-        header.classList.remove('site-header--scroll-up');
-        isScrollUp = false;
-        scrollUpFromY = null;
+        if (preserveNavScrollUp) {
+          header.classList.add('site-header--scroll-up');
+          isScrollUp = true;
+        } else {
+          header.classList.remove('site-header--scroll-up');
+          isScrollUp = false;
+          scrollUpFromY = null;
+        }
       }
 
       if (preserveNavCompact) {
@@ -336,13 +342,17 @@ function initNavMorph() {
       && lastScrollY > SCROLL_THRESHOLD
     ) {
       preserveNavCompact = false;
+      preserveNavScrollUp = false;
     }
 
     if (scrollY <= SCROLL_THRESHOLD) {
-      header.classList.remove('site-header--scroll-up');
-      scrollUpFromY = null;
+      if (!preserveNavScrollUp) {
+        header.classList.remove('site-header--scroll-up');
+        scrollUpFromY = null;
+      }
     } else if (!Number.isNaN(lastScrollY) && scrollY !== lastScrollY) {
       if (scrollY > lastScrollY) {
+        preserveNavScrollUp = false;
         header.classList.remove('site-header--scroll-up');
         scrollUpFromY = null;
       } else if (scrollY < lastScrollY) {
@@ -423,6 +433,7 @@ function initNavMorph() {
 
   function prepareNavForPageSwap() {
     preserveNavCompact = header.classList.contains('site-header--compact');
+    preserveNavScrollUp = header.classList.contains('site-header--scroll-up');
   }
 
   function markNavScrollResetPending() {
