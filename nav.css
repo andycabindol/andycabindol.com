@@ -123,14 +123,12 @@
   transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
 }
 
-.site-mark img {
-  display: block;
-  width: 32px;
-  height: 32px;
+.site-mark .creamy-orb {
+  --orb-size: 32px;
 }
 
 .site-mark:hover {
-  opacity: 0.75;
+  opacity: 0.85;
   transform: scale(1.04);
 }
 

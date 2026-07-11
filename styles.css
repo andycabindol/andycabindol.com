@@ -216,7 +216,7 @@ main.page-main--instant {
   display: inline-block;
   width: 1.5em;
   height: 1.5em;
-  margin: 0 0 0 0.25em;
+  margin: 0 0.25em;
   vertical-align: -0.4em;
   object-fit: contain;
 }
