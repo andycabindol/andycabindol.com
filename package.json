@@ -1,0 +1,20 @@
+{
+  "name": "andycabindol.com",
+  "private": true,
+  "scripts": {
+    "bundle:orb": "esbuild scripts/creamy-orb-source.js --bundle --format=iife --outfile=components/creamy-orb.js --minify",
+    "bundle:work-gradients": "esbuild scripts/work-gradients-source.js --bundle --format=iife --outfile=components/work-gradients.js --minify",
+    "bundle": "npm run bundle:orb && npm run bundle:work-gradients",
+    "build": "npm run bundle && eleventy",
+    "dev": "npm run bundle && eleventy --serve",
+    "migrate:projects": "node scripts/migrate-projects.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "esbuild": "^0.28.1",
+    "markdown-it": "^14.1.0"
+  },
+  "dependencies": {
+    "@paper-design/shaders": "^0.0.77"
+  }
+}

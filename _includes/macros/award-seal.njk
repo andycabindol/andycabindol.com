@@ -1,0 +1,42 @@
+{# Circular award seal — laurel wreath mark, rim-aligned arcs #}
+{% macro awardSeal(id, title, subtitle, label=null) %}
+<button
+  type="button"
+  class="about-award-seal"
+  data-award-badge
+  data-shine="0"
+  aria-label="{{ label or (title + ' — ' + subtitle) }}"
+  title="{{ label or (title + ' — ' + subtitle) }} — wipe to polish"
+>
+  <span class="about-award-seal__stage" aria-hidden="true">
+    <svg class="about-award-seal__art" viewBox="-14 -14 228 228" focusable="false">
+      <circle class="about-award-seal__disk" cx="100" cy="100" r="114"/>
+      <circle class="about-award-seal__disk-shine" cx="100" cy="100" r="114"/>
+      <defs>
+        <path id="award-{{ id }}-top" d="M 16,100 A 84,84 0 0 1 184,100"/>
+        <path id="award-{{ id }}-bot" d="M 16,110 A 84,84 0 0 0 184,110"/>
+      </defs>
+      <text class="about-award-seal__arc about-award-seal__arc--top">
+        <textPath href="#award-{{ id }}-top" startOffset="50%" text-anchor="middle">{{ title }}</textPath>
+      </text>
+      <text class="about-award-seal__arc about-award-seal__arc--bot">
+        <textPath href="#award-{{ id }}-bot" startOffset="50%" text-anchor="middle">{{ subtitle }}</textPath>
+      </text>
+      <image
+        class="about-award-seal__wreath"
+        href="/about/award-wreath.png"
+        x="46"
+        y="58"
+        width="108"
+        height="85"
+        preserveAspectRatio="xMidYMid meet"
+      />
+    </svg>
+    <span class="about-award-seal__texture"></span>
+    <span class="about-award-seal__dull"></span>
+    <span class="about-award-seal__gleam"></span>
+    <span class="about-award-seal__sheen"></span>
+    <span class="about-award-seal__bursts"></span>
+  </span>
+</button>
+{% endmacro %}

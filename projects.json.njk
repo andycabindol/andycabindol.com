@@ -1,0 +1,19 @@
+---
+permalink: ./projects.json
+eleventyExcludeFromCollections: true
+---
+[
+{%- for project in collections.projects -%}
+  {
+    "slug": {{ project.fileSlug | dump | safe }},
+    "title": {{ project.data.title | dump | safe }},
+    "summary": {{ project.data.summary | default('') | dump | safe }},
+    "projectTags": {{ project.data.projectTags | default('') | dump | safe }},
+    "facts": {{ (project.data | projectFacts) | dump | safe }},
+    "order": {{ loop.index }},
+    "cardLayout": {{ (project.data.cardLayout or 'default') | dump | safe }},
+    "cover": {{ (project.data.cover or project.data.thumbnail or '') | dump | safe }},
+    "url": {{ (project.fileSlug | projectUrl) | dump | safe }}
+  }{%- if not loop.last %},{% endif -%}
+{%- endfor -%}
+]

@@ -1,0 +1,46 @@
+<header class="site-header">
+  <div class="nav-pill">
+    <div class="nav-pill__content">
+      <a class="site-mark" href="/index.html" aria-label="Andy Cabindol">
+        <div class="creamy-orb" aria-hidden="true">
+          <div class="creamy-orb__clip">
+            <div class="creamy-orb__shader"></div>
+          </div>
+        </div>
+      </a>
+      <span class="nav-pill__spacer" aria-hidden="true"></span>
+      <nav class="site-nav" aria-label="Primary">
+        <span class="site-nav-indicator" aria-hidden="true"></span>
+        <a href="/index.html" class="site-nav-item{% if activeNav == 'work' %} site-nav-item--active{% endif %}" data-nav="work"{% if activeNav == 'work' %} aria-current="page"{% endif %}>Work</a>
+        <a href="/about.html" class="site-nav-item{% if activeNav == 'about' %} site-nav-item--active{% endif %}" data-nav="about"{% if activeNav == 'about' %} aria-current="page"{% endif %}>About</a>
+        <button type="button" class="site-nav-item site-nav-link contact-button" data-email="andy.cabindol@gmail.com">Contact</button>
+      </nav>
+    </div>
+    {% if activeNav == 'project' %}
+    <div class="nav-pill__project-context" aria-live="polite">
+      <div class="nav-pill__project-context-inner">
+        <span class="nav-pill__project-section" data-project-section-label>
+          <span class="nav-pill__project-section-text" data-project-section-current>{{ title }}</span>
+        </span>
+        <button class="project-nav-action" type="button" aria-label="Open all projects">
+          <svg class="project-nav-progress" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="project-nav-progress__track" cx="12" cy="12" r="9"></circle>
+            <circle class="project-nav-progress__value" cx="12" cy="12" r="9"></circle>
+          </svg>
+          <svg class="project-nav-action__check" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+            <path class="project-nav-action__check-mark" d="M8 12.25L10.75 15L16 9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <svg class="project-nav-action__top" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 15.5V8.5M12 8.5L9 11.5M12 8.5L15 11.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <svg class="project-nav-action__swap" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.5 10.25L12 6.75L15.5 10.25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M8.5 13.75L12 17.25L15.5 13.75" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</header>

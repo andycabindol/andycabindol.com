@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Project case study by Andy Cabindol, product and motion designer.">
+  <title>Project — Andy Cabindol</title>
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="components/creamy-orb.css">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="project.css" id="page-stylesheet">
+</head>
+<body data-page="project">
+  <header class="site-header">
+    <div class="nav-pill">
+      <div class="nav-pill__content">
+        <a class="site-mark" href="./index.html" aria-label="Andy Cabindol">
+          <div class="creamy-orb" aria-hidden="true">
+            <div class="creamy-orb__clip">
+              <div class="creamy-orb__base"></div>
+              <div class="creamy-orb__goo">
+                <span class="creamy-orb__layer creamy-orb__layer--1"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--2"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--3"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--4"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--5"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--6"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--7"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--8"></span>
+                <span class="creamy-orb__layer creamy-orb__layer--9"></span>
+              </div>
+              <div class="creamy-orb__tint"></div>
+              <div class="creamy-orb__noise"></div>
+              <div class="creamy-orb__vignette"></div>
+            </div>
+          </div>
+        </a>
+        <span class="nav-pill__spacer" aria-hidden="true"></span>
+        <nav class="site-nav" aria-label="Primary">
+          <span class="site-nav-indicator" aria-hidden="true"></span>
+          <a href="./index.html" class="site-nav-item site-nav-item--active" data-nav="work" aria-current="page">Work</a>
+          <a href="./about.html" class="site-nav-item" data-nav="about">About</a>
+          <button type="button" class="site-nav-item site-nav-link contact-button" data-email="andy.cabindol@gmail.com">Contact</button>
+        </nav>
+      </div>
+      <div class="nav-pill__project-context" aria-live="polite">
+        <div class="nav-pill__project-context-inner">
+          <span class="nav-pill__project-section" data-project-section-label>
+            <span class="nav-pill__project-section-text" data-project-section-current>Project title</span>
+          </span>
+          <button class="project-nav-action" type="button" aria-label="Open all projects">
+            <svg class="project-nav-progress" viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="project-nav-progress__track" cx="12" cy="12" r="9"></circle>
+              <circle class="project-nav-progress__value" cx="12" cy="12" r="9"></circle>
+            </svg>
+            <svg class="project-nav-action__check" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+              <path class="project-nav-action__check-mark" d="M8 12.25L10.75 15L16 9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <svg class="project-nav-action__top" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 15.5V8.5M12 8.5L9 11.5M12 8.5L15 11.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <svg class="project-nav-action__swap" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8.5 10.25L12 6.75L15.5 10.25" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M8.5 13.75L12 17.25L15.5 13.75" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="page-main" class="project-page">
+    <article>
+      <section class="project-hero" id="overview" data-section-label="Project title">
+        <div class="project-hero__intro">
+          <h1 class="project-lede" data-project-title>Project title</h1>
+          <dl class="project-facts">
+            <div>
+              <dt>Company</dt>
+              <dd data-project-company></dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd data-project-role></dd>
+            </div>
+            <div>
+              <dt>Year</dt>
+              <dd data-project-year></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="project-cover" aria-hidden="true">
+          <span>Project media</span>
+        </div>
+      </section>
+
+      <section class="project-section" id="challenge" data-section-label="Challenge">
+        <h2>Challenge</h2>
+        <p data-project-challenge></p>
+      </section>
+
+      <section class="project-section" id="contribution" data-section-label="Contribution">
+        <h2>Contribution</h2>
+        <p data-project-contribution></p>
+      </section>
+
+      <div class="project-media-row" aria-hidden="true">
+        <div><span>Process media</span></div>
+        <div><span>Detail media</span></div>
+      </div>
+
+      <section class="project-section project-section--outcome" id="outcome" data-section-label="Outcome">
+        <h2>Outcome</h2>
+        <p data-project-outcome></p>
+      </section>
+
+      <nav class="project-pager" aria-label="Project navigation">
+        <a class="project-link project-pager__link project-pager__link--prev" data-project-prev href="./project.html">
+          <span class="project-pager__label">Previous</span>
+          <span class="project-pager__thumb" data-project-prev-thumb aria-hidden="true"></span>
+          <span class="project-pager__title" data-project-prev-title></span>
+        </a>
+        <a class="project-link project-pager__link project-pager__link--next" data-project-next href="./project.html">
+          <span class="project-pager__label">Next</span>
+          <span class="project-pager__thumb" data-project-next-thumb aria-hidden="true"></span>
+          <span class="project-pager__title" data-project-next-title></span>
+        </a>
+      </nav>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Andy Cabindol</p>
+  </footer>
+
+  <div class="page-transition" id="page-transition" aria-hidden="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" data-liquid-ignore></div>
+  <div class="cursor-bubble" id="cursor-bubble" aria-hidden="true" hidden data-liquid-ignore>
+    <div class="cursor-bubble__ring"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.1/dist/lenis.min.js" defer></script>
+  <script src="components/creamy-orb.js" defer></script>
+  <script src="nav.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="project.js" defer></script>
+</body>
+</html>

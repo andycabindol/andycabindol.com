@@ -1,0 +1,231 @@
+.chirper-trimmer {
+  --chirper-ink: #1a1a1a;
+  --chirper-muted: #6b6b6b;
+  --chirper-line: rgba(26, 26, 26, 0.1);
+  --chirper-accent: #3b95ff;
+  --chirper-surface: #fff;
+  --chirper-wave: #ebe8e4;
+  width: 100%;
+}
+
+.chirper-trimmer__chrome {
+  padding: 1.1rem 1.15rem 1rem;
+  border: 1px solid var(--chirper-line);
+  border-radius: 16px;
+  background: var(--chirper-surface);
+  box-shadow: 0 10px 28px rgba(26, 26, 26, 0.05);
+}
+
+.chirper-trimmer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chirper-trimmer__file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.chirper-trimmer__bird {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--chirper-accent) 12%, white);
+  color: var(--chirper-accent);
+  font-size: 0.95rem;
+}
+
+.chirper-trimmer__name {
+  margin: 0;
+  color: var(--chirper-ink);
+  font-family: "Geist", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.chirper-trimmer__meta {
+  margin: 0.15rem 0 0;
+  color: var(--chirper-muted);
+  font-family: var(--sans, "Geist Mono", ui-monospace, monospace);
+  font-size: 0.72rem;
+}
+
+.chirper-trimmer__play {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chirper-ink);
+  color: #fff;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    transform 0.18s var(--motion-smooth, cubic-bezier(0.22, 1.28, 0.36, 1)),
+    background 0.18s ease;
+}
+
+.chirper-trimmer__play:hover {
+  background: var(--chirper-accent);
+  transform: scale(1.06);
+}
+
+.chirper-trimmer__play:active {
+  transform: scale(0.96);
+}
+
+.chirper-trimmer__play.is-playing {
+  background: var(--chirper-accent);
+}
+
+.chirper-trimmer__wave {
+  position: relative;
+  height: 7.5rem;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #f7f5f2, var(--chirper-wave));
+  touch-action: none;
+  cursor: text;
+}
+
+.chirper-trimmer__bars {
+  position: absolute;
+  inset: 0.85rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.chirper-trimmer__bars span {
+  flex: 1 1 0;
+  height: var(--h);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chirper-ink) 18%, transparent);
+}
+
+.chirper-trimmer__selection {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 18%;
+  width: 58%;
+  background: color-mix(in srgb, var(--chirper-accent) 14%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--chirper-accent) 55%, white);
+  border-right: 1px solid color-mix(in srgb, var(--chirper-accent) 55%, white);
+  pointer-events: none;
+}
+
+.chirper-trimmer__handle {
+  position: absolute;
+  top: 0.55rem;
+  bottom: 0.55rem;
+  width: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chirper-accent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--chirper-accent) 35%, transparent);
+  cursor: ew-resize;
+  transform: translateX(-50%);
+  transition:
+    transform 0.16s var(--motion-smooth, cubic-bezier(0.22, 1.28, 0.36, 1)),
+    box-shadow 0.16s ease,
+    width 0.16s ease;
+}
+
+.chirper-trimmer__handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 1.1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  transform: translate(-50%, -50%);
+}
+
+.chirper-trimmer__handle:hover,
+.chirper-trimmer__handle:focus-visible,
+.chirper-trimmer__handle.is-dragging {
+  width: 18px;
+  transform: translateX(-50%) scale(1.04);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--chirper-accent) 45%, transparent);
+  outline: none;
+}
+
+.chirper-trimmer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+
+.chirper-trimmer__range {
+  margin: 0;
+  color: var(--chirper-muted);
+  font-family: var(--sans, "Geist Mono", ui-monospace, monospace);
+  font-size: 0.78rem;
+  letter-spacing: -0.02em;
+}
+
+.chirper-trimmer__export {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--chirper-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--chirper-ink);
+  font-family: "Geist", sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s var(--motion-smooth, cubic-bezier(0.22, 1.28, 0.36, 1));
+}
+
+.chirper-trimmer__export:hover {
+  border-color: color-mix(in srgb, var(--chirper-accent) 45%, var(--chirper-line));
+  background: color-mix(in srgb, var(--chirper-accent) 8%, white);
+  color: var(--chirper-accent);
+  transform: translateY(-1px);
+}
+
+.chirper-trimmer__export:active {
+  transform: translateY(0);
+}
+
+.chirper-trimmer__export.is-done {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--chirper-accent) 12%, white);
+  color: var(--chirper-accent);
+}
+
+.chirper-trimmer__hint {
+  margin: 0.7rem 0 0;
+  color: var(--chirper-muted);
+  font-family: var(--sans, "Geist Mono", ui-monospace, monospace);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 600px) {
+  .chirper-trimmer__wave {
+    height: 6.25rem;
+  }
+
+  .chirper-trimmer__bars {
+    gap: 0.18rem;
+  }
+}

@@ -1,0 +1,89 @@
+/* Diagonal shine skeleton for media while loading */
+
+.media-skeleton {
+  --skeleton-base: #eceae6;
+  --skeleton-shine: rgba(255, 255, 255, 0.62);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton-base);
+  isolation: isolate;
+}
+
+.media-skeleton--fill {
+  display: block;
+  width: 100%;
+}
+
+.media-skeleton--inline {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+  border-radius: 2px;
+}
+
+.media-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    var(--skeleton-shine) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  transform: translateX(-130%) skewX(-18deg);
+  animation: mediaSkeletonShine 1.35s ease-in-out infinite;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.media-skeleton.is-loaded {
+  background: transparent;
+}
+
+.media-skeleton.is-loaded::after {
+  content: none;
+  opacity: 0;
+  animation: none;
+}
+
+.media-skeleton__media,
+.media-skeleton > img,
+.media-skeleton > video,
+.media-skeleton > canvas {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.media-skeleton.is-loaded > img,
+.media-skeleton.is-loaded > video,
+.media-skeleton.is-loaded > canvas,
+.media-skeleton.is-loaded .media-skeleton__media,
+.media-skeleton.is-loaded canvas {
+  opacity: 1;
+}
+
+@keyframes mediaSkeletonShine {
+  to {
+    transform: translateX(130%) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-skeleton::after {
+    animation: none;
+    background: transparent;
+  }
+
+  .media-skeleton__media,
+  .media-skeleton > img,
+  .media-skeleton > video,
+  .media-skeleton > canvas {
+    transition: none;
+  }
+}

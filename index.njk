@@ -1,0 +1,140 @@
+---
+layout: layouts/base.njk
+permalink: ./index.html
+pageId: work
+activeNav: work
+title: UX Motion Designer - Andy Cabindol Portfolio
+description: Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC & Bay Area.
+stylesheet: styles.css
+fontUrl: https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap
+og:
+  url: https://andycabindol.com/
+  title: UX Motion Designer - Andy Cabindol Portfolio
+  description: Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC & Bay Area.
+  image: https://andycabindol.com/preview.png
+  imageAlt: Andy Cabindol — UX Motion Designer
+---
+<main id="page-main">
+  <section class="intro">
+    <div class="hero-gradient" aria-hidden="true">
+      <div class="hero-gradient-orb">
+        <div class="hero-gradient-layer hero-gradient-layer--a"></div>
+        <div class="hero-gradient-layer hero-gradient-layer--b"></div>
+        <div class="hero-gradient-layer hero-gradient-layer--c"></div>
+      </div>
+    </div>
+    <div class="intro-layout">
+      <div class="intro-content">
+        <p class="intro-lede">
+          Andy Cabindol is a product and motion designer at
+          <img class="intro-logo" src="/logos/google-g.png" alt="" width="20" height="20" data-skeleton-skip>
+          Google
+          with 3+ years in fast-paced AI startups and big tech in NYC&nbsp;&amp;&nbsp;Bay Area.
+        </p>
+        <h1 class="intro-title">
+          <span class="intro-title__word" style="--i: 0">UX</span>
+          <span class="intro-title__word" style="--i: 1">Motion</span><br>
+          <span class="intro-title__word" style="--i: 2">Designer</span>
+        </h1>
+        <div class="brand-marquee" aria-label="Brands I've worked with">
+          <div class="brand-marquee__viewport">
+            <div class="brand-marquee__track">
+              <ul class="brand-marquee__list">
+                <li class="brand-marquee__item"><img src="/logos/marquee/forcefactor.svg" alt="Force Factor" width="59" height="35"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/google.svg" alt="Google" width="90" height="28"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/youtube.svg" alt="YouTube" width="101" height="23"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/baton.svg" alt="Baton" width="112" height="15"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/nyu.svg" alt="NYU" width="31" height="44"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/sellraze.svg" alt="SellRaze" width="99" height="31"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/itp.svg" alt="ITP NYU" width="40" height="36"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/profg.svg" alt="Prof G Media" width="25" height="29"></li>
+              </ul>
+              <ul class="brand-marquee__list" aria-hidden="true">
+                <li class="brand-marquee__item"><img src="/logos/marquee/forcefactor.svg" alt="" width="59" height="35"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/google.svg" alt="" width="90" height="28"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/youtube.svg" alt="" width="101" height="23"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/baton.svg" alt="" width="112" height="15"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/nyu.svg" alt="" width="31" height="44"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/sellraze.svg" alt="" width="99" height="31"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/itp.svg" alt="" width="40" height="36"></li>
+                <li class="brand-marquee__item"><img src="/logos/marquee/profg.svg" alt="" width="25" height="29"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="portfolio">
+    <div class="portfolio-grid">
+      {% for project in collections.projects %}
+      <article class="project-item">
+        <a class="project-link" href="{{ project.fileSlug | projectUrl }}" aria-label="{{ project.data.title }}">
+          <div class="project-media {{ project.data.cardLayout | cardLayoutClass }}">
+            <div class="project-placeholder" data-work-gradient data-slug="{{ project.fileSlug }}" aria-hidden="true"></div>
+            {% set thumb = project.data.thumbnail or project.data.cover %}
+            {% if thumb %}
+            <div class="project-media__overlay">
+              {% if thumb | isVideoSrc %}
+              <video class="project-media__overlay-media" src="{{ thumb }}" muted autoplay loop playsinline preload="metadata" aria-hidden="true"></video>
+              {% else %}
+              <img class="project-media__overlay-media" src="{{ thumb }}" alt="" loading="lazy" decoding="async">
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+          <div class="project-meta">
+            <h2 class="project-title">{{ project.data.title }}</h2>
+            {% if project.data.summary %}
+            <p class="project-tags">{{ project.data.summary }}</p>
+            {% elif project.data.projectTags %}
+            <p class="project-tags">{{ project.data.projectTags }}</p>
+            {% endif %}
+          </div>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="work-about" aria-label="About Andy">
+    <div class="work-about__grid">
+      <a class="work-about__panel work-about__panel--quote" href="/about.html" data-nav="about">
+        <span class="work-about__sky" aria-hidden="true"></span>
+        <span class="work-about__quote-stack">
+          <span class="work-about__card">
+            <p class="work-about__quote">
+              Andy brought such great energy, creativity and a fresh perspective, making a real impact on our team.
+            </p>
+            <span class="work-about__byline">
+              <img class="work-about__avatar" src="/about/avatar-zia.jpg" alt="" width="40" height="40" loading="lazy" data-skeleton-skip>
+              <span class="work-about__byline-text">
+                <span class="work-about__marks" aria-hidden="true">“</span>
+                <span class="work-about__name">Zia Oh</span>
+                <span class="work-about__role">UX Designer @ Google</span>
+              </span>
+            </span>
+          </span>
+          <span class="work-about__cta">
+            More about Andy
+            <svg class="work-about__cta-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </span>
+      </a>
+      <a class="work-about__panel work-about__panel--photo" href="/about.html" data-nav="about" aria-label="More about Andy">
+        <img
+          class="work-about__photo"
+          src="/about/spain.jpg"
+          alt="Andy Cabindol"
+          width="1120"
+          height="1400"
+          loading="lazy"
+          data-skeleton-skip
+        >
+      </a>
+    </div>
+  </section>
+</main>
