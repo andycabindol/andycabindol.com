@@ -734,7 +734,7 @@ main {
 .footer-social {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
   margin-left: auto;
 }
 
@@ -742,13 +742,13 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  min-height: 2rem;
+  width: 2.125rem;
+  height: 2.125rem;
+  min-width: 2.125rem;
+  min-height: 2.125rem;
   color: var(--text-muted);
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: color 0.2s var(--ease), background 0.2s var(--ease);
   position: relative;
 }
