@@ -1093,7 +1093,7 @@ main {
 
 @media (max-width: 768px) and (orientation: landscape) {
   .hero {
-    padding: clamp(3rem, 10vh, 5rem) 0 2.5rem;
+    padding: clamp(3rem, 10vh, 5rem) 0 2.75rem;
   }
 
   .hero-gradient {
@@ -1107,12 +1107,12 @@ main {
   }
 
   .section {
-    padding: 2.5rem 0;
+    padding: var(--section-spacing) 0;
   }
 
   .section.experience {
-    padding-top: 1rem;
-    padding-bottom: 1.5rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.75rem;
   }
 }
 
