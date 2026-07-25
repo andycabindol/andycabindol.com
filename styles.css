@@ -441,7 +441,7 @@ main {
 }
 
 .experience-group {
-  padding: 1.5rem 0.75rem;
+  padding: 1.625rem 0.75rem;
   margin-left: -0.75rem;
   margin-right: -0.75rem;
   border-radius: 8px;
@@ -494,7 +494,7 @@ main {
 
 .timeline-entry {
   position: relative;
-  padding-bottom: 1rem;
+  padding-bottom: 1.125rem;
   overflow: visible;
   will-change: auto;
 }
@@ -594,7 +594,7 @@ main {
 .timeline-entry-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.35rem 2rem;
+  gap: 0.5rem 2rem;
   align-items: baseline;
   min-width: 0;
   position: relative;
@@ -631,7 +631,7 @@ main {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-muted);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.875rem;
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
@@ -659,7 +659,7 @@ main {
 }
 
 .education-entry {
-  padding: 1.5rem 0.75rem;
+  padding: 1.625rem 0.75rem;
   margin-left: -0.75rem;
   margin-right: -0.75rem;
   border-radius: 8px;
@@ -680,7 +680,7 @@ main {
 }
 
 .education-entry .company-name {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.875rem;
 }
 
 .education-entry-row {
