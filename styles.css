@@ -859,14 +859,18 @@ main {
   }
 
   .experience-group {
-    padding: 1.25rem 0.625rem;
+    padding: 1.375rem 0.625rem;
     margin-left: -0.625rem;
     margin-right: -0.625rem;
   }
 
   .company-name {
     font-size: 13.5px;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .timeline-entry {
+    padding-bottom: 1rem;
   }
 
   .timeline-entry-content {
@@ -888,7 +892,7 @@ main {
   }
 
   .education-entry {
-    padding: 1.25rem 0.625rem;
+    padding: 1.375rem 0.625rem;
     margin-left: -0.625rem;
     margin-right: -0.625rem;
   }
@@ -994,7 +998,7 @@ main {
   }
 
   .experience-group {
-    padding: 1rem 0.5rem;
+    padding: 1.125rem 0.5rem;
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     border-radius: 6px;
@@ -1002,7 +1006,7 @@ main {
 
   .company-name {
     font-size: 13px;
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.75rem;
   }
 
   .company-logo {
@@ -1011,7 +1015,7 @@ main {
   }
 
   .timeline-entry {
-    padding-bottom: 0.875rem;
+    padding-bottom: 1rem;
   }
 
   .timeline-entry-content {
@@ -1042,14 +1046,14 @@ main {
   }
 
   .education-entry {
-    padding: 1rem 0.5rem;
+    padding: 1.125rem 0.5rem;
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     border-radius: 6px;
   }
 
   .education-entry .company-name {
-    margin-bottom: 0.625rem;
+    margin-bottom: 0.75rem;
   }
 
   .education-entry-row {
