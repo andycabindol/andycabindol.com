@@ -511,7 +511,7 @@ main {
   content: "";
   position: absolute;
   left: calc(var(--timeline-dot-x) - var(--timeline-dot-size) / 2);
-  top: 0.45rem;
+  top: 0.5rem;
   width: var(--timeline-dot-size);
   height: var(--timeline-dot-size);
   border-radius: 50%;
@@ -533,7 +533,7 @@ main {
 .present-dot-ripple {
   position: absolute;
   left: calc(var(--timeline-dot-x) - var(--timeline-dot-size) / 2);
-  top: 0.45rem;
+  top: 0.5rem;
   width: var(--timeline-dot-size);
   height: var(--timeline-dot-size);
   border-radius: 50%;
@@ -584,7 +584,7 @@ main {
   content: "";
   position: absolute;
   left: var(--timeline-dot-x);
-  top: 0.85rem;
+  top: 0.875rem;
   bottom: 0;
   width: 1px;
   background: var(--border-hover);
@@ -605,7 +605,7 @@ main {
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.01em;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .role-date {
@@ -614,14 +614,15 @@ main {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   text-align: right;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .role-note {
   grid-column: 1;
   font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.55;
+  margin-top: 0.25rem;
 }
 
 .company-name {
