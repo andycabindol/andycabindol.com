@@ -25,6 +25,7 @@
   --timeline-dot-size: 7px;
   --timeline-dot-offset: 10px;
   --timeline-dot-x: calc(-1 * (var(--timeline-gutter) / 2 + var(--timeline-dot-offset)));
+  --section-spacing: 4rem;
 }
 
 html {
@@ -414,7 +415,7 @@ main {
 /* Sections */
 
 .section {
-  padding: 4rem 0;
+  padding: var(--section-spacing) 0;
   position: relative;
 }
 
@@ -479,6 +480,7 @@ main {
   padding-left: 0;
   position: relative;
   overflow: visible;
+  will-change: auto;
 }
 
 .timeline-entry:only-child::before,
@@ -494,6 +496,7 @@ main {
   position: relative;
   padding-bottom: 1rem;
   overflow: visible;
+  will-change: auto;
 }
 
 .timeline-entry--present {
@@ -797,6 +800,7 @@ main {
   :root {
     --page-padding: clamp(1.25rem, 4vw, 2rem);
     --timeline-gutter: 1.5rem;
+    --section-spacing: 3rem;
   }
 
   body {
@@ -841,7 +845,7 @@ main {
   }
 
   .section {
-    padding: 3rem 0;
+    padding: var(--section-spacing) 0;
   }
 
   .section.experience {
@@ -941,6 +945,7 @@ main {
     --page-padding: 1.25rem;
     --timeline-gutter: 1.25rem;
     --timeline-dot-size: 6px;
+    --section-spacing: 2.5rem;
   }
 
   body {
@@ -975,7 +980,7 @@ main {
   }
 
   .section {
-    padding: 2.5rem 0;
+    padding: var(--section-spacing) 0;
   }
 
   .section.experience {
