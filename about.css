@@ -554,11 +554,15 @@ body {
   max-width: 34rem;
   margin-block: var(--section-space) 0;
   margin-inline: auto;
-  color: var(--text-muted);
-  font-size: clamp(1rem, 2.2vw, 1.15rem);
-  line-height: 1.55;
+  /* CHANGE: Match hierarchy with about-chapter__title */
+  color: var(--text);
+  font-family: var(--display);
+  font-size: clamp(2.25rem, 6.5vw, 4.25rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
   text-align: center;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 /* Awards — polishable seals */
