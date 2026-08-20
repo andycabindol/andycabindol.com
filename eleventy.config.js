@@ -70,6 +70,8 @@ module.exports = function eleventyConfig(eleventy) {
   eleventy.addPassthroughCopy('favicon.png');
   eleventy.addPassthroughCopy('preview.png');
   eleventy.addPassthroughCopy('CNAME');
+  // Prevent GitHub Pages from re-running Jekyll on the built site.
+  eleventy.addPassthroughCopy('.nojekyll');
 
   eleventy.ignores.add('index.html');
   eleventy.ignores.add('about.html');

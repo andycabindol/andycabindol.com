@@ -1,3 +1,5 @@
+# Eleventy → GitHub Pages. Pages source must be "GitHub Actions"
+# (Settings → Pages), not "Deploy from a branch" / Jekyll.
 name: Deploy site
 
 on:

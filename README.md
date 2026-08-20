@@ -83,4 +83,8 @@ Put image assets in `media/<slug>/`.
 
 ## Deploy
 
-GitHub Actions builds `_site/` and deploys to GitHub Pages on push to `main`.
+This is an **Eleventy** site. GitHub Actions builds `_site/` and deploys to GitHub Pages on push to `main` (see `.github/workflows/deploy.yml`).
+
+In the repo: **Settings → Pages → Build and deployment → Source → GitHub Actions**.
+
+Do **not** use “Deploy from a branch” / Jekyll. That runs `jekyll-build-pages` on `.njk` files and fails (e.g. `Unknown tag 'from'` in `about.njk`).
