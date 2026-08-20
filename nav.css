@@ -78,7 +78,7 @@
   opacity: 1;
   --nav-progress: 0;
   transform-origin: top center;
-  border-radius: calc(var(--nav-progress) * 999px);
+  border-radius: calc(var(--nav-progress) * 22px);
   background: rgba(255, 255, 255, calc(var(--nav-progress) * 1));
   box-shadow:
     0 0 0 calc(var(--nav-progress) * 1px) rgba(0, 0, 0, 0.05),
@@ -211,13 +211,17 @@
   opacity: 0;
   cursor: pointer;
   transition:
-    height 0.55s var(--motion-smooth),
-    opacity 0.3s var(--motion-smooth);
+    height calc(var(--motion-exit-nav-ms, 520) * 1ms) var(--motion-exit-nav-ease, cubic-bezier(0.65, 0, 0.35, 1)),
+    opacity calc(var(--motion-exit-nav-ms, 520) * 1ms) var(--motion-exit-nav-ease, cubic-bezier(0.65, 0, 0.35, 1));
 }
 
-body[data-page="project"] .nav-pill__project-context {
+body[data-page="project"] .nav-pill__project-context,
+body.lightbox-open:not(.lightbox-closing) .nav-pill__project-context {
   height: 40px;
   opacity: 1;
+  transition:
+    height calc(var(--motion-enter-nav-ms, 550) * 1ms) var(--motion-enter-nav-ease, cubic-bezier(0.54, 0.2, 0.3, 1)),
+    opacity calc(var(--motion-enter-nav-ms, 550) * 1ms) var(--motion-enter-nav-ease, cubic-bezier(0.54, 0.2, 0.3, 1));
 }
 
 .nav-pill__project-context-inner {
@@ -413,7 +417,8 @@ body[data-page="project"] .nav-pill__project-context {
 
 .project-nav-action__top,
 .project-nav-action__swap,
-.project-nav-action__check {
+.project-nav-action__check,
+.project-nav-action__close {
   position: absolute;
   inset: 0;
   width: 24px;
@@ -495,6 +500,78 @@ body[data-page="project"] .nav-pill__project-context {
 }
 
 .nav-pill__project-context--complete .project-nav-action__swap {
+  opacity: 1;
+}
+
+body.lightbox-open .nav-pill__project-context {
+  cursor: pointer;
+}
+
+body.lightbox-open .nav-pill__project-context-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+body.lightbox-open .nav-pill__project-section {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  justify-items: center;
+  text-align: center;
+}
+
+body.lightbox-open .nav-pill__project-section--overflow {
+  justify-items: start;
+  text-align: left;
+}
+
+body.lightbox-open .project-nav-action {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  z-index: 3;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.lightbox-open .project-nav-action::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: -1;
+  width: 3rem;
+  height: 1.75rem;
+  transform: translateY(-50%);
+  background: linear-gradient(to left, #fff 1.1rem, rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+body.lightbox-open .nav-pill__project-section:has([data-project-section-current]:hover) ~ .project-nav-action,
+body.lightbox-open .nav-pill__project-section--overflow:hover ~ .project-nav-action,
+body.lightbox-open .project-nav-action:focus-visible {
+  opacity: 1;
+}
+
+body.lightbox-open .nav-pill__project-section:has(~ .project-nav-action:focus-visible)::after,
+body.lightbox-open .nav-pill__project-section:has([data-project-section-current]:hover)::after,
+body.lightbox-open .nav-pill__project-section--overflow:hover::after {
+  opacity: 0 !important;
+}
+
+body.lightbox-open .project-nav-progress,
+body.lightbox-open .project-nav-action__top,
+body.lightbox-open .project-nav-action__swap,
+body.lightbox-open .project-nav-action__check {
+  opacity: 0 !important;
+}
+
+body.lightbox-open .project-nav-action__close {
   opacity: 1;
 }
 

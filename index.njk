@@ -69,10 +69,10 @@ og:
   <section id="work" class="portfolio">
     <div class="portfolio-grid">
       {% for project in collections.projects %}
-      <article class="project-item">
-        <a class="project-link" href="{{ project.fileSlug | projectUrl }}" aria-label="{{ project.data.title }}">
+      <article class="project-item" data-project-slug="{{ project.fileSlug }}">
+        <a class="project-link" href="/index.html?project={{ project.fileSlug }}" data-lightbox="project" aria-label="{{ project.data.title }}">
           <div class="project-media {{ project.data.cardLayout | cardLayoutClass }}">
-            <div class="project-placeholder" data-work-gradient data-slug="{{ project.fileSlug }}" aria-hidden="true"></div>
+            <div class="project-placeholder" aria-hidden="true"></div>
             {% set thumb = project.data.thumbnail or project.data.cover %}
             {% if thumb %}
             <div class="project-media__overlay">
@@ -97,44 +97,28 @@ og:
       {% endfor %}
     </div>
   </section>
-
-  <section class="work-about" aria-label="About Andy">
-    <div class="work-about__grid">
-      <a class="work-about__panel work-about__panel--quote" href="/about.html" data-nav="about">
-        <span class="work-about__sky" aria-hidden="true"></span>
-        <span class="work-about__quote-stack">
-          <span class="work-about__card">
-            <p class="work-about__quote">
-              Andy brought such great energy, creativity and a fresh perspective, making a real impact on our team.
-            </p>
-            <span class="work-about__byline">
-              <img class="work-about__avatar" src="/about/avatar-zia.jpg" alt="" width="40" height="40" loading="lazy" data-skeleton-skip>
-              <span class="work-about__byline-text">
-                <span class="work-about__marks" aria-hidden="true">“</span>
-                <span class="work-about__name">Zia Oh</span>
-                <span class="work-about__role">UX Designer @ Google</span>
-              </span>
-            </span>
-          </span>
-          <span class="work-about__cta">
-            More about Andy
-            <svg class="work-about__cta-arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </span>
-      </a>
-      <a class="work-about__panel work-about__panel--photo" href="/about.html" data-nav="about" aria-label="More about Andy">
-        <img
-          class="work-about__photo"
-          src="/about/spain.jpg"
-          alt="Andy Cabindol"
-          width="1120"
-          height="1400"
-          loading="lazy"
-          data-skeleton-skip
-        >
-      </a>
-    </div>
-  </section>
 </main>
+
+{% for project in collections.projects %}
+{% set projectFacts = { company: project.data.company, role: project.data.role, year: project.data.year, facts: project.data.facts } | projectFacts %}
+<template data-project-template="{{ project.fileSlug }}">
+  <div class="lightbox-seed">
+    <h1 data-seed-title>{{ project.data.title }}</h1>
+    {% if projectFacts.length %}
+    <dl data-seed-facts>
+      {% for fact in projectFacts %}
+      {% if fact.label != 'Role' %}
+      <div>
+        <dt>{{ fact.label }}</dt>
+        <dd>{{ fact.value }}</dd>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </dl>
+    {% endif %}
+    <div data-seed-body>
+      {{ project.templateContent | safe }}
+    </div>
+  </div>
+</template>
+{% endfor %}

@@ -9,6 +9,8 @@ facts:
     value: "2025"
 projectTags: "Motion Design"
 cardLayout: square
+thumbnail: /media/google-branding/thumbnail.mp4
+cover: /media/google-branding/thumbnail.mp4
 ---
 
 {% projectSection "Challenge" %}

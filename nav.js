@@ -394,7 +394,9 @@ function initNavMorph() {
   const SCROLL_THRESHOLD = 10;
   const SCROLL_UP_DELTA = 42;
   const EXPANDED_RATIO = 1.04;
-  const shouldLockCompact = () => document.body.dataset.page === 'project';
+  const shouldLockCompact = () =>
+    document.body.dataset.page === 'project'
+    || document.body.classList.contains('lightbox-open');
   let compactWidth = null;
   let isCompact = false;
   let isScrollUp = header.classList.contains('site-header--scroll-up');
@@ -673,6 +675,7 @@ function initNavMorph() {
 
   window.__navRemeasure = remeasureNav;
   window.__navUpdate = updateNav;
+  window.__navApplyState = () => applyNavState(window.__lenis?.scroll ?? window.scrollY, true);
   window.__navPreparePageSwap = prepareNavForPageSwap;
   window.__navMarkScrollReset = markNavScrollResetPending;
   window.__navSyncScroll = syncNavAfterScrollReset;
@@ -704,32 +707,19 @@ let projectContextRemoveTimer = 0;
 
 function syncProjectNavContext(doc, page) {
   const pill = document.querySelector('.nav-pill');
-  const currentContext = pill?.querySelector('.nav-pill__project-context');
-
   if (!pill) {
     return;
   }
 
   window.clearTimeout(projectContextRemoveTimer);
 
-  if (page !== 'project') {
-    // Keep the persistent element mounted while its shared CSS collapses it.
-    if (currentContext) {
-      projectContextRemoveTimer = window.setTimeout(() => {
-        if (document.body.dataset.page !== 'project') {
-          currentContext.remove();
-        }
-      }, 600);
-    }
+  if (pill.querySelector('.nav-pill__project-context')) {
     return;
   }
 
-  const nextContext = doc.querySelector('.nav-pill__project-context');
-  if (!currentContext && nextContext) {
-    const clone = nextContext.cloneNode(true);
-    pill.appendChild(clone);
-    // Establish the collapsed pose before data-page expands it.
-    void clone.offsetHeight;
+  const nextContext = doc?.querySelector('.nav-pill__project-context');
+  if (nextContext) {
+    pill.appendChild(nextContext.cloneNode(true));
   }
 }
 
@@ -919,7 +909,7 @@ function initPageTransitions() {
     }
 
     const link = event.target.closest('.project-link[href]');
-    if (!link || link.target === '_blank') {
+    if (!link || link.target === '_blank' || link.dataset.lightbox === 'project') {
       return;
     }
 
@@ -938,8 +928,20 @@ function initPageTransitions() {
       ?? `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const resolvedTarget = new URL(targetUrl, window.location.href);
     const nextContentUrl = `${resolvedTarget.pathname}${resolvedTarget.search}`;
+    const nextPath = resolvedTarget.pathname;
+    const lastPath = new URL(lastContentUrl, window.location.href).pathname;
 
     if (nextContentUrl === lastContentUrl) {
+      return;
+    }
+
+    // Query-only changes on the work page are the lightbox — don't swap the document.
+    if (
+      (event.state?.page || getPageFromUrl(window.location.href)) === 'work'
+      && getCurrentPage() === 'work'
+      && nextPath === lastPath
+    ) {
+      lastContentUrl = nextContentUrl;
       return;
     }
 

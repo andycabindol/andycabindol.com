@@ -54,6 +54,27 @@ body {
   padding-inline: var(--page-gutter);
   opacity: 0;
   animation: aboutPageIn 0.7s var(--motion-smooth) 0.05s forwards;
+  position: relative;
+  z-index: 1;
+}
+
+.about-page ::selection {
+  background: var(--blue);
+  color: #fff;
+}
+
+.about-page ::-moz-selection {
+  background: var(--blue);
+  color: #fff;
+}
+
+.selection-bloom {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 80;
 }
 
 @keyframes aboutPageIn {

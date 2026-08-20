@@ -28,11 +28,14 @@
   <link rel="stylesheet" href="/components/media-skeleton.css">
   <link rel="stylesheet" href="/nav.css">
   <link rel="stylesheet" href="/{{ stylesheet }}" id="page-stylesheet">
+  <link rel="stylesheet" href="/lightbox.css">
 </head>
 <body data-page="{{ pageId }}"{% if projectSlug %} data-project-slug="{{ projectSlug }}"{% endif %}>
   {% include "partials/site-header.njk" %}
-  {{ content | safe }}
-  {% include "partials/site-footer.njk" %}
+  <div class="site-stage">
+    {{ content | safe }}
+    {% include "partials/site-footer.njk" %}
+  </div>
   {% include "partials/site-scripts.njk" %}
 </body>
 </html>

@@ -55,6 +55,7 @@ module.exports = function eleventyConfig(eleventy) {
   eleventy.addPassthroughCopy('nav.js');
   eleventy.addPassthroughCopy('project.js');
   eleventy.addPassthroughCopy('project.css');
+  eleventy.addPassthroughCopy('lightbox.css');
   eleventy.addPassthroughCopy('styles.css');
   eleventy.addPassthroughCopy('about.css');
   eleventy.addPassthroughCopy('about.js');
@@ -131,7 +132,7 @@ module.exports = function eleventyConfig(eleventy) {
       });
   });
 
-  eleventy.addFilter('projectUrl', (slug) => `/projects/${slug}/`);
+  eleventy.addFilter('projectUrl', (slug) => `/index.html?project=${encodeURIComponent(String(slug || ''))}`);
 
   eleventy.addFilter('isVideoSrc', (src) =>
     /\.(webm|mp4|mov)(\?|#|$)/i.test(String(src || '')),
@@ -223,9 +224,8 @@ ${body}
   eleventy.addShortcode('projectGradient', (slug, variant = '') => {
     const safeSlug = String(slug || '').replace(/"/g, '');
     const safeVariant = String(variant || '').replace(/"/g, '');
-    const variantAttr = safeVariant ? ` data-variant="${safeVariant}"` : '';
-    // No media-skeleton here — WebGL gradients were getting stuck on the shine/grey state.
-    return `<figure class="project-figure project-figure--gradient"><div class="project-placeholder project-placeholder--section" data-work-gradient data-slug="${safeSlug}"${variantAttr} aria-hidden="true"></div></figure>`;
+    // Gradients archived — flat gray stand-in. Slug kept so swirls can return.
+    return `<figure class="project-figure project-figure--gray" data-archived-gradient="${safeSlug}" data-archived-variant="${safeVariant}" aria-hidden="true"></figure>`;
   });
 
   eleventy.addShortcode('projectPlain', (tone = 'cream') => {
@@ -250,8 +250,7 @@ ${body}
 
     if (slug) {
       const safeSlug = String(slug).replace(/"/g, '');
-      const safeVariant = String(variant || 'hero').replace(/"/g, '');
-      return `<div class="project-cover project-cover--gradient"><div class="project-placeholder project-placeholder--cover" data-work-gradient data-slug="${safeSlug}" data-variant="${safeVariant}" aria-hidden="true"></div>${overlay}</div>`;
+      return `<div class="project-cover project-cover--gray" data-archived-gradient="${safeSlug}">${overlay}</div>`;
     }
     if (!safeSrc) {
       return `<div class="project-cover" aria-hidden="true"><span>Project media</span></div>`;

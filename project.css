@@ -189,7 +189,7 @@ body[data-page="project"] .site-header {
 }
 
 .project-section__media {
-  margin: 0 0 clamp(1rem, 2.5vw, 1.5rem);
+  margin: 0 0 0.15rem;
   overflow: visible;
   background: transparent;
 }

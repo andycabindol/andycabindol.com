@@ -2,6 +2,9 @@
  * Work thumbnails — Paper Static Mesh Gradient
  * Base: https://shaders.paper.design/static-mesh-gradient
  * Duplicate stops = multiple blobs of the same color (waves push them apart).
+ *
+ * Archived: cards and case-study frames use a flat gray fill instead.
+ * Keep this module so the swirls can be restored later.
  */
 import {
   ShaderMount,
@@ -9,6 +12,8 @@ import {
   ShaderFitOptions,
   getShaderColorFromString,
 } from '@paper-design/shaders';
+
+const GRADIENTS_ARCHIVED = true;
 
 const GRAIN_MIXER = 0.35;
 const GRAIN_OVERLAY = 0.45;
@@ -145,6 +150,7 @@ function disposeGradient(el) {
 }
 
 function initGradient(el) {
+  if (GRADIENTS_ARCHIVED) return null;
   if (!el || el.dataset.workGradientInit === 'true') {
     return null;
   }
@@ -178,6 +184,7 @@ function initGradient(el) {
 }
 
 function initAll() {
+  if (GRADIENTS_ARCHIVED) return;
   document.querySelectorAll('[data-work-gradient]:not([data-work-gradient-init])').forEach(initGradient);
   // Work cards each take a WebGL context; remount the nav orb if it was stolen.
   queueMicrotask(() => window.CreamyOrb?.ensureAlive?.());
@@ -194,9 +201,16 @@ function disposeAll() {
   });
 }
 
+function disposeIn(root) {
+  if (!root) return;
+  root.querySelectorAll('[data-work-gradient]').forEach(disposeGradient);
+}
+
 window.WorkGradients = {
   init: initGradient,
   initAll,
+  dispose: disposeGradient,
+  disposeIn,
   disposeAll,
 };
 

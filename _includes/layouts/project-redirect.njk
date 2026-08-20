@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} — Andy Cabindol</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="https://andycabindol.com/index.html?project={{ page.fileSlug }}">
+  <meta http-equiv="refresh" content="0;url=/index.html?project={{ page.fileSlug }}">
+  <script>
+    location.replace('/index.html?project={{ page.fileSlug }}');
+  </script>
+</head>
+<body>
+  <p>Opening <a href="/index.html?project={{ page.fileSlug }}">{{ title }}</a>…</p>
+  <noscript>
+    <article>
+      <h1>{{ title }}</h1>
+      {{ content | safe }}
+    </article>
+  </noscript>
+</body>
+</html>

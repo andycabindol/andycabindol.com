@@ -833,13 +833,13 @@ function bootWorkPage() {
   bindContactButtons();
   bindWorkGradientOrb();
   bindBrandMarquee();
+  window.ProjectLightbox?.boot?.();
 
   // Defer WebGL thumbnails so project→work nav morph / fade aren't blocked.
   const startHeavy = () => {
     if (document.body.dataset.page !== 'work') {
       return;
     }
-    window.WorkGradients?.initAll?.();
     window.CreamyOrb?.ensureAlive?.();
   };
 
@@ -869,6 +869,7 @@ function stopWorkPage() {
   unbindIntroTitleHover();
   unbindIntroTitleReplay();
   window.clearTimeout(window.__introTitleSettleTimeout);
+  window.ProjectLightbox?.stop?.();
 }
 
 function bootAboutPage() {
@@ -1812,6 +1813,11 @@ function bindAboutPage() {
   bindAboutQuoteMarquee(cleanups, reduceMotion);
   bindAboutAwardBadges(cleanups, reduceMotion);
 
+  const aboutRoot = document.querySelector('.about-page');
+  if (aboutRoot && typeof window.bindSelectionBloom === 'function') {
+    cleanups.push(window.bindSelectionBloom(aboutRoot, { reduceMotion }));
+  }
+
   const nodes = [...document.querySelectorAll('.about-reveal:not([data-about-intro])')];
   if (nodes.length) {
     if (reduceMotion || !('IntersectionObserver' in window)) {
@@ -1950,6 +1956,11 @@ let orbCurrentRotate = 0;
 let orbLoopActive = false;
 
 function tickGradientOrb() {
+  if (document.body.classList.contains('lightbox-open') || document.body.classList.contains('lightbox-locked')) {
+    frameLoop.remove(tickGradientOrb);
+    orbLoopActive = false;
+    return;
+  }
   gradientContainer = document.querySelector('.hero-gradient');
   orbCurrentX += (orbTargetX - orbCurrentX) * 0.16;
   orbCurrentY += (orbTargetY - orbCurrentY) * 0.16;

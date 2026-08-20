@@ -95,6 +95,8 @@ function updateSectionLabelMarquee(label) {
     return;
   }
 
+  if (!label.clientWidth) return;
+
   // Measure natural text width against the clipped viewport.
   text.style.animation = 'none';
   text.style.transform = 'translateX(0)';
@@ -120,6 +122,14 @@ function updateSectionLabelMarquee(label) {
   text.style.animation = '';
   text.style.transform = '';
 }
+
+window.__updateProjectSectionMarquee = () => {
+  updateSectionLabelMarquee(document.querySelector('[data-project-section-label]'));
+};
+
+window.addEventListener('resize', () => {
+  window.__updateProjectSectionMarquee();
+}, { passive: true });
 
 function setSectionLabelText(label, nextText, { wipe = false } = {}) {
   if (!label) return;

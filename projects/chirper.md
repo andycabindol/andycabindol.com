@@ -1,48 +1,51 @@
 ---
-title: "Built bird audio trimmer app: Chirper"
+title: "Built Bird Audio Trimmer: Chirper"
 facts:
   - label: Year
     value: "2026"
   - label: Role
     value: "Design Engineer"
-projectTags: "Product Design · 0→1"
+projectTags: "App Design · 0→1"
 cardLayout: tall
 coverGradient: true
 coverVariant: hero
-cover: /media/chirper/cover.webm
+cover: /media/chirper/cover.mp4
 ---
 
-{% projectSection "Uploading bird audio is hard" %}
-{% projectPlain "cream" %}
-Field recordings are long, messy, and stuck in formats that take forever to prep for science databases.
-{% endprojectSection %}
-
-{% projectSection "Merlin records but makes it impossible to edit" %}
-{% projectPlain "cream" %}
-Merlin is great at capture—then leaves you with a full take and no way to carve out the chirps that matter.
-{% endprojectSection %}
-
-{% projectSection "Introducing Chirper" %}
+{% projectSection "Trim bird audio automatically" %}
 {% projectGradient "chirper", "introducing" %}
-A lightweight trimmer for birders: pull Merlin audio in, find the songs, and export clips ready for the archive.
+Chirper takes long bird recordings and automatically turns them into individual clips, organized by species.
 {% endprojectSection %}
 
-{% projectSection "Import audio straight from Merlin" %}
+{% projectSection "Import audio directly from Merlin" %}
 {% projectGradient "chirper", "import-merlin" %}
-Drop in a Merlin recording and Chirper picks up the waveform—no format wrestling, no desktop DAW.
+Import an audio file or bring in a recording from Merlin. No converting files or moving everything to a desktop editor first.
 {% endprojectSection %}
 
-{% projectSection "Automatically detect every chirp" %}
+{% projectSection "Automatically trim bird recordings" %}
 {% projectGradient "chirper", "auto-detect" %}
-Chirper scans the take and marks likely vocalizations so you’re editing songs, not silence.
+Chirper listens through the recording, finds bird sounds, and trims them into individual clips. Each clip is grouped by species with a predicted ID and confidence score.
 {% endprojectSection %}
 
-{% projectSection "Nudge the cuts" %}
+{% projectSection "Adjust each clip" %}
 {% projectGradient "chirper", "tweaks" %}
-Drag the handles to tighten a clip or keep a little ambience—fine control without leaving the flow.
+Listen to each detection, remove the ones you don't want, or adjust the start and end points if the trim is a little off.
 {% endprojectSection %}
 
-{% projectSection "Export every clip—neatly wrapped" %}
+{% projectSection "Export by species" %}
 {% projectGradient "chirper", "export" %}
-One tap gives you clean WAV clips—trimmed, normalized to −3 dB, and ready for the Macaulay Library via eBird.
+Export individual clips grouped by species, ready to save, share, or use somewhere else.
+{% endprojectSection %}
+
+{% projectSection "Share to Instagram" %}
+{% projectPlain "cream" %}
+Turn your birding session into an Instagram Story with the species you found, their clips, and a background of your choice.
+{% endprojectSection %}
+
+{% projectSection "Normalized audio ready for eBird" %}
+{% projectPlain "cream" %}
+Chirper normalizes the audio when you export, so clips are ready to upload to eBird without editing them again.
+{% endprojectSection %}
+
+{% projectSection "Less time digging through recordings, more time with the birds you found." %}
 {% endprojectSection %}

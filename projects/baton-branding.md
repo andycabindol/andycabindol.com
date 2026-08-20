@@ -9,6 +9,8 @@ facts:
     value: "2024"
 projectTags: "Brand · Product · Motion"
 cardLayout: wide
+thumbnail: /media/baton-branding/thumbnail.mp4
+cover: /media/baton-branding/thumbnail.mp4
 ---
 
 {% projectSection "Challenge" %}
