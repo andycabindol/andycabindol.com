@@ -819,6 +819,62 @@ function unbindBrandMarquee() {
   window.__brandMarquee = null;
 }
 
+function forceMutedAutoplay(video) {
+  if (!(video instanceof HTMLVideoElement)) return;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.autoplay = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  video.removeAttribute('controls');
+  const play = () => {
+    const result = video.play();
+    if (result && typeof result.catch === 'function') result.catch(() => {});
+  };
+  if (video.readyState >= 2) play();
+  else video.addEventListener('loadeddata', play, { once: true });
+}
+
+function bindAutoplayVideos(root = document) {
+  const videos = [
+    ...root.querySelectorAll('.project-media video, .project-cover video, .lightbox__media video, .lightbox-flyer video'),
+  ];
+  if (!videos.length) return () => {};
+
+  videos.forEach(forceMutedAutoplay);
+
+  let observer = null;
+  if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (!(video instanceof HTMLVideoElement)) return;
+        if (entry.isIntersecting) forceMutedAutoplay(video);
+        else video.pause();
+      });
+    }, { rootMargin: '80px 0px', threshold: 0.05 });
+    videos.forEach((video) => observer.observe(video));
+  }
+
+  const resume = () => videos.forEach(forceMutedAutoplay);
+  document.addEventListener('touchstart', resume, { once: true, passive: true });
+  document.addEventListener('click', resume, { once: true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) resume();
+  });
+
+  return () => {
+    observer?.disconnect();
+    document.removeEventListener('touchstart', resume);
+    document.removeEventListener('click', resume);
+  };
+}
+
+let unbindAutoplayVideos = null;
+
 function bootWorkPage() {
   if (document.body.dataset.page !== 'work') {
     return;
@@ -833,6 +889,8 @@ function bootWorkPage() {
   bindContactButtons();
   bindWorkGradientOrb();
   bindBrandMarquee();
+  unbindAutoplayVideos?.();
+  unbindAutoplayVideos = bindAutoplayVideos();
   window.ProjectLightbox?.boot?.();
 
   // Defer WebGL thumbnails so project→work nav morph / fade aren't blocked.
@@ -868,9 +926,14 @@ function stopWorkPage() {
   unbindBrandMarquee();
   unbindIntroTitleHover();
   unbindIntroTitleReplay();
+  unbindAutoplayVideos?.();
+  unbindAutoplayVideos = null;
   window.clearTimeout(window.__introTitleSettleTimeout);
   window.ProjectLightbox?.stop?.();
 }
+
+window.__forceMutedAutoplay = forceMutedAutoplay;
+window.__bindAutoplayVideos = bindAutoplayVideos;
 
 function bootAboutPage() {
   if (document.body.dataset.page !== 'about') {

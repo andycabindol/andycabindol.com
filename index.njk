@@ -77,7 +77,7 @@ og:
             {% if thumb %}
             <div class="project-media__overlay">
               {% if thumb | isVideoSrc %}
-              <video class="project-media__overlay-media" src="{{ thumb }}" muted autoplay loop playsinline preload="metadata" aria-hidden="true"></video>
+              <video class="project-media__overlay-media" src="{{ thumb }}" muted autoplay loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-hidden="true"></video>
               {% else %}
               <img class="project-media__overlay-media" src="{{ thumb }}" alt="" loading="lazy" decoding="async">
               {% endif %}

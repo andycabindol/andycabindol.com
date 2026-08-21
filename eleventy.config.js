@@ -246,7 +246,7 @@ ${body}
 
     const overlay = safeSrc
       ? isVideo
-        ? `<div class="project-cover__overlay"><video class="project-cover__overlay-media" src="${safeSrc}" muted autoplay loop playsinline preload="metadata" aria-label="${alt || ''}"></video></div>`
+        ? `<div class="project-cover__overlay"><video class="project-cover__overlay-media" src="${safeSrc}" muted autoplay loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-label="${alt || ''}"></video></div>`
         : `<div class="project-cover__overlay"><img class="project-cover__overlay-media" src="${safeSrc}" alt="${alt}" loading="eager"></div>`
       : '';
 
@@ -258,7 +258,7 @@ ${body}
       return `<div class="project-cover" aria-hidden="true"><span>Project media</span></div>`;
     }
     if (isVideo) {
-      return `<div class="project-cover project-cover--video media-skeleton media-skeleton--fill"><video class="media-skeleton__media" src="${safeSrc}" muted autoplay loop playsinline preload="metadata" aria-label="${alt || ''}"></video></div>`;
+      return `<div class="project-cover project-cover--video media-skeleton media-skeleton--fill"><video class="media-skeleton__media" src="${safeSrc}" muted autoplay loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-label="${alt || ''}"></video></div>`;
     }
     return `<div class="project-cover media-skeleton media-skeleton--fill"><img class="media-skeleton__media" src="${safeSrc}" alt="${alt}" loading="eager"></div>`;
   });

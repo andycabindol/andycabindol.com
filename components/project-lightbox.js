@@ -128,9 +128,14 @@
       clone.querySelectorAll('video').forEach((video, index) => {
         const source = sourceVideos[index];
         video.muted = true;
+        video.defaultMuted = true;
         video.autoplay = true;
         video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
         video.loop = true;
+        video.removeAttribute('controls');
         if (source) {
           try {
             video.currentTime = source.currentTime || 0;
@@ -362,6 +367,9 @@
       media.style.aspectRatio = 'auto';
       media.style.visibility = 'visible';
       mediaHost.replaceChildren(media);
+      mediaHost.querySelectorAll('video').forEach((video) => {
+        window.__forceMutedAutoplay?.(video);
+      });
     }
     cleanupFlyers();
   }

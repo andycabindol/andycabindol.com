@@ -547,6 +547,24 @@ main.page-main--instant {
   box-shadow: none;
 }
 
+/* Hide iOS / WebKit big play button on looping thumbnails. */
+.project-media video::-webkit-media-controls,
+.project-media video::-webkit-media-controls-start-playback-button,
+.project-media video::-webkit-media-controls-enclosure,
+.project-cover video::-webkit-media-controls,
+.project-cover video::-webkit-media-controls-start-playback-button,
+.lightbox video::-webkit-media-controls,
+.lightbox video::-webkit-media-controls-start-playback-button,
+.lightbox-flyer video::-webkit-media-controls,
+.lightbox-flyer video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
 .project-media--wide {
   aspect-ratio: 16 / 9;
 }

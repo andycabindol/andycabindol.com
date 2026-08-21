@@ -379,6 +379,16 @@ body.lightbox-locked .site-header {
   visibility: visible !important;
 }
 
+.lightbox video::-webkit-media-controls,
+.lightbox video::-webkit-media-controls-start-playback-button,
+.lightbox-flyer video::-webkit-media-controls,
+.lightbox-flyer video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .lightbox__case {
   width: var(--lightbox-content-width, var(--lightbox-cover-width));
   max-width: 100%;
