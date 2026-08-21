@@ -6,7 +6,7 @@ Static portfolio site built with [Eleventy](https://www.11ty.dev/).
 
 ```bash
 npm install
-npm run migrate:projects   # optional: regenerate projects/*.md from scripts/migrate-projects.mjs
+npm run migrate:projects   # one-time seed only — overwrites projects/*.md; do not run in deploy
 npm run dev                # local preview at http://localhost:8080
 npm run build              # output to _site/
 ```
