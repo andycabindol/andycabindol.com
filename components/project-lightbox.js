@@ -54,6 +54,8 @@
   let contentWidthObserver = null;
   let hintUsed = false;
   let hintTimer = 0;
+  let lightboxLenis = null;
+  let lightboxRaf = 0;
 
   function projectParam() {
     return new URLSearchParams(window.location.search).get('project');
@@ -142,6 +144,12 @@
           } catch {
             // ignore
           }
+        } else {
+          try {
+            video.load?.();
+          } catch {
+            // ignore
+          }
         }
         video.play?.().catch(() => {});
       });
@@ -189,12 +197,14 @@
         </div>
       </div>
       <div class="lightbox__scroll" data-lenis-prevent data-lenis-prevent-touch>
-        <div class="lightbox__cover">
-          <div class="lightbox__figure">
-            <div class="lightbox__media"></div>
+        <div class="lightbox__scroll-inner">
+          <div class="lightbox__cover">
+            <div class="lightbox__figure">
+              <div class="lightbox__media"></div>
+            </div>
           </div>
+          <div class="lightbox__case"></div>
         </div>
-        <div class="lightbox__case"></div>
       </div>
       <div class="lightbox__hint" hidden>
         <button class="lightbox__hint-btn" type="button" aria-label="Scroll down">
@@ -202,36 +212,25 @@
           <span class="lightbox__hint-copy">Scroll</span>
         </button>
       </div>
+      <button class="lightbox__close" type="button" data-lightbox-close aria-label="Close project">
+        <svg class="lightbox__close-icon" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false">
+          <path d="M2.2 2.2l11.6 11.6M13.8 2.2L2.2 13.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
     `;
     document.body.appendChild(shell);
 
     const scroll = shell.querySelector('.lightbox__scroll');
-    const hud = shell.querySelector('.lightbox__hud');
-    const passScroll = (event) => {
-      if (closing || shell.classList.contains('is-closing')) return;
-      event.stopImmediatePropagation();
-      if (event.currentTarget !== scroll && typeof event.deltaY === 'number') {
-        scroll.scrollTop += event.deltaY;
-      }
-    };
-    scroll.addEventListener('wheel', passScroll, { capture: true, passive: true });
-    hud.addEventListener('wheel', passScroll, { capture: true, passive: true });
     scroll.addEventListener('touchmove', (event) => {
       event.stopImmediatePropagation();
     }, { capture: true, passive: true });
-    scroll.addEventListener('scroll', () => {
-      if (scroll.scrollTop > 28) hintUsed = true;
-      syncScrollHint();
-    }, { passive: true });
+    scroll.addEventListener('scroll', onLightboxScroll, { passive: true });
     shell.querySelector('.lightbox__hint-btn')?.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
       const cover = shell.querySelector('.lightbox__cover');
       const full = cover?.offsetHeight || window.innerHeight;
-      scroll.scrollTo({
-        top: full * 0.75,
-        behavior: reduceMotion() ? 'auto' : 'smooth',
-      });
+      scrollLightboxTo(full * 0.75);
     });
 
     shell.addEventListener('click', (event) => {
@@ -250,6 +249,65 @@
     });
 
     return shell;
+  }
+
+  function getLightboxScrollTop() {
+    if (lightboxLenis) return lightboxLenis.scroll;
+    return shell?.querySelector('.lightbox__scroll')?.scrollTop || 0;
+  }
+
+  function scrollLightboxTo(top, { immediate = false } = {}) {
+    if (lightboxLenis) {
+      lightboxLenis.scrollTo(top, {
+        immediate: immediate || reduceMotion(),
+        force: true,
+      });
+      return;
+    }
+    const scroll = shell?.querySelector('.lightbox__scroll');
+    if (!scroll) return;
+    if (immediate || reduceMotion()) scroll.scrollTop = top;
+    else scroll.scrollTo({ top, behavior: 'smooth' });
+  }
+
+  function onLightboxScroll() {
+    if (getLightboxScrollTop() > 28) hintUsed = true;
+    syncScrollHint();
+  }
+
+  function stopLightboxLenis() {
+    if (lightboxRaf) {
+      cancelAnimationFrame(lightboxRaf);
+      lightboxRaf = 0;
+    }
+    if (lightboxLenis) {
+      lightboxLenis.off?.('scroll', onLightboxScroll);
+      lightboxLenis.destroy?.();
+      lightboxLenis = null;
+    }
+  }
+
+  function startLightboxLenis() {
+    stopLightboxLenis();
+    const wrapper = shell?.querySelector('.lightbox__scroll');
+    const content = shell?.querySelector('.lightbox__scroll-inner');
+    if (!wrapper || !content) return;
+    if (reduceMotion() || typeof window.Lenis !== 'function') return;
+
+    lightboxLenis = new window.Lenis({
+      wrapper,
+      content,
+      eventsTarget: shell,
+      lerp: 0.08,
+      smoothWheel: true,
+    });
+    lightboxLenis.on('scroll', onLightboxScroll);
+
+    const tick = (time) => {
+      lightboxLenis?.raf(time);
+      lightboxRaf = requestAnimationFrame(tick);
+    };
+    lightboxRaf = requestAnimationFrame(tick);
   }
 
   function hideScrollHint(immediate = false) {
@@ -274,7 +332,7 @@
     if (closing || opening || hintUsed) return false;
     const hasCase = (caseEl?.childElementCount || 0) > 0;
     const canScroll = scroll.scrollHeight > scroll.clientHeight + 48;
-    return hasCase && canScroll && scroll.scrollTop < 28;
+    return hasCase && canScroll && getLightboxScrollTop() < 28;
   }
 
   function syncScrollHint() {
@@ -319,8 +377,15 @@
     const seedFacts = seed?.querySelector('[data-seed-facts]');
     const factNodes = seedFacts
       ? [...seedFacts.children]
-          .filter((node) => node.querySelector('dt')?.textContent?.trim() !== 'Role')
-          .map((node) => node.cloneNode(true))
+          .filter((node) => {
+            const label = node.querySelector('dt')?.textContent?.trim();
+            return label === 'Year' || node.dataset.fact === 'year';
+          })
+          .map((node) => {
+            const clone = node.cloneNode(true);
+            clone.querySelector('dt')?.remove();
+            return clone;
+          })
       : [];
     if (factNodes.length) {
       facts.append(...factNodes);
@@ -372,6 +437,35 @@
       });
     }
     cleanupFlyers();
+  }
+
+  function ensureCoverFromCard(card) {
+    const mediaHost = shell?.querySelector('.lightbox__media');
+    if (!mediaHost || mediaHost.querySelector('.project-media, video, img, canvas')) return;
+    const media = card?.querySelector('.project-media');
+    if (!media) return;
+
+    const rect = media.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      mediaHost.style.aspectRatio = `${rect.width} / ${rect.height}`;
+      shell.style.setProperty('--lightbox-cover-ratio', String(rect.width / rect.height));
+    }
+
+    const clone = snapshotMedia(media);
+    clone.style.width = '100%';
+    clone.style.height = '100%';
+    clone.style.aspectRatio = 'auto';
+    clone.style.visibility = 'visible';
+    mediaHost.replaceChildren(clone);
+    mediaHost.querySelectorAll('video').forEach((video) => {
+      try {
+        video.load?.();
+      } catch {
+        // ignore
+      }
+      window.__forceMutedAutoplay?.(video);
+    });
+    syncContentWidth();
   }
 
   function observeBodyGradients(body) {
@@ -741,7 +835,8 @@
       shell.classList.add('is-open', 'is-pre');
       shell.dataset.style = 'morph';
       lockPage(true);
-      shell.querySelector('.lightbox__scroll').scrollTop = 0;
+      startLightboxLenis();
+      scrollLightboxTo(0, { immediate: true });
 
       const toRect = measureFigure(sourceCard);
       observeContentWidth();
@@ -752,6 +847,9 @@
         flyer.style.transform = flipTransform(fromRect, toRect);
         sourceCard.classList.add('is-lightbox-source');
         media.style.visibility = 'hidden';
+      } else {
+        ensureCoverFromCard(sourceCard);
+        syncContentWidth();
       }
 
       shell.classList.remove('is-pre');
@@ -763,11 +861,13 @@
       if (token !== motionToken) return;
 
       settleFlyerIntoFigure();
+      ensureCoverFromCard(sourceCard);
       syncContentWidth();
       shell.classList.add('is-settled');
       openSlug = slug;
       opening = false;
       fillCase(slug);
+      lightboxLenis?.resize?.();
       scheduleScrollHint();
 
       if (!skipHistory && projectParam() !== slug) {
@@ -777,6 +877,7 @@
       opening = false;
       closing = false;
       cleanupFlyers();
+      stopLightboxLenis();
       stopObservingContentWidth();
       if (media) media.style.visibility = '';
       sourceCard?.classList.remove('is-lightbox-source');
@@ -797,6 +898,7 @@
       opening = false;
       closing = false;
       cleanupFlyers();
+      stopLightboxLenis();
       lockPage(false);
       setProjectMode(false);
       return;
@@ -825,6 +927,7 @@
     } finally {
       if (token !== motionToken && !teardown) return;
       cleanupFlyers();
+      stopLightboxLenis();
       stopObservingContentWidth();
       disposeLightboxGradients();
       resetShellMotion();
@@ -935,9 +1038,15 @@
     bind();
     if (document.body.dataset.page !== 'work') return;
     const slug = projectParam();
-    if (slug) {
-      openLightbox(slug, { skipHistory: true, replaceHistory: true });
-    }
+    if (!slug) return;
+    // Wait for masonry / card layout so cover media can clone with real sizes.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        openLightbox(slug, { skipHistory: true, replaceHistory: true }).catch((error) => {
+          console.error('Failed to open project lightbox', error);
+        });
+      });
+    });
   }
 
   function stop() {
@@ -952,7 +1061,10 @@
     close: closeLightbox,
   };
 
-  if (document.readyState === 'loading') {
+  if (window.__bootProjectLightboxWhenReady) {
+    delete window.__bootProjectLightboxWhenReady;
+    boot();
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot, { once: true });
   } else {
     boot();

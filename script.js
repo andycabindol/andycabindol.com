@@ -891,7 +891,12 @@ function bootWorkPage() {
   bindBrandMarquee();
   unbindAutoplayVideos?.();
   unbindAutoplayVideos = bindAutoplayVideos();
-  window.ProjectLightbox?.boot?.();
+  // Lightbox script loads after this file; boot immediately if present, else when it registers.
+  if (window.ProjectLightbox) {
+    window.ProjectLightbox.boot();
+  } else {
+    window.__bootProjectLightboxWhenReady = true;
+  }
 
   // Defer WebGL thumbnails so project→work nav morph / fade aren't blocked.
   const startHeavy = () => {

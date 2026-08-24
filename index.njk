@@ -107,9 +107,8 @@ og:
     {% if projectFacts.length %}
     <dl data-seed-facts>
       {% for fact in projectFacts %}
-      {% if fact.label != 'Role' %}
-      <div>
-        <dt>{{ fact.label }}</dt>
+      {% if fact.label == 'Year' %}
+      <div data-fact="year">
         <dd>{{ fact.value }}</dd>
       </div>
       {% endif %}
