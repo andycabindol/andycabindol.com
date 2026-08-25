@@ -10,6 +10,7 @@
 :root {
   --lightbox-z: 1100;
   --lightbox-flyer-z: 5;
+  --lightbox-exit-dissolve-ms: 420;
   --lightbox-ease: cubic-bezier(0.22, 1.28, 0.36, 1);
   --lightbox-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --lightbox-duration: 540ms;
@@ -1148,4 +1149,38 @@ body.lightbox-locked .site-header {
   body.lightbox-open .ascii-field-wrap {
     transform: none;
   }
+}
+
+/* ——— Close: dissolve when cover is off-screen ——— */
+
+.lightbox.is-closing[data-exit="dissolve"] .lightbox__backdrop {
+  opacity: 0;
+  transition: opacity calc(var(--lightbox-exit-dissolve-ms) * 1ms) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lightbox.is-closing[data-exit="dissolve"] .lightbox__hud,
+.lightbox.is-closing[data-exit="dissolve"] .lightbox__scroll {
+  opacity: 0;
+  transition: opacity calc(var(--lightbox-exit-dissolve-ms) * 1ms) ease-out;
+}
+
+/* Selected thumbnail: same duration as dissolve chrome */
+.project-media.project-media--exit-rise {
+  visibility: visible !important;
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: none;
+  will-change: transform, opacity;
+}
+
+.project-media.project-media--exit-rise.project-media--exit-rise-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity calc(var(--lightbox-exit-dissolve-ms, 420) * 1ms) cubic-bezier(0.16, 1, 0.3, 1),
+    transform calc(var(--lightbox-exit-dissolve-ms, 420) * 1ms) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-item.is-exit-rise .project-media {
+  visibility: visible !important;
 }

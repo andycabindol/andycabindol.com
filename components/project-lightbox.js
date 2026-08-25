@@ -56,7 +56,6 @@
   let hintTimer = 0;
   let lightboxLenis = null;
   let lightboxRaf = 0;
-
   function projectParam() {
     return new URLSearchParams(window.location.search).get('project');
   }
@@ -718,12 +717,14 @@
         height: to0.height,
       });
       el.style.transform = 'none';
+      el.style.opacity = '1';
       return;
     }
     const duration = motionNum('--motion-exit-thumb-ms', 600);
     const ease = motionBezierFn('--motion-exit-thumb');
     placeFlyer(el, from);
     el.style.transform = 'none';
+    el.style.opacity = '1';
     el.style.willChange = 'transform';
     const started = performance.now();
     await new Promise((resolve) => {
@@ -747,6 +748,97 @@
     });
     el.style.willChange = '';
   }
+
+  function beginClosingChrome(variant) {
+    shell.classList.add('is-closing');
+    shell.classList.remove('is-settled', 'is-pre');
+    shell.dataset.exit = variant;
+    document.body.classList.add('lightbox-closing');
+  }
+
+  async function playClose({ media, mediaHost, token }) {
+    const live = mediaHost?.querySelector('.project-media');
+    const inFlight = flyer && document.contains(flyer) && !live;
+
+    if (inFlight && media) {
+      const fromRect = interruptFlyer(flyer);
+      beginClosingChrome('morph');
+      if (!fromRect || token !== motionToken) return;
+      await playFlipClose(flyer, fromRect, media, token);
+      return;
+    }
+
+    if (!live || !media) {
+      beginClosingChrome('dissolve');
+      await wait(exitMs());
+      return;
+    }
+
+    const coverRect = mediaHost.getBoundingClientRect();
+    const coverInView = coverIsInView(coverRect);
+
+    // Cover still on screen → morph back to the card.
+    if (coverInView) {
+      const fromRect = rectFrom(coverRect);
+      makeFlyer(live, fromRect);
+      mediaHost.replaceChildren();
+      beginClosingChrome('morph');
+      if (token !== motionToken) return;
+      await playFlipClose(flyer, fromRect, media, token);
+      return;
+    }
+
+    // Cover scrolled away → dissolve + thumbnail rise.
+    beginClosingChrome('dissolve');
+    await revealThumbnailRise(media, token);
+  }
+
+  function rectFrom(r) {
+    return {
+      left: r.left,
+      top: r.top,
+      width: r.width,
+      height: r.height,
+    };
+  }
+
+  function sourceCardReveal(media) {
+    if (media) media.style.visibility = '';
+    lastCard?.classList.remove('is-lightbox-source');
+  }
+
+  async function revealThumbnailRise(media, token) {
+    const card = lastCard;
+    // Match lightbox dissolve chrome duration exactly.
+    const duration = reduceMotion()
+      ? 0
+      : Math.round(motionNum('--lightbox-exit-dissolve-ms', 420));
+
+    sourceCardReveal(media);
+    if (!media || !duration) {
+      await wait(reduceMotion() ? 0 : duration || exitMs());
+      return;
+    }
+
+    media.style.setProperty('--lightbox-exit-dissolve-ms', String(duration));
+    media.classList.add('project-media--exit-rise');
+    card?.classList.add('is-exit-rise');
+    void media.offsetWidth;
+    media.classList.add('project-media--exit-rise-in');
+
+    await wait(duration);
+    if (token !== motionToken) {
+      media.classList.remove('project-media--exit-rise', 'project-media--exit-rise-in');
+      media.style.removeProperty('--lightbox-exit-dissolve-ms');
+      card?.classList.remove('is-exit-rise');
+      return;
+    }
+
+    media.classList.remove('project-media--exit-rise', 'project-media--exit-rise-in');
+    media.style.removeProperty('--lightbox-exit-dissolve-ms');
+    card?.classList.remove('is-exit-rise');
+  }
+
 
   function setOriginFromRect(rect) {
     if (!shell || !rect) return;
@@ -773,18 +865,6 @@
     return visible > 48;
   }
 
-  function coverCenterRect(mediaHost) {
-    const size = mediaHost?.getBoundingClientRect();
-    const width = size?.width || mediaHost?.offsetWidth || 480;
-    const height = size?.height || mediaHost?.offsetHeight || 320;
-    return {
-      left: (window.innerWidth - width) / 2,
-      top: (window.innerHeight - height) / 2,
-      width,
-      height,
-    };
-  }
-
   function interruptFlyer(el) {
     if (!el) return null;
     const box = el.getBoundingClientRect();
@@ -799,62 +879,6 @@
     el.style.transform = 'none';
     el.style.willChange = '';
     return rect.width && rect.height ? rect : null;
-  }
-
-  async function fadeInFlyer(el, ms) {
-    el.style.opacity = '0';
-    el.style.transition = `opacity ${ms}ms ${motionBezierCss('--motion-exit-thumb')}`;
-    void el.offsetWidth;
-    el.style.opacity = '1';
-    await wait(ms);
-    el.style.transition = '';
-  }
-
-  async function playClose({ media, mediaHost, token }) {
-    const live = mediaHost?.querySelector('.project-media');
-    const inFlight = flyer && document.contains(flyer) && !live;
-
-    if (inFlight && media) {
-      const fromRect = interruptFlyer(flyer);
-      shell.classList.add('is-closing');
-      shell.classList.remove('is-settled', 'is-pre');
-      document.body.classList.add('lightbox-closing');
-      if (!fromRect || token !== motionToken) return;
-      await playFlipClose(flyer, fromRect, media, token);
-      return;
-    }
-
-    if (!live || !media) {
-      shell.classList.add('is-closing');
-      shell.classList.remove('is-settled');
-      document.body.classList.add('lightbox-closing');
-      await wait(exitMs());
-      return;
-    }
-
-    const currentRect = mediaHost.getBoundingClientRect();
-    const inView = coverIsInView(currentRect);
-    const fromRect = inView
-      ? {
-          left: currentRect.left,
-          top: currentRect.top,
-          width: currentRect.width,
-          height: currentRect.height,
-        }
-      : coverCenterRect(mediaHost);
-
-    makeFlyer(live, fromRect);
-    mediaHost.replaceChildren();
-    shell.classList.add('is-closing');
-    shell.classList.remove('is-settled');
-    document.body.classList.add('lightbox-closing');
-
-    if (!inView) {
-      await fadeInFlyer(flyer, Math.min(280, Math.round(exitMs() * 0.45)));
-      if (token !== motionToken) return;
-    }
-    if (token !== motionToken) return;
-    await playFlipClose(flyer, fromRect, media, token);
   }
 
   async function openLightbox(slug, { card = null, skipHistory = false, replaceHistory = false } = {}) {
