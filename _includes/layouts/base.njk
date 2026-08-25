@@ -29,6 +29,9 @@
   <link rel="stylesheet" href="/nav.css">
   <link rel="stylesheet" href="/{{ stylesheet }}" id="page-stylesheet">
   <link rel="stylesheet" href="/lightbox.css">
+  <link rel="stylesheet" href="/components/nav-glass.css?v=16">
+  {# Chrome Origin Trial: HTMLInCanvas for andycabindol.com (subdomains included). Localhost still needs the flag or a separate token. #}
+  <meta http-equiv="origin-trial" content="AqVGidp6DODGc096c6iAj344c2KVEz3zU6xgVSheOBeiuH9GWuBf2CgDDpHSLEtZXAnkadqEOX+yiQvUqbxgegMAAABpeyJvcmlnaW4iOiJodHRwczovL2FuZHljYWJpbmRvbC5jb206NDQzIiwiZmVhdHVyZSI6IkhUTUxJbkNhbnZhcyIsImV4cGlyeSI6MTc5MjQ1NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
 </head>
 <body data-page="{{ pageId }}"{% if projectSlug %} data-project-slug="{{ projectSlug }}"{% endif %}>
   {% include "partials/site-header.njk" %}

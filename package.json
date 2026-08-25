@@ -7,6 +7,7 @@
     "bundle": "npm run bundle:orb && npm run bundle:work-gradients",
     "build": "npm run bundle && eleventy",
     "dev": "npm run bundle && eleventy --serve",
+    "chrome:glass": "open -na 'Google Chrome' --args --enable-features=CanvasDrawElement --new-window http://localhost:8080/",
     "migrate:projects": "node scripts/migrate-projects.mjs"
   },
   "devDependencies": {

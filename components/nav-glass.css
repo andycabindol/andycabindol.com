@@ -1,0 +1,73 @@
+/* Nav pill Canvas UI Glass. Fallback = classic white nav from nav.css. */
+
+/* Live only: strip solid pill so refraction shows through. */
+body.nav-glass-live .site-header,
+body.nav-glass-live .site-header.site-header--compact {
+  background: transparent !important;
+  box-shadow: none !important;
+  isolation: isolate;
+  z-index: 1002;
+}
+
+body.nav-glass-live .nav-pill {
+  position: relative;
+  z-index: 2;
+}
+
+/* Fullscreen glass host: page texture + WebGL output. */
+.nav-glass-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+html.nav-glass-live,
+html.nav-glass-live body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body.nav-glass-live .nav-glass-root {
+  pointer-events: auto;
+}
+
+/* Lenis owns scrolling inside the capture host. */
+body.nav-glass-live .nav-glass__content {
+  overflow: hidden;
+  height: 100%;
+  /* Must be opaque — page --bg is on <html>, outside the canvas capture. */
+  background: var(--bg, #fbfaf9);
+}
+
+body.nav-glass-live .nav-glass__content .site-stage {
+  min-height: 100%;
+  background: var(--bg, #fbfaf9);
+}
+
+.nav-glass__source {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.nav-glass__content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nav-glass__output {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Opacity mirrored from header --nav-progress in glass.js syncPin */
+  opacity: 0;
+}

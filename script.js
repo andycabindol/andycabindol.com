@@ -58,20 +58,31 @@ function initSmoothScroll() {
 
   document.documentElement.classList.add('lenis');
 
-  const lenis = new Lenis({
-    lerp: 0.08,
-    smoothWheel: true,
-  });
+  const glassContent = document.querySelector('body.nav-glass-live .nav-glass__content');
+  const stage = document.querySelector('.site-stage');
+  const lenis =
+    glassContent && stage
+      ? new Lenis({
+          wrapper: glassContent,
+          content: stage,
+          lerp: 0.08,
+          smoothWheel: true,
+        })
+      : new Lenis({
+          lerp: 0.08,
+          smoothWheel: true,
+        });
 
   window.__lenis = lenis;
 
   function workFrameTask(time) {
-    lenis.raf(time);
+    window.__lenis?.raf(time);
     window.__navUpdate?.();
   }
 
   window.__workFrameTask = workFrameTask;
   frameLoop.add(workFrameTask);
+  window.__frameLoop = frameLoop;
 
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener('click', (event) => {
