@@ -215,6 +215,7 @@
     opacity calc(var(--motion-exit-nav-ms, 520) * 1ms) var(--motion-exit-nav-ease, cubic-bezier(0.65, 0, 0.35, 1));
 }
 
+/* PROJECT NAV PILL expand — disabled. Re-enable with the markup in site-header.njk.
 body[data-page="project"] .nav-pill__project-context,
 body.lightbox-open:not(.lightbox-closing) .nav-pill__project-context {
   height: 40px;
@@ -223,6 +224,7 @@ body.lightbox-open:not(.lightbox-closing) .nav-pill__project-context {
     height calc(var(--motion-enter-nav-ms, 550) * 1ms) var(--motion-enter-nav-ease, cubic-bezier(0.54, 0.2, 0.3, 1)),
     opacity calc(var(--motion-enter-nav-ms, 550) * 1ms) var(--motion-enter-nav-ease, cubic-bezier(0.54, 0.2, 0.3, 1));
 }
+*/
 
 .nav-pill__project-context-inner {
   display: flex;

@@ -1,12 +1,37 @@
 /* Nav pill Canvas UI Glass. Fallback = classic white nav from nav.css. */
 
-/* Live only: strip solid pill so refraction shows through. */
+/* Live only: strip solid fill; soft shadow lifts the glass pill. */
 body.nav-glass-live .site-header,
 body.nav-glass-live .site-header.site-header--compact {
   background: transparent !important;
-  box-shadow: none !important;
+  box-shadow:
+    0 0 0 calc(var(--nav-progress) * 1px) rgba(0, 0, 0, 0.05),
+    0 calc(var(--nav-progress) * 8px) calc(var(--nav-progress) * 28px)
+      rgba(30, 40, 60, calc(var(--nav-progress) * 0.16)) !important;
   isolation: isolate;
   z-index: 1002;
+}
+
+/* While lightbox is open, keep nav under the scrim. */
+body.nav-glass-live.lightbox-open:not(.lightbox-closing) .site-header {
+  z-index: 1002;
+}
+
+/* Only on close morph: nav over the returning work flyer. */
+body.nav-glass-live.lightbox-closing .site-header {
+  z-index: 1210;
+}
+
+/* Light frost so nav labels stay readable over busy content. */
+body.nav-glass-live .site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--nav-progress, 0);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 body.nav-glass-live .nav-pill {

@@ -136,10 +136,16 @@ html.lenis.lenis-stopped body {
   overflow: hidden;
 }
 
-body.lightbox-open .site-header {
-  z-index: 1210;
+/* Keep nav under the lightbox scrim while open. */
+body.lightbox-open:not(.lightbox-closing) .site-header {
+  z-index: 1000;
   border-radius: 22px;
   overflow: hidden;
+}
+
+/* On close morph, nav sits above the returning work flyer. */
+body.lightbox-closing .site-header {
+  z-index: 1210;
 }
 
 body.lightbox-locked .site-header {

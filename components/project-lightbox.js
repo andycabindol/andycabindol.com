@@ -112,7 +112,48 @@
     return dest;
   }
 
-  function snapshotMedia(media) {
+  function rasterMediaSnapshot(media) {
+    const video = media.querySelector('video');
+    if (video && video.readyState >= 2 && (video.videoWidth || media.clientWidth)) {
+      const wrap = media.cloneNode(false);
+      wrap.className = media.className;
+      wrap.style.cssText = media.style.cssText;
+      wrap.style.visibility = 'visible';
+      const canvas = document.createElement('canvas');
+      const w = Math.max(1, video.videoWidth || Math.round(media.clientWidth) || 1);
+      const h = Math.max(1, video.videoHeight || Math.round(media.clientHeight) || 1);
+      canvas.width = w;
+      canvas.height = h;
+      canvas.className = 'project-media__raster';
+      canvas.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;';
+      try {
+        canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+      } catch {
+        return null;
+      }
+      wrap.appendChild(canvas);
+      return wrap;
+    }
+
+    const sourceCanvas = media.querySelector('canvas');
+    if (sourceCanvas && sourceCanvas.width && sourceCanvas.height) {
+      const wrap = media.cloneNode(false);
+      wrap.className = media.className;
+      wrap.style.cssText = media.style.cssText;
+      wrap.style.visibility = 'visible';
+      wrap.appendChild(copyCanvasPixels(sourceCanvas));
+      return wrap;
+    }
+
+    return null;
+  }
+
+  function snapshotMedia(media, { forMorph = false } = {}) {
+    if (forMorph) {
+      const raster = rasterMediaSnapshot(media);
+      if (raster) return raster;
+    }
+
     const clone = media.cloneNode(true);
     clone.style.visibility = 'visible';
     const sourceCanvases = media.querySelectorAll('canvas');
@@ -155,6 +196,19 @@
       });
     }
     return clone;
+  }
+
+  function frames(n = 2) {
+    return new Promise((resolve) => {
+      const step = (left) => {
+        if (left <= 0) {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(() => step(left - 1));
+      };
+      requestAnimationFrame(() => step(n - 1));
+    });
   }
 
   function resetGradientHosts(root) {
@@ -505,16 +559,17 @@
   let marqueeTimer = 0;
 
   function setProjectPill(title) {
-    const text = document.querySelector('[data-project-section-current]');
-    const action = document.querySelector('.project-nav-action');
-    if (text) text.textContent = title || '';
-    action?.setAttribute('aria-label', title ? 'Close project' : 'Open all projects');
-    window.clearTimeout(marqueeTimer);
-    const syncMarquee = () => window.__updateProjectSectionMarquee?.();
-    requestAnimationFrame(() => requestAnimationFrame(syncMarquee));
-    if (title) {
-      marqueeTimer = window.setTimeout(syncMarquee, 580);
-    }
+    // Project nav pill disabled — re-enable with markup in site-header.njk.
+    // const text = document.querySelector('[data-project-section-current]');
+    // const action = document.querySelector('.project-nav-action');
+    // if (text) text.textContent = title || '';
+    // action?.setAttribute('aria-label', title ? 'Close project' : 'Open all projects');
+    // window.clearTimeout(marqueeTimer);
+    // const syncMarquee = () => window.__updateProjectSectionMarquee?.();
+    // requestAnimationFrame(() => requestAnimationFrame(syncMarquee));
+    // if (title) {
+    //   marqueeTimer = window.setTimeout(syncMarquee, 580);
+    // }
   }
 
   function setStageOrigin() {
@@ -530,6 +585,8 @@
     if (!on) document.body.classList.remove('lightbox-closing');
     setProjectPill(on ? title : '');
     window.__navApplyState?.();
+    if (on) window.__navGlass?.pause?.();
+    else window.__navGlass?.resume?.();
   }
 
   function lockPage(lock) {
@@ -617,7 +674,7 @@
     flyer = document.createElement('div');
     flyer.className = 'lightbox-flyer';
     placeFlyer(flyer, destRect);
-    const clone = snapshotMedia(media);
+    const clone = snapshotMedia(media, { forMorph: true });
     clone.style.width = '100%';
     clone.style.height = '100%';
     clone.style.aspectRatio = 'auto';
@@ -845,11 +902,17 @@
       if (media && fromRect?.width && toRect?.width) {
         makeFlyer(media, toRect);
         flyer.style.transform = flipTransform(fromRect, toRect);
+        // Paint flyer over the thumbnail before hiding the source (avoids one-frame flash).
+        void flyer.offsetWidth;
+        await frames(2);
+        if (token !== motionToken) return;
         sourceCard.classList.add('is-lightbox-source');
         media.style.visibility = 'hidden';
+        window.__navGlass?.pause?.();
       } else {
         ensureCoverFromCard(sourceCard);
         syncContentWidth();
+        window.__navGlass?.pause?.();
       }
 
       shell.classList.remove('is-pre');

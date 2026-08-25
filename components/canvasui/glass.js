@@ -98,8 +98,8 @@ vec3 page (vec2 px, float lod) {
   vec2 uv = px / uResolution;
   uv.x = clamp(uv.x, 0.0005, uMaxX - 0.0005);
   uv.y = clamp(uv.y, 0.0005, 0.9995);
-  vec4 tex = textureLod(uContent, vec2(uv.x, 1.0 - uv.y), lod);
-  // Transparent canvas texels are RGB black — composite over page bg.
+  // Base level only — skipping mipmap gen on upload is a big win for live capture.
+  vec4 tex = texture(uContent, vec2(uv.x, 1.0 - uv.y));
   vec3 rgb = pow(max(tex.rgb, vec3(0.0)), vec3(2.2));
   vec3 bg = pow(uPageBg, vec3(2.2));
   return mix(bg, rgb, clamp(tex.a, 0.0, 1.0));
@@ -278,9 +278,12 @@ function createGlass(elements, options = {}) {
   let contentDirty = false;
   let wake = () => {};
   let externalContent = false;
+  let lensEnabled = true;
+  let captureEnabled = true;
 
   if (htmlInCanvas) {
     paintable.onpaint = () => {
+      if (!captureEnabled) return;
       try {
         sourceCtx.reset();
         // Page bg lives on <html>; canvas children are transparent without this,
@@ -334,11 +337,7 @@ function createGlass(elements, options = {}) {
 
   const contentTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, contentTexture);
-  gl.texParameteri(
-    gl.TEXTURE_2D,
-    gl.TEXTURE_MIN_FILTER,
-    gl.LINEAR_MIPMAP_LINEAR,
-  );
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -353,7 +352,6 @@ function createGlass(elements, options = {}) {
     gl.UNSIGNED_BYTE,
     new Uint8Array([0, 0, 0, 0]),
   );
-  gl.generateMipmap(gl.TEXTURE_2D);
 
   let contentMaxX = 1;
 
@@ -365,7 +363,6 @@ function createGlass(elements, options = {}) {
       output.width = width;
       output.height = height;
     }
-    // Empty pin content (no live page capture) reports 0×0 — never clip the lens.
     const contentW = Math.max(content.clientWidth, output.clientWidth, 1);
     contentMaxX = Math.min(
       1,
@@ -374,11 +371,13 @@ function createGlass(elements, options = {}) {
     if (htmlInCanvas) {
       const cssWidth = Math.max(1, Math.round(source.clientWidth));
       const cssHeight = Math.max(1, Math.round(source.clientHeight));
-      if (source.width !== cssWidth * dpr || source.height !== cssHeight * dpr) {
-        source.width = cssWidth * dpr;
-        source.height = cssHeight * dpr;
+      const nextW = Math.max(1, Math.round(cssWidth * dpr));
+      const nextH = Math.max(1, Math.round(cssHeight * dpr));
+      if (source.width !== nextW || source.height !== nextH) {
+        source.width = nextW;
+        source.height = nextH;
+        if (captureEnabled) paintable.requestPaint();
       }
-      paintable.requestPaint();
     }
   }
 
@@ -396,7 +395,6 @@ function createGlass(elements, options = {}) {
       gl.UNSIGNED_BYTE,
       source,
     );
-    gl.generateMipmap(gl.TEXTURE_2D);
   }
 
   let posX = output.clientWidth / 2;
@@ -418,16 +416,15 @@ function createGlass(elements, options = {}) {
     const pinStyle = getComputedStyle(pin);
     const outRect = rectCache ? rectCache.current : output.getBoundingClientRect();
     const r = pin.getBoundingClientRect();
-    // Pin center in output-local CSS pixels (works for fullscreen or in-header output).
     targetX = r.left + r.width / 2 - outRect.left;
     targetY = r.top + r.height / 2 - outRect.top;
     presenceTarget = 1;
     zoomTarget = 1;
-    // --nav-progress lives on the header; mirror it onto the fullscreen output.
     const navProgress = parseFloat(pinStyle.getPropertyValue("--nav-progress"));
-    output.style.opacity = Number.isFinite(navProgress)
-      ? String(Math.min(Math.max(navProgress, 0), 1))
-      : "1";
+    const progress = Number.isFinite(navProgress)
+      ? Math.min(Math.max(navProgress, 0), 1)
+      : 1;
+    output.style.opacity = String(progress);
     if (config.autoSize && r.width > 0 && r.height > 0) {
       config.shape = "rectangle";
       pinHalfW = r.width / 2;
@@ -444,6 +441,14 @@ function createGlass(elements, options = {}) {
       pinHalfW = 0;
       pinHalfH = 0;
     }
+    return progress;
+  }
+
+  function lensWanted(navProgress) {
+    if (!lensEnabled) return false;
+    if (document.body.classList.contains("lightbox-open")) return false;
+    if (document.body.classList.contains("lightbox-closing")) return false;
+    return navProgress > 0.02;
   }
 
   function halfExtents() {
@@ -567,25 +572,34 @@ function createGlass(elements, options = {}) {
     const delta = Math.min((now - lastTime) / 1000, 1 / 30);
     lastTime = now;
 
-    syncPin();
+    const navProgress = config.pinned ? syncPin() ?? 0 : 1;
+    const showLens = lensWanted(navProgress);
 
-    const follow = config.pinned
-      ? 1
-      : Math.min(Math.max(config.follow, 0.02), 1);
-    const kPos =
-      reducedMotion || follow >= 1
+    // Source canvas IS the page in html-in-canvas mode — always keep capturing
+    // so tickers, videos, and reveals keep painting even when the lens is hidden.
+    if (htmlInCanvas) paintable.requestPaint?.();
+
+    if (!showLens) {
+      output.style.opacity = "0";
+      // Consume dirty flag without WebGL upload while lens is off.
+      contentDirty = false;
+    } else {
+      const follow = config.pinned
         ? 1
-        : 1 - Math.exp(-delta * (4 + follow * 26));
-    const kZoom = reducedMotion ? 1 : 1 - Math.exp(-delta * 7);
-    const kScale = reducedMotion ? 1 : 1 - Math.exp(-delta * 11);
-    posX += (targetX - posX) * kPos;
-    posY += (targetY - posY) * kPos;
-    zoom += (zoomTarget - zoom) * kZoom;
-    presence += (presenceTarget - presence) * kScale;
+        : Math.min(Math.max(config.follow, 0.02), 1);
+      const kPos =
+        reducedMotion || follow >= 1
+          ? 1
+          : 1 - Math.exp(-delta * (4 + follow * 26));
+      const kZoom = reducedMotion ? 1 : 1 - Math.exp(-delta * 7);
+      const kScale = reducedMotion ? 1 : 1 - Math.exp(-delta * 11);
+      posX += (targetX - posX) * kPos;
+      posY += (targetY - posY) * kPos;
+      zoom += (zoomTarget - zoom) * kZoom;
+      presence += (presenceTarget - presence) * kScale;
+      render();
+    }
 
-    render();
-
-    // Pinned glass keeps running so nav size/position animations stay tracked.
     if (config.pinned) {
       raf = requestAnimationFrame(frame);
       return;
@@ -596,7 +610,7 @@ function createGlass(elements, options = {}) {
       Math.abs(targetY - posY) < 0.1 &&
       Math.abs(zoomTarget - zoom) < 0.002 &&
       Math.abs(presenceTarget - presence) < 0.002;
-    if (settled && !contentDirty) {
+    if (settled && !contentDirty && !showLens) {
       posX = targetX;
       posY = targetY;
       zoom = zoomTarget;
@@ -651,6 +665,7 @@ function createGlass(elements, options = {}) {
   }
 
   function onScroll() {
+    if (htmlInCanvas && captureEnabled) paintable.requestPaint?.();
     start();
   }
   content.addEventListener("scroll", onScroll, { passive: true });
@@ -669,6 +684,18 @@ function createGlass(elements, options = {}) {
   observer.observe(output);
   observer.observe(content);
   if (config.pinElement) observer.observe(config.pinElement);
+
+  const pinClassObserver =
+    config.pinElement &&
+    new MutationObserver(() => {
+      start();
+    });
+  if (config.pinElement) {
+    pinClassObserver.observe(config.pinElement, {
+      attributes: true,
+      attributeFilter: ["class", "style"],
+    });
+  }
 
   const intersection = new IntersectionObserver((entries) => {
     visible = entries[entries.length - 1]?.isIntersecting ?? true;
@@ -691,6 +718,17 @@ function createGlass(elements, options = {}) {
       }
       start();
     },
+    pause() {
+      // Hide the glass lens only — keep capturing so the page (source canvas) stays live.
+      lensEnabled = false;
+      output.style.opacity = "0";
+      start();
+    },
+    resume() {
+      lensEnabled = true;
+      start();
+      if (htmlInCanvas) paintable.requestPaint?.();
+    },
     setContentImage(image) {
       if (!image || destroyed) return;
       gl.bindTexture(gl.TEXTURE_2D, contentTexture);
@@ -707,17 +745,6 @@ function createGlass(elements, options = {}) {
         gl.UNSIGNED_BYTE,
         image,
       );
-      // Optional mips for blur bias — fall back to base level if generate fails.
-      gl.generateMipmap(gl.TEXTURE_2D);
-      if (gl.getError() === gl.NO_ERROR) {
-        gl.texParameteri(
-          gl.TEXTURE_2D,
-          gl.TEXTURE_MIN_FILTER,
-          gl.LINEAR_MIPMAP_LINEAR,
-        );
-      } else {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      }
       externalContent = true;
       contentMaxX = 1;
       start();
@@ -740,6 +767,7 @@ function createGlass(elements, options = {}) {
         presenceTarget,
         running,
         visible,
+        lensEnabled,
         externalContent,
         htmlInCanvas,
         client: [output.clientWidth, output.clientHeight],
@@ -758,6 +786,7 @@ function createGlass(elements, options = {}) {
       content.removeEventListener("scroll", onScroll);
       window.removeEventListener("scroll", onScroll, true);
       observer.disconnect();
+      pinClassObserver?.disconnect();
       intersection.disconnect();
       motionQuery.removeEventListener("change", onMotionChange);
       gl.deleteTexture(contentTexture);
