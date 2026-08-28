@@ -864,7 +864,7 @@ function bindAutoplayVideos(root = document) {
         const video = entry.target;
         if (!(video instanceof HTMLVideoElement)) return;
         if (entry.isIntersecting) forceMutedAutoplay(video);
-        else video.pause();
+        else if (!document.body.classList.contains('lightbox-open')) video.pause();
       });
     }, { rootMargin: '80px 0px', threshold: 0.05 });
     videos.forEach((video) => observer.observe(video));

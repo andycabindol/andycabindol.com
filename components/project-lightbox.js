@@ -50,6 +50,7 @@
   let closing = false;
   let motionToken = 0;
   let lastCard = null;
+  let adoptedMedia = null;
   let bound = false;
   let contentWidthObserver = null;
   let hintUsed = false;
@@ -195,6 +196,79 @@
       });
     }
     return clone;
+  }
+
+  function shouldAdoptMedia(media) {
+    return Boolean(media?.querySelector('video'));
+  }
+
+  function adoptMedia(media) {
+    if (!media?.parentElement) return media;
+    if (adoptedMedia?.node === media) return media;
+
+    const parent = media.parentElement;
+    const rect = media.getBoundingClientRect();
+    const placeholder = document.createElement('div');
+    placeholder.className = 'project-media project-media--lightbox-placeholder';
+    placeholder.setAttribute('aria-hidden', 'true');
+    placeholder.style.visibility = 'hidden';
+    placeholder.style.pointerEvents = 'none';
+    if (rect.width > 0 && rect.height > 0) {
+      placeholder.style.aspectRatio = `${rect.width} / ${rect.height}`;
+    }
+    parent.insertBefore(placeholder, media);
+    adoptedMedia = { node: media, parent, placeholder };
+    return media;
+  }
+
+  function restoreAdoptedMedia() {
+    if (!adoptedMedia) return;
+    const { node, parent, placeholder } = adoptedMedia;
+    adoptedMedia = null;
+    if (!node) return;
+
+    node.style.width = '';
+    node.style.height = '';
+    node.style.aspectRatio = '';
+    node.style.visibility = '';
+    node.style.willChange = '';
+    node.removeAttribute('data-lightbox-cover');
+
+    if (placeholder?.parentElement) {
+      placeholder.parentElement.insertBefore(node, placeholder);
+      placeholder.remove();
+    } else if (parent?.isConnected) {
+      parent.appendChild(node);
+    }
+  }
+
+  function coverMediaNode(card) {
+    if (adoptedMedia?.node?.isConnected) return adoptedMedia.node;
+    return shell?.querySelector('.lightbox__media .project-media')
+      || card?.querySelector('.project-media')
+      || null;
+  }
+
+  function morphTargetForCard(card) {
+    return adoptedMedia?.placeholder || card?.querySelector('.project-media');
+  }
+
+  function prepareMediaNode(node) {
+    node.style.width = '100%';
+    node.style.height = '100%';
+    node.style.aspectRatio = 'auto';
+    node.style.visibility = 'visible';
+    return node;
+  }
+
+  function mountFlyerNode(node, destRect) {
+    flyer?.remove();
+    flyer = document.createElement('div');
+    flyer.className = 'lightbox-flyer';
+    placeFlyer(flyer, destRect);
+    flyer.appendChild(prepareMediaNode(node));
+    (shell || document.body).appendChild(flyer);
+    return flyer;
   }
 
   function frames(n = 2) {
@@ -494,7 +568,20 @@
 
   function ensureCoverFromCard(card) {
     const mediaHost = shell?.querySelector('.lightbox__media');
-    if (!mediaHost || mediaHost.querySelector('.project-media, video, img, canvas')) return;
+    if (!mediaHost) return;
+
+    const liveVideo = mediaHost.querySelector('video');
+    if (liveVideo) {
+      window.__forceMutedAutoplay?.(liveVideo);
+      syncContentWidth();
+      return;
+    }
+
+    if (mediaHost.querySelector('.project-media, img, canvas')) {
+      syncContentWidth();
+      return;
+    }
+
     const media = card?.querySelector('.project-media');
     if (!media) return;
 
@@ -505,17 +592,9 @@
     }
 
     const clone = snapshotMedia(media);
-    clone.style.width = '100%';
-    clone.style.height = '100%';
-    clone.style.aspectRatio = 'auto';
-    clone.style.visibility = 'visible';
+    prepareMediaNode(clone);
     mediaHost.replaceChildren(clone);
     mediaHost.querySelectorAll('video').forEach((video) => {
-      try {
-        video.load?.();
-      } catch {
-        // ignore
-      }
       window.__forceMutedAutoplay?.(video);
     });
     syncContentWidth();
@@ -669,14 +748,18 @@
   }
 
   function makeFlyer(media, destRect) {
+    if (shouldAdoptMedia(media)) {
+      adoptMedia(media);
+      media.setAttribute('data-lightbox-cover', 'true');
+      return mountFlyerNode(media, destRect);
+    }
+
     flyer?.remove();
     flyer = document.createElement('div');
     flyer.className = 'lightbox-flyer';
     placeFlyer(flyer, destRect);
     const clone = snapshotMedia(media, { forMorph: true });
-    clone.style.width = '100%';
-    clone.style.height = '100%';
-    clone.style.aspectRatio = 'auto';
+    prepareMediaNode(clone);
     flyer.appendChild(clone);
     (shell || document.body).appendChild(flyer);
     return flyer;
@@ -756,19 +839,22 @@
     document.body.classList.add('lightbox-closing');
   }
 
-  async function playClose({ media, mediaHost, token }) {
-    const live = mediaHost?.querySelector('.project-media');
-    const inFlight = flyer && document.contains(flyer) && !live;
+  async function playClose({ card, mediaHost, token }) {
+    const targetEl = morphTargetForCard(card);
+    const live = mediaHost?.querySelector('.project-media') || coverMediaNode(card);
+    const inFlight = flyer && document.contains(flyer) && !mediaHost?.querySelector('.project-media');
 
-    if (inFlight && media) {
+    if (inFlight && targetEl) {
       const fromRect = interruptFlyer(flyer);
       beginClosingChrome('morph');
       if (!fromRect || token !== motionToken) return;
-      await playFlipClose(flyer, fromRect, media, token);
+      await playFlipClose(flyer, fromRect, targetEl, token);
+      restoreAdoptedMedia();
       return;
     }
 
-    if (!live || !media) {
+    if (!live || !targetEl) {
+      restoreAdoptedMedia();
       beginClosingChrome('dissolve');
       await wait(exitMs());
       return;
@@ -780,17 +866,19 @@
     // Cover still on screen → morph back to the card.
     if (coverInView) {
       const fromRect = rectFrom(coverRect);
-      makeFlyer(live, fromRect);
+      mountFlyerNode(live, fromRect);
       mediaHost.replaceChildren();
       beginClosingChrome('morph');
       if (token !== motionToken) return;
-      await playFlipClose(flyer, fromRect, media, token);
+      await playFlipClose(flyer, fromRect, targetEl, token);
+      restoreAdoptedMedia();
       return;
     }
 
     // Cover scrolled away → dissolve + thumbnail rise.
+    restoreAdoptedMedia();
     beginClosingChrome('dissolve');
-    await revealThumbnailRise(media, token);
+    await revealThumbnailRise(coverMediaNode(card), token);
   }
 
   function rectFrom(r) {
@@ -931,7 +1019,9 @@
         await frames(2);
         if (token !== motionToken) return;
         sourceCard.classList.add('is-lightbox-source');
-        media.style.visibility = 'hidden';
+        if (adoptedMedia?.node !== media) {
+          media.style.visibility = 'hidden';
+        }
         window.__navGlass?.pause?.();
       } else {
         ensureCoverFromCard(sourceCard);
@@ -964,9 +1054,10 @@
       opening = false;
       closing = false;
       cleanupFlyers();
+      restoreAdoptedMedia();
       stopLightboxLenis();
       stopObservingContentWidth();
-      if (media) media.style.visibility = '';
+      sourceCard?.querySelector('.project-media')?.style && (sourceCard.querySelector('.project-media').style.visibility = '');
       sourceCard?.classList.remove('is-lightbox-source');
       if (shell) {
         shell.classList.remove('is-open', 'is-pre', 'is-settled', 'is-closing');
@@ -985,6 +1076,7 @@
       opening = false;
       closing = false;
       cleanupFlyers();
+      restoreAdoptedMedia();
       stopLightboxLenis();
       lockPage(false);
       setProjectMode(false);
@@ -997,7 +1089,6 @@
     opening = false;
     const slug = openSlug;
     const sourceCard = lastCard || cardForSlug(slug);
-    const media = sourceCard?.querySelector('.project-media');
     const mediaHost = shell.querySelector('.lightbox__media');
 
     shell.style.pointerEvents = 'none';
@@ -1005,15 +1096,17 @@
 
     try {
       if (!immediate && !reduceMotion()) {
-        await playClose({ media, mediaHost, token });
+        await playClose({ card: sourceCard, mediaHost, token });
       } else {
         shell.classList.add('is-closing');
         shell.classList.remove('is-settled');
         document.body.classList.add('lightbox-closing');
+        restoreAdoptedMedia();
       }
     } finally {
       if (token !== motionToken && !teardown) return;
       cleanupFlyers();
+      restoreAdoptedMedia();
       stopLightboxLenis();
       stopObservingContentWidth();
       disposeLightboxGradients();
@@ -1026,7 +1119,6 @@
       shell.style.pointerEvents = '';
       lockPage(false);
 
-      if (media) media.style.visibility = '';
       sourceCard?.classList.remove('is-lightbox-source');
       setProjectMode(false);
 
