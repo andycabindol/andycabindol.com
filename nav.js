@@ -1,7 +1,7 @@
 const NAV_STATE_KEY = 'site-nav-state';
 const PAGE_ROUTES = {
-  work: { url: '/index.html', styles: '/styles.css' },
-  about: { url: '/about.html', styles: '/about.css' },
+  work: { url: '/', styles: '/styles.css' },
+  about: { url: '/about/', styles: '/about.css' },
   project: {
     url: document.body?.dataset.page === 'project'
       ? `${window.location.pathname}${window.location.search}`
@@ -272,10 +272,10 @@ function getCurrentPage() {
 
 function getPageFromUrl(url) {
   const path = new URL(url, window.location.href).pathname;
-  if (path.endsWith('about.html') || path.endsWith('/about')) {
+  if (path.endsWith('about.html') || /\/about\/?$/.test(path)) {
     return 'about';
   }
-  if (path.includes('/projects/') || path.endsWith('project.html') || path.endsWith('/project')) {
+  if (path.includes('/projects/') || path.endsWith('project.html') || /\/project\/?$/.test(path)) {
     return 'project';
   }
   if (path === '/' || path.endsWith('index.html')) {

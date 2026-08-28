@@ -134,7 +134,7 @@ module.exports = function eleventyConfig(eleventy) {
       });
   });
 
-  eleventy.addFilter('projectUrl', (slug) => `/index.html?project=${encodeURIComponent(String(slug || ''))}`);
+  eleventy.addFilter('projectUrl', (slug) => `/?project=${encodeURIComponent(String(slug || ''))}`);
 
   eleventy.addFilter('isVideoSrc', (src) =>
     /\.(webm|mp4|mov)(\?|#|$)/i.test(String(src || '')),

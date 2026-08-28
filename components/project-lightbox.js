@@ -62,8 +62,8 @@
 
   function workUrl(slug) {
     return slug
-      ? `/index.html?project=${encodeURIComponent(slug)}`
-      : '/index.html';
+      ? `/?project=${encodeURIComponent(slug)}`
+      : '/';
   }
 
   function setHistory(slug, { replace = false } = {}) {
