@@ -188,14 +188,20 @@ main.page-main--instant {
 .intro-content {
   width: 100%;
   max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 /* Brand logo marquee */
 
 .brand-marquee {
-  width: 100%;
+  width: 33.333%;
   min-width: 0;
-  padding: 1.5rem 0;
+  margin-inline: auto;
+  --marquee-logo-scale: 0.75;
+  padding: 0 0 1.5rem;
 }
 
 .brand-marquee__viewport {
@@ -229,10 +235,10 @@ main.page-main--instant {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5.75rem;
+  gap: 1.5rem;
   list-style: none;
   margin: 0;
-  padding: 0 5.75rem 0 0;
+  padding: 0 1.5rem 0 0;
   flex-shrink: 0;
 }
 
@@ -241,6 +247,8 @@ main.page-main--instant {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transform: scale(var(--marquee-logo-scale));
+  transform-origin: center center;
 }
 
 .brand-marquee__item img {
@@ -297,7 +305,7 @@ main.page-main--instant {
   line-height: 0.78;
   letter-spacing: -0.035em;
   color: #3f3e3a;
-  margin: 1.25rem 0 3rem;
+  margin: 0 auto;
   padding: 0;
   text-wrap: balance;
 }
@@ -427,9 +435,15 @@ main.page-main--instant {
   letter-spacing: -0.02em;
   color: var(--text-muted);
   width: 100%;
-  max-width: 21em;
-  margin: 0;
+  max-width: 28em;
+  margin: 0 auto;
+  padding: 1.75rem 0;
   text-wrap: pretty;
+}
+
+.intro-lede__google {
+  display: inline;
+  white-space: nowrap;
 }
 
 .intro-logo {
@@ -439,6 +453,13 @@ main.page-main--instant {
   margin: 0 0.25em;
   vertical-align: -0.4em;
   object-fit: contain;
+}
+
+.intro-lede__google .intro-logo {
+  width: 1.19em;
+  height: 1.19em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.27em;
 }
 
 .intro-lede a {
@@ -609,6 +630,7 @@ main.page-main--instant {
   margin: 0;
   min-width: 0;
   flex: 1 1 auto;
+  transition: transform 0.35s var(--ease-smooth);
 }
 
 .project-tags {
@@ -622,6 +644,15 @@ main.page-main--instant {
   text-transform: uppercase;
   color: var(--text-faint);
   letter-spacing: 0.02em;
+  transition: transform 0.35s var(--ease-smooth);
+}
+
+.project-link:hover .project-title {
+  transform: translateX(10px);
+}
+
+.project-link:hover .project-tags {
+  transform: translateX(-10px);
 }
 
 /* Info */
