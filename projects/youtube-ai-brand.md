@@ -8,7 +8,7 @@ facts:
   - label: Year
     value: "2025"
 projectTags: "Motion Design · Brand Design"
-cardLayout: default
+cardLayout: square
 ---
 
 {% projectSection "Challenge" %}

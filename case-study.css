@@ -1,0 +1,74 @@
+@import url('/project.css');
+
+html:has(body[data-page="case-study"]) {
+  height: auto;
+  overflow: auto;
+}
+
+body[data-page="case-study"] {
+  overflow-x: clip;
+  overflow-y: auto;
+}
+
+body[data-page="case-study"] .site-header {
+  --nav-progress: 1;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 6px 16px rgba(78, 50, 23, 0.04);
+}
+
+.case-study-page {
+  padding-top: clamp(5.5rem, 12vh, 8rem);
+  opacity: 1;
+  animation: none;
+}
+
+.case-study-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: clamp(2rem, 5vw, 3.5rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.case-study-banner__link {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.case-study-banner__link:hover {
+  color: var(--text);
+}
+
+.case-study-banner__link--accent {
+  color: var(--blue);
+}
+
+.case-study-banner__link--accent:hover {
+  color: var(--text);
+}
+
+@media (max-width: 600px) {
+  .case-study-page {
+    padding-top: clamp(4.5rem, 10vh, 6rem);
+  }
+
+  .case-study-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-study-page {
+    opacity: 1;
+    animation: none;
+  }
+}

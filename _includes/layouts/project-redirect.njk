@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }} — Andy Cabindol</title>
   <meta name="description" content="{{ description }}">
-  <link rel="canonical" href="https://andycabindol.com/?project={{ page.fileSlug }}">
+  <link rel="canonical" href="{{ seoUrl }}">
   <meta http-equiv="refresh" content="0;url=/?project={{ page.fileSlug }}">
   <script>
     location.replace('/?project={{ page.fileSlug }}');
@@ -14,6 +14,7 @@
 <body>
   <p>Opening <a href="/?project={{ page.fileSlug }}">{{ title }}</a>…</p>
   <noscript>
+    <p><a href="{{ seoUrl }}">View the full case study</a></p>
     <article>
       <h1>{{ title }}</h1>
       {{ content | safe }}

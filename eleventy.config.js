@@ -1,6 +1,7 @@
 const markdownIt = require('markdown-it');
 const fs = require('node:fs');
 const path = require('node:path');
+const { projectDescription, projectOgImage } = require('./_utils/project-seo');
 
 function loadProjectOrder() {
   return JSON.parse(
@@ -14,6 +15,11 @@ function projectSortIndex(slug, projectOrder, fallbackOrder = 0) {
   // Not listed yet — keep after ordered projects, stable via optional front matter order.
   return projectOrder.length + fallbackOrder;
 }
+
+const SITE = {
+  url: 'https://andycabindol.com',
+  defaultOgImage: 'https://andycabindol.com/preview.png',
+};
 
 function extractLeadingBlock(html) {
   const input = html.trimStart();
@@ -69,7 +75,8 @@ module.exports = function eleventyConfig(eleventy) {
   eleventy.addPassthroughCopy('favicon.svg');
   eleventy.addPassthroughCopy('favicon.png');
   eleventy.addPassthroughCopy('preview.png');
-  eleventy.addPassthroughCopy('CNAME');
+  eleventy.addPassthroughCopy('case-study.css');
+  eleventy.addPassthroughCopy('case-study.js');
   // Prevent GitHub Pages from re-running Jekyll on the built site.
   eleventy.addPassthroughCopy('.nojekyll');
 
@@ -134,7 +141,28 @@ module.exports = function eleventyConfig(eleventy) {
       });
   });
 
-  eleventy.addFilter('projectUrl', (slug) => `/?project=${encodeURIComponent(String(slug || ''))}`);
+  eleventy.addFilter('projectUrl', (slug) => {
+    const value = String(slug || '').trim();
+    if (!value) return '/';
+    return `/?project=${encodeURIComponent(value)}`;
+  });
+
+  eleventy.addFilter('projectCaseStudyUrl', (slug) => {
+    const value = String(slug || '').trim();
+    if (!value) return '/';
+    return `/case-studies/${value.replace(/^\/?case-studies\/?/i, '').replace(/\/$/, '')}/`;
+  });
+
+  eleventy.addFilter('projectDescription', (data) => projectDescription(data));
+
+  eleventy.addFilter('projectOgImage', (data) => projectOgImage(data, SITE.url));
+
+  eleventy.addFilter('absoluteUrl', (path) => {
+    const value = String(path || '').trim();
+    if (!value) return SITE.url;
+    if (/^https?:\/\//i.test(value)) return value;
+    return `${SITE.url}${value.startsWith('/') ? value : `/${value}`}`;
+  });
 
   eleventy.addFilter('isVideoSrc', (src) =>
     /\.(webm|mp4|mov)(\?|#|$)/i.test(String(src || '')),
@@ -238,6 +266,19 @@ ${body}
   eleventy.addShortcode('projectVideo', (src, poster = '') => {
     const posterAttr = poster ? ` poster="${poster}"` : '';
     return `<figure class="project-figure project-figure--video media-skeleton media-skeleton--fill"><video class="media-skeleton__media" src="${src}"${posterAttr} controls playsinline></video></figure>`;
+  });
+
+  eleventy.addShortcode('projectAutoplayVideo', (src, label = '') => {
+    const safeSrc = String(src || '').replace(/"/g, '');
+    const safeLabel = String(label || 'Project video').replace(/"/g, '&quot;');
+    return `<figure class="project-figure project-figure--video project-figure--autoplay">
+<video src="${safeSrc}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${safeLabel}"></video>
+<button type="button" class="video-sound" data-video-sound aria-pressed="false" aria-label="Unmute video">
+<span>Unmute</span>
+<svg class="video-sound__icon video-sound__icon--off" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm9.05.05 1.2 1.2-1.2 1.2 1.2 1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2 1.2 1.2 1.2-1.2Z"/></svg>
+<svg class="video-sound__icon video-sound__icon--on" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm7.7 1.15a2.6 2.6 0 0 1 0 2.7l-1-.7a1.4 1.4 0 0 0 0-1.3l1-.7Zm1.55-1.7a4.5 4.5 0 0 1 0 6.1l-1-.75a3.3 3.3 0 0 0 0-4.6l1-.75Z"/></svg>
+</button>
+</figure>`;
   });
 
   eleventy.addShortcode('projectCover', (src, alt = '', slug = '', variant = 'hero') => {

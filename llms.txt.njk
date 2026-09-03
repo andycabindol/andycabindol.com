@@ -1,0 +1,24 @@
+---
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+# {{ site.name }} — {{ site.jobTitle }}
+
+> {{ site.defaultDescription | safe }}
+
+## Main pages
+
+- [Portfolio]({{ site.url }}/)
+- [About]({{ site.url }}/about/)
+- [Projects index (JSON)]({{ site.url }}/projects.json)
+
+## Case studies
+
+{%- for project in collections.projects %}
+- [{{ project.data.title | safe }}]({{ site.url }}/case-studies/{{ project.fileSlug }}/)
+{%- endfor %}
+
+## About
+
+{{ site.name }} is a {{ site.jobTitle }} at {{ site.employer }}.
+Portfolio site: {{ site.url }}

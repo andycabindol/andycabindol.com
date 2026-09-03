@@ -60,6 +60,8 @@
     if (!(media instanceof HTMLElement)) return;
     if (media.dataset.skeletonBound === 'true') return;
     if (media.closest('[data-skeleton-skip]')) return;
+    if (media.closest('.project-figure--autoplay')) return;
+    if (media.classList.contains('project-media__fill')) return;
     // About hero uses the frame as skeleton host (see enhanceAboutHeroFrame).
     if (media.closest('[data-about-hero]')) return;
     if (media.classList.contains('intro-logo')) return;
@@ -72,7 +74,7 @@
     media.classList.add('media-skeleton__media');
 
     const host = media.closest(
-      '.project-figure, .project-cover, .project-media-cell, .project-section__media, figure',
+      '.project-figure, .project-cover, .project-media, .project-media-cell, .project-section__media, figure',
     );
 
     let skeleton;

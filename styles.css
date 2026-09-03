@@ -568,6 +568,19 @@ main.page-main--instant {
   box-shadow: none;
 }
 
+.project-media__fill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 1;
+}
+
 /* Hide iOS / WebKit big play button on looping thumbnails. */
 .project-media video::-webkit-media-controls,
 .project-media video::-webkit-media-controls-start-playback-button,

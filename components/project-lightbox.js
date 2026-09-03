@@ -539,6 +539,7 @@
     reviveScripts(body);
     window.MediaSkeleton?.initAll?.(body);
     window.bootProjectEmbeds?.();
+    window.bindProjectAutoplayVideos?.(body);
   }
 
   function cleanupFlyers() {

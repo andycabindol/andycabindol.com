@@ -264,7 +264,7 @@ function wait(ms) {
 
 function getCurrentPage() {
   const page = document.body.dataset.page;
-  if (page === 'about' || page === 'project') {
+  if (page === 'about' || page === 'project' || page === 'case-study') {
     return page;
   }
   return 'work';
@@ -274,6 +274,9 @@ function getPageFromUrl(url) {
   const path = new URL(url, window.location.href).pathname;
   if (path.endsWith('about.html') || /\/about\/?$/.test(path)) {
     return 'about';
+  }
+  if (path.includes('/case-studies/')) {
+    return 'case-study';
   }
   if (path.includes('/projects/') || path.endsWith('project.html') || /\/project\/?$/.test(path)) {
     return 'project';
@@ -915,6 +918,10 @@ function initPageTransitions() {
 
     const targetUrl = link.getAttribute('href');
     if (!targetUrl) {
+      return;
+    }
+
+    if (document.body.dataset.page === 'case-study' || targetUrl.includes('/case-studies/')) {
       return;
     }
 

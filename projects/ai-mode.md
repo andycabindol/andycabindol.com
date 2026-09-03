@@ -8,7 +8,7 @@ facts:
   - label: Year
     value: "2025"
 projectTags: "UX Design · Prototyping"
-cardLayout: wide
+cardLayout: default
 ---
 
 {% projectSection "Challenge" %}

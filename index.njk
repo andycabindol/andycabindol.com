@@ -4,7 +4,9 @@ permalink: /
 pageId: work
 activeNav: work
 title: UX Motion Designer - Andy Cabindol Portfolio
+pageTitle: UX Motion Designer - Andy Cabindol Portfolio
 description: Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC & Bay Area.
+canonical: https://andycabindol.com/
 stylesheet: styles.css
 fontUrl: https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap
 og:
@@ -13,6 +15,16 @@ og:
   description: Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC & Bay Area.
   image: https://andycabindol.com/preview.png
   imageAlt: Andy Cabindol — UX Motion Designer
+jsonLd:
+  "@context": "https://schema.org"
+  "@type": "Person"
+  name: Andy Cabindol
+  url: https://andycabindol.com
+  jobTitle: UX Motion Designer
+  worksFor:
+    "@type": "Organization"
+    name: Google
+  description: Andy Cabindol is a product and motion designer with 3+ years in fast-paced AI startups and big tech in NYC & Bay Area.
 ---
 <main id="page-main">
   <section class="intro">
@@ -73,10 +85,13 @@ og:
       {% for project in collections.projects %}
       <article class="project-item" data-project-slug="{{ project.fileSlug }}">
         <a class="project-link" href="/?project={{ project.fileSlug }}" data-lightbox="project" aria-label="{{ project.data.title }}">
-          <div class="project-media {{ project.data.cardLayout | cardLayoutClass }}">
+          <div class="project-media {{ project.data.cardLayout | cardLayoutClass }}{% if project.data.thumbFit == 'cover' %} project-media--fit-cover{% endif %}">
             <div class="project-placeholder" aria-hidden="true"></div>
             {% set thumb = project.data.thumbnail or project.data.cover %}
             {% if thumb %}
+            {% if thumb | isVideoSrc and project.data.thumbFit == 'cover' %}
+            <video class="project-media__fill" src="{{ thumb }}" muted autoplay loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-hidden="true" data-skeleton-skip></video>
+            {% else %}
             <div class="project-media__overlay">
               {% if thumb | isVideoSrc %}
               <video class="project-media__overlay-media" src="{{ thumb }}" muted autoplay loop playsinline webkit-playsinline disablepictureinpicture preload="auto" aria-hidden="true"></video>
@@ -84,6 +99,7 @@ og:
               <img class="project-media__overlay-media" src="{{ thumb }}" alt="" loading="lazy" decoding="async">
               {% endif %}
             </div>
+            {% endif %}
             {% endif %}
           </div>
           <div class="project-meta">

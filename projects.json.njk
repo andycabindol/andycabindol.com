@@ -13,7 +13,8 @@ eleventyExcludeFromCollections: true
     "order": {{ loop.index }},
     "cardLayout": {{ (project.data.cardLayout or 'default') | dump | safe }},
     "cover": {{ (project.data.cover or project.data.thumbnail or '') | dump | safe }},
-    "url": {{ (project.fileSlug | projectUrl) | dump | safe }}
+    "url": {{ (project.fileSlug | projectUrl) | dump | safe }},
+    "seoUrl": {{ (project.fileSlug | projectCaseStudyUrl) | dump | safe }}
   }{%- if not loop.last %},{% endif -%}
 {%- endfor -%}
 ]

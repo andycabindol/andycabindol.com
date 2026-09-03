@@ -1,0 +1,52 @@
+---
+layout: layouts/base.njk
+---
+{% set prevProject = collections.projects | neighborProject(projectSlug, -1) %}
+{% set nextProject = collections.projects | neighborProject(projectSlug, 1) %}
+{% set projectFacts = { company: company, role: role, year: year, facts: facts } | projectFacts %}
+<main id="page-main" class="project-page case-study-page">
+  <p class="case-study-banner">
+    <a class="case-study-banner__link" href="/">← Portfolio</a>
+    <a class="case-study-banner__link case-study-banner__link--accent" href="/?project={{ projectSlug }}">Open interactive view</a>
+  </p>
+  <article>
+    <section class="project-hero" id="overview" data-section-label="{{ title }}">
+      <div class="project-hero__intro">
+        <h1 class="project-lede">{{ title }}</h1>
+        {% if projectFacts.length %}
+        <dl class="project-facts">
+          {% for fact in projectFacts %}
+          <div>
+            <dt>{{ fact.label }}</dt>
+            <dd>{{ fact.value }}</dd>
+          </div>
+          {% endfor %}
+        </dl>
+        {% endif %}
+      </div>
+      {% if coverGradient %}
+      {% projectCover cover, title, projectSlug, coverVariant or 'hero' %}
+      {% else %}
+      {% projectCover cover, title %}
+      {% endif %}
+    </section>
+
+    {{ content | safe }}
+
+    <aside class="project-continue" aria-label="More work">
+      <p class="project-continue__nudge">
+        Check out more of my work
+      </p>
+      <nav class="project-pager" aria-label="Project navigation">
+        <a class="project-link project-pager__link project-pager__link--prev" href="{{ prevProject.fileSlug | projectCaseStudyUrl }}" aria-label="Previous project: {{ prevProject.data.title }}">
+          <span class="project-pager__label">Previous</span>
+          <span class="project-pager__title">{{ prevProject.data.title }}</span>
+        </a>
+        <a class="project-link project-pager__link project-pager__link--next" href="{{ nextProject.fileSlug | projectCaseStudyUrl }}" aria-label="Next project: {{ nextProject.data.title }}">
+          <span class="project-pager__label">Next</span>
+          <span class="project-pager__title">{{ nextProject.data.title }}</span>
+        </a>
+      </nav>
+    </aside>
+  </article>
+</main>

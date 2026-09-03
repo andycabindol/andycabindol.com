@@ -1,6 +1,7 @@
 ---
 title: Your project title
 summary: Short line under the title on the work grid.
+description: Optional SEO description for search and AI crawlers. Falls back to title + company if omitted.
 facts:
   - label: Year
     value: "2025"

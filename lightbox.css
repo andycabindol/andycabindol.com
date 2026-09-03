@@ -437,6 +437,17 @@ body.lightbox-locked .site-header {
   visibility: visible !important;
 }
 
+.lightbox__figure .project-media__fill,
+.lightbox__media .project-media__fill,
+.lightbox-flyer .project-media__fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
 .lightbox video::-webkit-media-controls,
 .lightbox video::-webkit-media-controls-start-playback-button,
 .lightbox-flyer video::-webkit-media-controls,
@@ -594,6 +605,67 @@ body.lightbox-locked .site-header {
   width: 100%;
   height: auto;
   border-radius: 8px;
+}
+
+.lightbox .project-figure--autoplay {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 12rem;
+  overflow: hidden;
+  background: #111;
+}
+
+.lightbox .project-figure--autoplay video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-sound {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.4rem 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(20, 18, 16, 0.72);
+  color: #f4f1ec;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.video-sound__icon {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+}
+
+.video-sound__icon--on {
+  display: none;
+}
+
+.video-sound[aria-pressed="true"] .video-sound__icon--off {
+  display: none;
+}
+
+.video-sound[aria-pressed="true"] .video-sound__icon--on {
+  display: block;
+}
+
+.video-sound:hover,
+.video-sound[aria-pressed="true"] {
+  background: rgba(20, 18, 16, 0.9);
 }
 
 .lightbox .project-grid {

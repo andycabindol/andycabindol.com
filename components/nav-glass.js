@@ -63,6 +63,8 @@
   }
 
   function boot() {
+    if (document.body.dataset.page === 'case-study') return;
+
     const header = document.querySelector('.site-header');
     const stage = document.querySelector('.site-stage');
     if (!header || !stage) return;

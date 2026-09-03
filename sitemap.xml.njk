@@ -1,0 +1,18 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{{ site.url }}/</loc>
+  </url>
+  <url>
+    <loc>{{ site.url }}/about/</loc>
+  </url>
+  {%- for project in collections.projects %}
+  <url>
+    <loc>{{ site.url }}/case-studies/{{ project.fileSlug }}/</loc>
+  </url>
+  {%- endfor %}
+</urlset>

@@ -884,6 +884,98 @@ function bindAutoplayVideos(root = document) {
   };
 }
 
+function setVideoSoundState(video, unmuted) {
+  const button = video.closest('.project-figure--autoplay')?.querySelector('[data-video-sound]');
+  video.muted = !unmuted;
+  if (unmuted) {
+    video.volume = 1;
+  }
+  if (!button) return;
+  button.setAttribute('aria-pressed', unmuted ? 'true' : 'false');
+  button.setAttribute('aria-label', unmuted ? 'Mute video' : 'Unmute video');
+  const label = button.querySelector('span');
+  if (label) label.textContent = unmuted ? 'Mute' : 'Unmute';
+}
+
+function playProjectClip(video) {
+  if (!(video instanceof HTMLVideoElement)) return;
+  video.loop = true;
+  video.playsInline = true;
+  video.muted = video.dataset.soundOn === 'true' ? false : true;
+  video.setAttribute('playsinline', '');
+  video.setAttribute('webkit-playsinline', '');
+  const play = () => {
+    const result = video.play();
+    if (result && typeof result.catch === 'function') result.catch(() => {});
+  };
+  if (video.readyState >= 2) play();
+  else {
+    video.preload = 'auto';
+    video.addEventListener('loadeddata', play, { once: true });
+    video.load();
+  }
+}
+
+let projectClipObserver = null;
+
+function bindProjectAutoplayVideos(root = document) {
+  const videos = [...root.querySelectorAll('.project-figure--autoplay video')];
+  if (!videos.length) return;
+
+  projectClipObserver?.disconnect();
+  const scrollRoot = root.closest?.('.lightbox__scroll')
+    || document.querySelector('.lightbox.is-open .lightbox__scroll')
+    || null;
+
+  if ('IntersectionObserver' in window) {
+    projectClipObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (!(video instanceof HTMLVideoElement)) return;
+        if (entry.isIntersecting) playProjectClip(video);
+        else {
+          video.pause();
+          if (video.dataset.soundOn === 'true') {
+            video.dataset.soundOn = 'false';
+            setVideoSoundState(video, false);
+          }
+        }
+      });
+    }, { root: scrollRoot, rootMargin: '30% 0px', threshold: 0.01 });
+  }
+
+  videos.forEach((video) => {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = 'auto';
+    video.dataset.soundOn = 'false';
+    setVideoSoundState(video, false);
+    video.load();
+    projectClipObserver?.observe(video);
+  });
+}
+
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-video-sound]');
+  if (!button) return;
+  const figure = button.closest('.project-figure--autoplay');
+  const video = figure?.querySelector('video');
+  if (!video) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const nextUnmuted = video.muted;
+  document.querySelectorAll('.project-figure--autoplay video').forEach((other) => {
+    if (other !== video) setVideoSoundState(other, false);
+  });
+  setVideoSoundState(video, nextUnmuted);
+  video.dataset.soundOn = nextUnmuted ? 'true' : 'false';
+  playProjectClip(video);
+});
+
+window.bindProjectAutoplayVideos = bindProjectAutoplayVideos;
+
 let unbindAutoplayVideos = null;
 
 function bootWorkPage() {

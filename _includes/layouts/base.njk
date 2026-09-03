@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="{{ description }}">
-  <title>{{ title }}</title>
+  <title>{{ pageTitle or title }}</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+  {% if canonical %}
+  <link rel="canonical" href="{{ canonical }}">
+  {% endif %}
   {% if og %}
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ og.url }}">
@@ -21,14 +24,17 @@
   <meta name="twitter:description" content="{{ og.description }}">
   <meta name="twitter:image" content="{{ og.image }}">
   {% endif %}
+  {% if jsonLd %}
+  <script type="application/ld+json">{{ jsonLd | dump | safe }}</script>
+  {% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="{{ fontUrl }}" rel="stylesheet">
   <link rel="stylesheet" href="/components/creamy-orb.css">
   <link rel="stylesheet" href="/components/media-skeleton.css">
   <link rel="stylesheet" href="/nav.css">
-  <link rel="stylesheet" href="/{{ stylesheet }}" id="page-stylesheet">
-  <link rel="stylesheet" href="/lightbox.css?v=30">
+  <link rel="stylesheet" href="/{{ stylesheet }}?v=35" id="page-stylesheet">
+  <link rel="stylesheet" href="/lightbox.css?v=34">
   <link rel="stylesheet" href="/components/nav-glass.css?v=24">
   {# Chrome Origin Trial: HTMLInCanvas for andycabindol.com (subdomains included). Localhost still needs the flag or a separate token. #}
   <meta http-equiv="origin-trial" content="AqVGidp6DODGc096c6iAj344c2KVEz3zU6xgVSheOBeiuH9GWuBf2CgDDpHSLEtZXAnkadqEOX+yiQvUqbxgegMAAABpeyJvcmlnaW4iOiJodHRwczovL2FuZHljYWJpbmRvbC5jb206NDQzIiwiZmVhdHVyZSI6IkhUTUxJbkNhbnZhcyIsImV4cGlyeSI6MTc5MjQ1NDQwMCwiaXNTdWJkb21haW4iOnRydWV9">
@@ -39,6 +45,10 @@
     {{ content | safe }}
     {% include "partials/site-footer.njk" %}
   </div>
+  {% if pageId == 'case-study' %}
+  {% include "partials/site-scripts-case-study.njk" %}
+  {% else %}
   {% include "partials/site-scripts.njk" %}
+  {% endif %}
 </body>
 </html>

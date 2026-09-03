@@ -1,0 +1,9 @@
+---
+pagination:
+  data: collections.projects
+  size: 1
+  alias: project
+permalink: "/case-studies/{{ project.fileSlug }}/index.html"
+eleventyExcludeFromCollections: true
+---
+{{ project.templateContent | safe }}
