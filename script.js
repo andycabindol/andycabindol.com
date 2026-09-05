@@ -885,7 +885,7 @@ function bindAutoplayVideos(root = document) {
 }
 
 function setVideoSoundState(video, unmuted) {
-  const button = video.closest('.project-figure--autoplay')?.querySelector('[data-video-sound]');
+  const button = video.closest('.project-figure--autoplay, .project-figure--phones')?.querySelector('[data-video-sound]');
   video.muted = !unmuted;
   if (unmuted) {
     video.volume = 1;
@@ -964,14 +964,17 @@ function bindProjectAutoplayVideos(root = document) {
 document.addEventListener('click', (event) => {
   const button = event.target.closest('[data-video-sound]');
   if (!button) return;
-  const figure = button.closest('.project-figure--autoplay');
+  const figure = button.closest('.project-figure--autoplay, .project-figure--phones');
   const video = figure?.querySelector('video');
   if (!video) return;
   event.preventDefault();
   event.stopPropagation();
   const nextUnmuted = video.muted;
-  document.querySelectorAll('.project-figure--autoplay video').forEach((other) => {
-    if (other !== video) setVideoSoundState(other, false);
+  document.querySelectorAll('.project-figure--autoplay video, .project-figure--phones video').forEach((other) => {
+    if (other !== video) {
+      other.dataset.soundOn = 'false';
+      setVideoSoundState(other, false);
+    }
   });
   setVideoSoundState(video, nextUnmuted);
   video.dataset.soundOn = nextUnmuted ? 'true' : 'false';
@@ -993,6 +996,15 @@ function bindPhoneBottomZooms(root = document) {
       // Timecode 0:00:01:33 → 0:00:04:43 @ ~60fps
       start: 1 + 33 / 60,
       end: 4 + 43 / 60,
+      scale: 1.52,
+      easeIn: 0.78,
+      easeOut: 0.78,
+    },
+    {
+      selector: '#filter-by-confidence .project-figure--phones-single',
+      // Zoom in at 0:02, zoom out later in 0:04
+      start: 2,
+      end: 4.7,
       scale: 1.52,
       easeIn: 0.78,
       easeOut: 0.78,

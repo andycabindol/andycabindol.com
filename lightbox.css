@@ -1,3 +1,5 @@
+@import url('/components/chirper-promo.css');
+
 /* Project lightbox — work grid opens in-place instead of a separate page.
  *
  * Nomenclature:
@@ -1661,7 +1663,15 @@ body[data-project-slug="chirper"] .project-section__media > .project-figure--pho
 
 /* Chirper Merlin import: shorter stage, phone scales to fit */
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
-body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones {
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones {
   aspect-ratio: 5 / 6;
   width: 100%;
   margin: 0;
@@ -1672,21 +1682,71 @@ body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-fi
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
 body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
-body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
   filter: none !important;
 }
 
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
-body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video {
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-video {
   --phone-screen-curtain: 0%;
 }
 
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
-body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone {
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phone {
   height: 92%;
 }
 
+/* Adjust each clip: larger frame, clipped at bottom */
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones {
+  container-type: size;
+}
+
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phone {
+  height: 119%;
+  transform: translateY(9.72cqh);
+}
+
 .lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
-body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones {
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phones {
   padding: clamp(0.75rem, 2vw, 1.25rem);
 }

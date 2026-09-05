@@ -1,0 +1,191 @@
+#download-chirper {
+  container-type: inline-size;
+}
+
+.chirper-promo {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 8.5rem;
+  padding: 1.5rem 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(66, 110, 139, 0.12);
+  border-radius: 8px;
+  background-color: #e2f1fb;
+  background-image: linear-gradient(rgba(226, 241, 251, 0.4), rgba(226, 241, 251, 0.4)), url('/media/chirper/nature-pattern.png');
+  background-position: center;
+  background-size: cover;
+  color: #172d3d;
+  text-align: left;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chirper-promo .chirper-promo__title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #172d3d;
+  font-family: var(--display, "Crimson Pro", Georgia, serif);
+  font-size: clamp(1.125rem, 4.5cqi, 1.75rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.chirper-promo__title > span {
+  display: block;
+  white-space: nowrap;
+}
+
+.chirper-promo__title em {
+  color: #315f7a;
+  font-weight: inherit;
+}
+
+.chirper-promo__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(3rem, 12cqi, 4.5rem);
+  aspect-ratio: 1;
+}
+
+.chirper-promo__art::before,
+.chirper-promo__art::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border: 1px solid rgba(49, 95, 122, 0.25);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: center;
+  pointer-events: none;
+  animation-delay: 0s;
+}
+
+.chirper-promo__art::after {
+  animation-delay: -1.4s;
+}
+
+@keyframes chirper-promo-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.chirper-promo .chirper-promo__icon {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 23%;
+  box-shadow: 0 12px 22px -8px rgba(35, 74, 101, 0.25), 0 2px 4px rgba(35, 74, 101, 0.08);
+  transition: transform 500ms cubic-bezier(0.22, 1.28, 0.36, 1), box-shadow 500ms ease;
+}
+
+.chirper-promo__cta {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  justify-self: end;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1.3rem;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  white-space: nowrap;
+  font-family: "Geist", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.chirper-promo__arrow {
+  transition: transform 300ms ease;
+}
+
+.chirper-promo:focus-visible {
+  outline: 3px solid #315f7a;
+  outline-offset: 5px;
+}
+
+.chirper-promo:focus-visible .chirper-promo__icon {
+  transform: translateY(-3px) rotate(-2deg) scale(1.02);
+}
+
+.chirper-promo:focus-visible .chirper-promo__art::before,
+.chirper-promo:focus-visible .chirper-promo__art::after {
+  animation-name: chirper-promo-ripple;
+  animation-duration: 2.8s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (hover: hover) {
+  .chirper-promo:hover .chirper-promo__icon {
+    transform: translateY(-3px) rotate(-2deg) scale(1.02);
+    box-shadow: 0 15px 24px -9px rgba(35, 74, 101, 0.28), 0 2px 5px rgba(35, 74, 101, 0.08);
+  }
+
+  .chirper-promo:hover .chirper-promo__art::before,
+  .chirper-promo:hover .chirper-promo__art::after {
+    animation-name: chirper-promo-ripple;
+    animation-duration: 2.8s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .chirper-promo:hover .chirper-promo__arrow {
+    transform: translate(2px, -2px);
+  }
+}
+
+.chirper-promo:active .chirper-promo__icon {
+  transform: scale(0.96);
+}
+
+@container (max-width: 480px) {
+  .chirper-promo {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .chirper-promo__cta {
+    grid-column: 2;
+    padding: 0.65rem 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chirper-promo *,
+  .chirper-promo *::before,
+  .chirper-promo *::after {
+    transition: none;
+  }
+
+  .chirper-promo:is(:hover, :focus-visible, :active) .chirper-promo__icon,
+  .chirper-promo:hover .chirper-promo__arrow {
+    transform: none;
+  }
+
+  .chirper-promo:is(:hover, :focus-visible) .chirper-promo__art::before,
+  .chirper-promo:is(:hover, :focus-visible) .chirper-promo__art::after {
+    animation: none;
+  }
+}
