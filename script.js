@@ -957,6 +957,8 @@ function bindProjectAutoplayVideos(root = document) {
     video.load();
     projectClipObserver?.observe(video);
   });
+
+  bindPhoneBottomZooms(root);
 }
 
 document.addEventListener('click', (event) => {
@@ -977,6 +979,74 @@ document.addEventListener('click', (event) => {
 });
 
 window.bindProjectAutoplayVideos = bindProjectAutoplayVideos;
+
+function easeInOutCubic(t) {
+  const x = Math.min(1, Math.max(0, t));
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+/** Zoom into the bottom of a phone stage while the screen recording is in a time window. */
+function bindPhoneBottomZooms(root = document) {
+  const configs = [
+    {
+      selector: '#import-audio-directly-from-merlin .project-figure--phones-single',
+      // Timecode 0:00:01:33 → 0:00:04:43 @ ~60fps
+      start: 1 + 33 / 60,
+      end: 4 + 43 / 60,
+      scale: 1.52,
+      easeIn: 0.78,
+      easeOut: 0.78,
+    },
+  ];
+
+  configs.forEach((config) => {
+    const figure = root.querySelector?.(config.selector) || document.querySelector(config.selector);
+    if (!figure || figure.dataset.phoneZoomBound === 'true') return;
+    const video = figure.querySelector('video');
+    const device = figure.querySelector('.project-phone__device');
+    if (!(video instanceof HTMLVideoElement) || !device) return;
+
+    figure.dataset.phoneZoomBound = 'true';
+    figure.classList.add('project-figure--phones-zoom');
+    device.style.transformOrigin = '50% 100%';
+    device.style.willChange = 'transform';
+
+    const applyZoom = () => {
+      const t = video.currentTime || 0;
+      const easeIn = config.easeIn;
+      const easeOut = config.easeOut;
+      const holdStart = config.start + easeIn;
+      const holdEnd = Math.max(holdStart, config.end - easeOut);
+      let amount = 0;
+      if (t >= config.start && t < holdStart) {
+        amount = easeInOutCubic((t - config.start) / easeIn);
+      } else if (t >= holdStart && t <= holdEnd) {
+        amount = 1;
+      } else if (t > holdEnd && t <= config.end) {
+        amount = 1 - easeInOutCubic((t - holdEnd) / easeOut);
+      }
+      const scale = 1 + (config.scale - 1) * amount;
+      device.style.transform = scale === 1 ? '' : `scale(${scale})`;
+    };
+
+    video.addEventListener('timeupdate', applyZoom);
+    video.addEventListener('seeked', applyZoom);
+    video.addEventListener('play', applyZoom);
+    let raf = 0;
+    const tick = () => {
+      applyZoom();
+      if (!video.paused && !video.ended) raf = requestAnimationFrame(tick);
+    };
+    video.addEventListener('play', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(tick);
+    });
+    video.addEventListener('pause', () => cancelAnimationFrame(raf));
+    applyZoom();
+  });
+}
+
+window.bindPhoneBottomZooms = bindPhoneBottomZooms;
 
 const appStoreTickerCleanups = new WeakMap();
 

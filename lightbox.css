@@ -879,6 +879,15 @@ body.lightbox-locked .site-header {
   max-width: none;
 }
 
+.lightbox .project-figure--phones-zoom {
+  overflow: hidden;
+}
+
+.lightbox .project-figure--phones-zoom .project-phone__device {
+  transform-origin: 50% 100%;
+  transition: none;
+}
+
 .lightbox .project-figure--phones-single .project-phones {
   align-items: center;
   justify-content: center;
@@ -1562,20 +1571,28 @@ body.lightbox-locked .site-header {
 }
 
 /* TEMP preview — light green Baton backgrounds (easy to remove) */
-.lightbox .project-figure--autoplay-stage,
-.lightbox .project-figure--appstore-ticker,
-.lightbox .project-figure--phones-bg {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--autoplay-stage,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-bg,
+body.temp-baton-media-only .lightbox .project-figure--autoplay-stage,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker,
+body.temp-baton-media-only .lightbox .project-figure--phones-bg {
   background: #d8eadc !important;
 }
 
-.lightbox .project-figure--autoplay-stage .project-figure__bg,
-.lightbox .project-figure--appstore-ticker .project-figure__bg,
-.lightbox .project-figure--phones-bg .project-figure__bg,
-.lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--autoplay-stage .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--autoplay-stage .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
   filter: brightness(1.85) contrast(0.9) saturate(1.08) !important;
 }
 
-.lightbox .project-figure--appstore-ticker::after {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker::after,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker::after {
   opacity: 0 !important;
 }
 
@@ -1609,4 +1626,67 @@ body.temp-baton-media-only .lightbox .project-section:has(.project-section__medi
 body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-figure,
 body.temp-baton-media-only .project-section:has(.project-section__media) .project-figure {
   margin: 0;
+}
+
+/* Chirper: tighter gap between section media and title */
+.lightbox[data-project="chirper"] .project-section__media > .project-figure,
+body[data-project-slug="chirper"] .project-section__media > .project-figure {
+  margin: 0;
+}
+
+.lightbox[data-project="chirper"] .project-section__media,
+body[data-project-slug="chirper"] .project-section__media {
+  margin-bottom: 0.9rem;
+}
+
+/* Chirper intro: match tall thumbnail width + 4:5 crop */
+.lightbox[data-project="chirper"] #trim-bird-audio-automatically .project-figure--autoplay,
+body[data-project-slug="chirper"] #trim-bird-audio-automatically .project-figure--autoplay {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+/* Chirper remaining frames: match Merlin import stage (5:6) */
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--gray,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--gray,
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--plain,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--plain,
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--phones,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  min-height: 0;
+}
+
+/* Chirper Merlin import: shorter stage, phone scales to fit */
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+  background: transparent;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: none !important;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video {
+  --phone-screen-curtain: 0%;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone {
+  height: 92%;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
 }

@@ -495,6 +495,7 @@
 
     title.textContent = seed?.querySelector('[data-seed-title]')?.textContent?.trim() || '';
     setProjectMode(true, title.textContent);
+    shell.dataset.project = slug || '';
     // TEMP preview — media-only for Baton
     document.body.classList.toggle('temp-baton-media-only', slug === 'baton-branding');
     if (summary) {
@@ -667,6 +668,7 @@
     if (!on) {
       document.body.classList.remove('lightbox-closing');
       document.body.classList.remove('temp-baton-media-only');
+      if (shell) delete shell.dataset.project;
     }
     setProjectPill(on ? title : '');
     window.__navApplyState?.();

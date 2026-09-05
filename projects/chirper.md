@@ -13,18 +13,13 @@ cover: /media/chirper/cover.mp4
 ---
 
 {% projectSection "Trim bird audio automatically" %}
-{% projectGradient "chirper", "introducing" %}
+{% projectAutoplayVideo "/media/chirper/trim-bird.mp4", "Chirper trim bird audio automatically" %}
 Chirper takes long bird recordings and automatically turns them into individual clips, organized by species.
 {% endprojectSection %}
 
 {% projectSection "Import audio directly from Merlin" %}
-{% projectGradient "chirper", "import-merlin" %}
+{% projectPhoneStage "/media/chirper/import-bg.jpg", "/media/chirper/import.mp4" %}
 Import an audio file or bring in a recording from Merlin. No converting files or moving everything to a desktop editor first.
-{% endprojectSection %}
-
-{% projectSection "Automatically trim bird recordings" %}
-{% projectGradient "chirper", "auto-detect" %}
-Chirper listens through the recording, finds bird sounds, and trims them into individual clips. Each clip is grouped by species with a predicted ID and confidence score.
 {% endprojectSection %}
 
 {% projectSection "Adjust each clip" %}

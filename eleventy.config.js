@@ -289,11 +289,7 @@ ${body}
 <svg class="video-sound__icon video-sound__icon--off" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm9.05.05 1.2 1.2-1.2 1.2 1.2 1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2 1.2 1.2 1.2-1.2Z"/></svg>
 <svg class="video-sound__icon video-sound__icon--on" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm7.7 1.15a2.6 2.6 0 0 1 0 2.7l-1-.7a1.4 1.4 0 0 0 0-1.3l1-.7Zm1.55-1.7a4.5 4.5 0 0 1 0 6.1l-1-.75a3.3 3.3 0 0 0 0-4.6l1-.75Z"/></svg>
 </button>`;
-    return `<figure class="project-figure project-figure--video project-figure--autoplay${stageClass}${naturalClass}"${aspectAttr}>
-${bg}
-<video src="${safeSrc}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${safeLabel}"></video>
-${button}
-</figure>`;
+    return `<figure class="project-figure project-figure--video project-figure--autoplay${stageClass}${naturalClass}"${aspectAttr}>${bg}<video src="${safeSrc}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${safeLabel}"></video>${button}</figure>`;
   });
 
   eleventy.addShortcode('projectAppStoreTicker', (background, ...cardSrcs) => {
@@ -353,18 +349,9 @@ ${button}
           ? `<span class="project-phone__screen-curtain" aria-hidden="true"></span>`
           : '';
         const screen = isVideo
-          ? `<video class="project-phone__screen project-phone__screen--video" src="${safe}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${alt}"></video>
-${curtain}`
+          ? `<video class="project-phone__screen project-phone__screen--video" src="${safe}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${alt}"></video>${curtain}`
           : `<img class="project-phone__screen" src="${safe}" alt="${alt}" decoding="async" loading="lazy">`;
-        return `<div class="project-phone">
-<div class="project-phone__device">
-<div class="project-phone__screen-wrap">
-${screen}
-</div>
-<img class="project-phone__chrome" src="${frameSrc}" alt="" decoding="async" aria-hidden="true">
-</div>
-${labelHtml}
-</div>`;
+        return `<div class="project-phone"><div class="project-phone__device"><div class="project-phone__screen-wrap">${screen}</div><img class="project-phone__chrome" src="${frameSrc}" alt="" decoding="async" aria-hidden="true"></div>${labelHtml}</div>`;
       })
       .join('');
     if (!phones) return '';
@@ -376,10 +363,7 @@ ${labelHtml}
     const softClass = softClip ? ' project-figure--phones-soft' : '';
     const hasVideo = mediaSrcs.some((src) => /\.(webm|mp4|mov)(\?|#|$)/i.test(src));
     const videoClass = hasVideo ? ' project-figure--phones-video' : '';
-    return `<figure class="project-figure project-figure--phones${bgClass}${singleClass}${softClass}${videoClass}" aria-label="iPhone screens">
-${bg}
-<div class="project-phones">${phones}</div>
-</figure>`;
+    return `<figure class="project-figure project-figure--phones${bgClass}${singleClass}${softClass}${videoClass}" aria-label="iPhone screens">${bg}<div class="project-phones">${phones}</div></figure>`;
   });
 
   eleventy.addShortcode('projectCover', (src, alt = '', slug = '', variant = 'hero') => {
