@@ -61,6 +61,11 @@
     if (media.dataset.skeletonBound === 'true') return;
     if (media.closest('[data-skeleton-skip]')) return;
     if (media.closest('.project-figure--autoplay')) return;
+    if (media.closest('[data-appstore-ticker]')) return;
+    if (media.classList.contains('project-figure__bg')) return;
+    if (media.classList.contains('project-phone__screen')) return;
+    if (media.classList.contains('project-phone__chrome')) return;
+    if (media.closest('.project-figure--phones')) return;
     if (media.classList.contains('project-media__fill')) return;
     // About hero uses the frame as skeleton host (see enhanceAboutHeroFrame).
     if (media.closest('[data-about-hero]')) return;

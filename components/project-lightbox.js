@@ -495,6 +495,8 @@
 
     title.textContent = seed?.querySelector('[data-seed-title]')?.textContent?.trim() || '';
     setProjectMode(true, title.textContent);
+    // TEMP preview — media-only for Baton
+    document.body.classList.toggle('temp-baton-media-only', slug === 'baton-branding');
     if (summary) {
       summary.textContent = '';
       summary.hidden = true;
@@ -540,6 +542,7 @@
     window.MediaSkeleton?.initAll?.(body);
     window.bootProjectEmbeds?.();
     window.bindProjectAutoplayVideos?.(body);
+    window.bindAppStoreTickers?.(body);
   }
 
   function cleanupFlyers() {
@@ -661,7 +664,10 @@
   function setProjectMode(on, title = '') {
     if (on) setStageOrigin();
     document.body.classList.toggle('lightbox-open', on);
-    if (!on) document.body.classList.remove('lightbox-closing');
+    if (!on) {
+      document.body.classList.remove('lightbox-closing');
+      document.body.classList.remove('temp-baton-media-only');
+    }
     setProjectPill(on ? title : '');
     window.__navApplyState?.();
     if (on) window.__navGlass?.pause?.();

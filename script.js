@@ -919,7 +919,9 @@ function playProjectClip(video) {
 let projectClipObserver = null;
 
 function bindProjectAutoplayVideos(root = document) {
-  const videos = [...root.querySelectorAll('.project-figure--autoplay video')];
+  const videos = [
+    ...root.querySelectorAll('.project-figure--autoplay video, .project-figure--phones video'),
+  ];
   if (!videos.length) return;
 
   projectClipObserver?.disconnect();
@@ -975,6 +977,248 @@ document.addEventListener('click', (event) => {
 });
 
 window.bindProjectAutoplayVideos = bindProjectAutoplayVideos;
+
+const appStoreTickerCleanups = new WeakMap();
+
+function initAppStoreTicker(root) {
+  const shell = root.querySelector('.appstore-ticker');
+  const track = root.querySelector('[data-appstore-track]');
+  const list = track?.querySelector('.appstore-ticker__list');
+  if (!shell || !track || !list) return () => {};
+
+  const existingClones = track.querySelectorAll('.appstore-ticker__list[aria-hidden="true"]');
+  existingClones.forEach((node) => node.remove());
+
+  const clone = list.cloneNode(true);
+  clone.setAttribute('aria-hidden', 'true');
+  clone.querySelectorAll('img').forEach((img) => {
+    img.alt = '';
+  });
+  track.appendChild(clone);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let offset = 0;
+  let halfWidth = 0;
+  let cardStep = 0;
+  let dragging = false;
+  let animating = false;
+  let lastPointerX = 0;
+  let lastPointerT = 0;
+  let velocity = 0;
+  let pointerId = null;
+  let holdTimer = 0;
+  let raf = 0;
+
+  const HOLD_MS = reduceMotion ? 0 : 2800;
+  const SNAP_MS = reduceMotion ? 0 : 520;
+  const DRAG_THRESHOLD = 0.18; // fraction of card width to flip step
+  const FLICK_VELOCITY = 0.35; // px/ms
+
+  function measure() {
+    const trackStyles = getComputedStyle(track);
+    const trackGap = parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
+    halfWidth = list.getBoundingClientRect().width + trackGap;
+
+    const first = list.querySelector('.appstore-ticker__item');
+    if (first) {
+      const styles = getComputedStyle(list);
+      const gap = parseFloat(styles.columnGap || styles.gap) || 0;
+      cardStep = first.getBoundingClientRect().width + gap;
+    } else {
+      cardStep = 0;
+    }
+  }
+
+  function wrapOffset() {
+    if (halfWidth <= 0) return;
+    while (-offset >= halfWidth) offset += halfWidth;
+    while (offset > 0) offset -= halfWidth;
+  }
+
+  function applyTrack() {
+    track.style.transform = `translate3d(${offset}px, 0, 0)`;
+  }
+
+  function snapOffset(value) {
+    if (cardStep <= 0) return value;
+    return Math.round(value / cardStep) * cardStep;
+  }
+
+  function clearHold() {
+    window.clearTimeout(holdTimer);
+    holdTimer = 0;
+  }
+
+  function scheduleAdvance() {
+    clearHold();
+    if (!HOLD_MS || cardStep <= 0) return;
+    holdTimer = window.setTimeout(() => {
+      if (dragging || animating) {
+        scheduleAdvance();
+        return;
+      }
+      animateTo(snapOffset(offset) - cardStep);
+    }, HOLD_MS);
+  }
+
+  function easeOutCubic(t) {
+    return 1 - (1 - t) ** 3;
+  }
+
+  function animateTo(target) {
+    cancelAnimationFrame(raf);
+    animating = true;
+    clearHold();
+
+    if (!SNAP_MS) {
+      offset = target;
+      wrapOffset();
+      applyTrack();
+      animating = false;
+      scheduleAdvance();
+      return;
+    }
+
+    const start = offset;
+    const delta = target - start;
+    const startT = performance.now();
+
+    function step(now) {
+      const t = Math.min(1, (now - startT) / SNAP_MS);
+      offset = start + delta * easeOutCubic(t);
+      applyTrack();
+      if (t < 1) {
+        raf = requestAnimationFrame(step);
+        return;
+      }
+      offset = target;
+      wrapOffset();
+      applyTrack();
+      animating = false;
+      scheduleAdvance();
+    }
+
+    raf = requestAnimationFrame(step);
+  }
+
+  function settleFromDrag() {
+    if (cardStep <= 0) {
+      scheduleAdvance();
+      return;
+    }
+
+    const base = snapOffset(offset);
+    let target = base;
+    const deltaFromSnap = offset - base;
+
+    if (Math.abs(velocity) >= FLICK_VELOCITY) {
+      target = velocity > 0 ? base + cardStep : base - cardStep;
+    } else if (Math.abs(deltaFromSnap) >= cardStep * DRAG_THRESHOLD) {
+      target = deltaFromSnap > 0 ? base + cardStep : base - cardStep;
+    }
+
+    animateTo(target);
+  }
+
+  function onPointerDown(event) {
+    if (event.button !== 0) return;
+    cancelAnimationFrame(raf);
+    animating = false;
+    clearHold();
+    dragging = true;
+    velocity = 0;
+    lastPointerX = event.clientX;
+    lastPointerT = performance.now();
+    pointerId = event.pointerId;
+    shell.classList.add('is-dragging');
+    try {
+      shell.setPointerCapture(pointerId);
+    } catch (_) {
+      /* ignore */
+    }
+    event.preventDefault();
+  }
+
+  function onPointerMove(event) {
+    if (!dragging || event.pointerId !== pointerId) return;
+    const now = performance.now();
+    const dx = event.clientX - lastPointerX;
+    const dt = Math.max(1, now - lastPointerT);
+    offset += dx;
+    velocity = dx / dt;
+    lastPointerX = event.clientX;
+    lastPointerT = now;
+    wrapOffset();
+    applyTrack();
+  }
+
+  function onPointerUp(event) {
+    if (!dragging || event.pointerId !== pointerId) return;
+    dragging = false;
+    pointerId = null;
+    shell.classList.remove('is-dragging');
+    settleFromDrag();
+  }
+
+  function onResize() {
+    const index = cardStep > 0 ? Math.round(-offset / cardStep) : 0;
+    measure();
+    offset = cardStep > 0 ? -index * cardStep : 0;
+    wrapOffset();
+    applyTrack();
+  }
+
+  function onImageLoad() {
+    measure();
+    offset = snapOffset(offset);
+    wrapOffset();
+    applyTrack();
+  }
+
+  list.querySelectorAll('img').forEach((img) => {
+    if (img.complete) return;
+    img.addEventListener('load', onImageLoad, { once: true });
+  });
+
+  measure();
+  applyTrack();
+  scheduleAdvance();
+
+  const resizeObserver = typeof ResizeObserver !== 'undefined'
+    ? new ResizeObserver(onResize)
+    : null;
+  resizeObserver?.observe(root);
+  window.addEventListener('resize', onResize);
+
+  shell.addEventListener('pointerdown', onPointerDown);
+  shell.addEventListener('pointermove', onPointerMove);
+  shell.addEventListener('pointerup', onPointerUp);
+  shell.addEventListener('pointercancel', onPointerUp);
+  shell.addEventListener('lostpointercapture', onPointerUp);
+
+  return () => {
+    cancelAnimationFrame(raf);
+    clearHold();
+    resizeObserver?.disconnect();
+    window.removeEventListener('resize', onResize);
+    shell.removeEventListener('pointerdown', onPointerDown);
+    shell.removeEventListener('pointermove', onPointerMove);
+    shell.removeEventListener('pointerup', onPointerUp);
+    shell.removeEventListener('pointercancel', onPointerUp);
+    shell.removeEventListener('lostpointercapture', onPointerUp);
+    shell.classList.remove('is-dragging');
+    track.style.transform = '';
+  };
+}
+
+function bindAppStoreTickers(root = document) {
+  root.querySelectorAll('[data-appstore-ticker]').forEach((el) => {
+    appStoreTickerCleanups.get(el)?.();
+    appStoreTickerCleanups.set(el, initAppStoreTicker(el));
+  });
+}
+
+window.bindAppStoreTickers = bindAppStoreTickers;
 
 let unbindAutoplayVideos = null;
 

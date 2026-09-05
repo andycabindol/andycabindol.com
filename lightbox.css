@@ -623,6 +623,310 @@ body.lightbox-locked .site-header {
   object-fit: cover;
 }
 
+.lightbox .project-figure--autoplay-natural {
+  aspect-ratio: auto;
+  min-height: 0;
+  background: #111;
+}
+
+.lightbox .project-figure--autoplay-natural video {
+  position: static;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.lightbox .project-figure--autoplay-stage {
+  aspect-ratio: 2 / 1;
+  min-height: 0;
+  background: #0a0a0a;
+}
+
+.lightbox .project-figure--autoplay-stage .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.lightbox .project-figure--autoplay-stage video {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 0;
+  width: 90%;
+  height: auto;
+  max-height: 92%;
+  transform: translateX(-50%);
+  object-fit: contain;
+  border-radius: 18px 18px 0 0;
+}
+
+.lightbox .project-figure--appstore-ticker {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.lightbox .project-figure--appstore-ticker .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+  filter: brightness(0.72);
+}
+
+.lightbox .project-figure--appstore-ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(0, 0, 0, 0.38);
+  pointer-events: none;
+}
+
+.lightbox .appstore-ticker {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lightbox .appstore-ticker.is-dragging {
+  cursor: grabbing;
+}
+
+.lightbox .appstore-ticker__viewport {
+  width: 100%;
+  height: 82%;
+  overflow: hidden;
+  padding-left: clamp(1rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+}
+
+.lightbox .appstore-ticker__track {
+  --appstore-gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  display: flex;
+  height: 100%;
+  width: max-content;
+  gap: var(--appstore-gap);
+  will-change: transform;
+}
+
+.lightbox .appstore-ticker__list {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: var(--appstore-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lightbox .appstore-ticker__item {
+  flex: 0 0 auto;
+  height: 100%;
+  margin: 0;
+}
+
+.lightbox .appstore-ticker__item img,
+.lightbox .project-figure--appstore-ticker .appstore-ticker__item img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  border-radius: 18px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.lightbox .project-figure--phones {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: min(42vh, 440px);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(44, 43, 40, 0.03), transparent 42%),
+    #e8e6e3;
+  box-shadow:
+    inset 0 0 0 1px rgba(44, 43, 40, 0.1),
+    inset 0 8px 18px rgba(44, 43, 40, 0.04);
+  --phone-lift: 111px;
+  --phone-label-gap: 29px;
+}
+
+.lightbox .project-figure--phones-bg {
+  background: #04140c;
+  box-shadow: none;
+}
+
+.lightbox .project-figure--phones-bg .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+  filter: brightness(0.7);
+}
+
+.lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: brightness(0.92);
+}
+
+.lightbox .project-phones {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(1rem, 2.8vw, 2rem);
+  padding: 0 clamp(0.75rem, 2.5vw, 1.75rem) var(--phone-lift, 111px);
+  box-sizing: border-box;
+}
+
+.lightbox .project-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--phone-label-gap, 29px);
+  width: min(48%, 18rem);
+  flex: 0 0 auto;
+  margin-bottom: 0;
+}
+
+.lightbox .project-phone__device {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 417 / 850;
+  margin-top: -81.53%;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.35));
+}
+
+.lightbox .project-phone__screen-wrap {
+  position: absolute;
+  left: 5.28%;
+  top: 2.24%;
+  width: 89.69%;
+  height: 95.29%;
+  overflow: hidden;
+  border-radius: 12% / 5.5%;
+  background: #000;
+  z-index: 0;
+}
+
+.lightbox .project-phone__screen,
+.lightbox .project-figure--phones .project-phone__screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 0;
+}
+
+.lightbox .project-phone__screen--video {
+  pointer-events: none;
+}
+
+.lightbox .project-phone__screen-curtain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: var(--phone-screen-curtain, 6%);
+  background: #1a1a1a;
+  pointer-events: none;
+}
+
+.lightbox .project-figure--phones-video {
+  --phone-screen-curtain: 0%;
+}
+
+.lightbox .project-figure--phones-single.project-figure--phones-video {
+  --phone-screen-curtain: 6%;
+}
+
+.lightbox .project-figure--phones-soft .project-phone__device {
+  margin-top: -40.77%;
+}
+
+.lightbox .project-figure--phones-soft {
+  --phone-lift: 72px;
+  --phone-label-gap: 0px;
+}
+
+.lightbox .project-figure--phones-single .project-phone {
+  width: auto;
+  height: 98%;
+  max-width: none;
+}
+
+.lightbox .project-figure--phones-single .project-phones {
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.4rem, 1.2vw, 0.75rem);
+}
+
+.lightbox .project-figure--phones-single .project-phone__device {
+  width: auto;
+  height: 100%;
+  aspect-ratio: 417 / 850;
+  margin-top: 0;
+}
+
+.lightbox .project-phone__chrome,
+.lightbox .project-figure--phones .project-phone__chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  border-radius: 0;
+}
+
+.lightbox .project-phone__label {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  margin: 0;
+  color: #fff;
+  font-family: "Geist", sans-serif;
+  font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.lightbox .project-phone__label--before {
+  opacity: 0.55;
+}
+
+.lightbox .project-phone__label--after {
+  opacity: 1;
+}
+
 .video-sound {
   position: absolute;
   right: 0.75rem;
@@ -1255,4 +1559,54 @@ body.lightbox-locked .site-header {
 
 .project-item.is-exit-rise .project-media {
   visibility: visible !important;
+}
+
+/* TEMP preview — light green Baton backgrounds (easy to remove) */
+.lightbox .project-figure--autoplay-stage,
+.lightbox .project-figure--appstore-ticker,
+.lightbox .project-figure--phones-bg {
+  background: #d8eadc !important;
+}
+
+.lightbox .project-figure--autoplay-stage .project-figure__bg,
+.lightbox .project-figure--appstore-ticker .project-figure__bg,
+.lightbox .project-figure--phones-bg .project-figure__bg,
+.lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: brightness(1.85) contrast(0.9) saturate(1.08) !important;
+}
+
+.lightbox .project-figure--appstore-ticker::after {
+  opacity: 0 !important;
+}
+
+/* TEMP preview — Baton: hide copy only on media sections; keep text-only sections */
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__title,
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__body,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__title,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__body {
+  display: none !important;
+}
+
+/* Match SellRaze consecutive video gap (collapsed figure margins ≈ one clamp) */
+body[data-project-slug="baton-branding"] .lightbox .project-section:has(.project-section__media),
+body.temp-baton-media-only .lightbox .project-section:has(.project-section__media),
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media),
+body.temp-baton-media-only .project-section:has(.project-section__media) {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+}
+
+body[data-project-slug="baton-branding"] .lightbox .project-section:has(.project-section__media):first-child,
+body.temp-baton-media-only .lightbox .project-section:has(.project-section__media):first-child,
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media):first-child,
+body.temp-baton-media-only .project-section:has(.project-section__media):first-child {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__media,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__media,
+body[data-project-slug="baton-branding"] .lightbox .project-section:has(.project-section__media) .project-figure,
+body.temp-baton-media-only .lightbox .project-section:has(.project-section__media) .project-figure,
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-figure,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-figure {
+  margin: 0;
 }

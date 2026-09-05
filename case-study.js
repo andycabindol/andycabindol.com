@@ -8,6 +8,7 @@
       initSmoothScroll();
     }
     window.bindProjectAutoplayVideos?.(document);
+    window.bindAppStoreTickers?.(document);
   }
 
   if (document.readyState === 'loading') {

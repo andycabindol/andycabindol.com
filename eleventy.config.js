@@ -268,16 +268,117 @@ ${body}
     return `<figure class="project-figure project-figure--video media-skeleton media-skeleton--fill"><video class="media-skeleton__media" src="${src}"${posterAttr} controls playsinline></video></figure>`;
   });
 
-  eleventy.addShortcode('projectAutoplayVideo', (src, label = '') => {
+  eleventy.addShortcode('projectAutoplayVideo', (src, label = '', mode = '', aspect = '', background = '') => {
     const safeSrc = String(src || '').replace(/"/g, '');
     const safeLabel = String(label || 'Project video').replace(/"/g, '&quot;');
-    return `<figure class="project-figure project-figure--video project-figure--autoplay">
-<video src="${safeSrc}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${safeLabel}"></video>
-<button type="button" class="video-sound" data-video-sound aria-pressed="false" aria-label="Unmute video">
+    const silent = mode === 'silent' || mode === 'nosound';
+    const bgSrc = String(background || '').trim().replace(/"/g, '');
+    const staged = Boolean(bgSrc);
+    const aspectValue = staged ? '' : String(aspect || '').trim().replace(/"/g, '');
+    const natural = !staged && (silent || Boolean(aspectValue));
+    const aspectAttr = aspectValue ? ` style="aspect-ratio: ${aspectValue}"` : '';
+    const naturalClass = natural ? ' project-figure--autoplay-natural' : '';
+    const stageClass = staged ? ' project-figure--autoplay-stage' : '';
+    const bg = staged
+      ? `<img class="project-figure__bg" src="${bgSrc}" alt="" decoding="async" aria-hidden="true">`
+      : '';
+    const button = silent
+      ? ''
+      : `<button type="button" class="video-sound" data-video-sound aria-pressed="false" aria-label="Unmute video">
 <span>Unmute</span>
 <svg class="video-sound__icon video-sound__icon--off" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm9.05.05 1.2 1.2-1.2 1.2 1.2 1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.2 1.2 1.2 1.2-1.2Z"/></svg>
 <svg class="video-sound__icon video-sound__icon--on" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2.2 5.5h2.1L8 2.4v11.2L4.3 10.5H2.2A1.2 1.2 0 0 1 1 9.3V6.7a1.2 1.2 0 0 1 1.2-1.2Zm7.7 1.15a2.6 2.6 0 0 1 0 2.7l-1-.7a1.4 1.4 0 0 0 0-1.3l1-.7Zm1.55-1.7a4.5 4.5 0 0 1 0 6.1l-1-.75a3.3 3.3 0 0 0 0-4.6l1-.75Z"/></svg>
-</button>
+</button>`;
+    return `<figure class="project-figure project-figure--video project-figure--autoplay${stageClass}${naturalClass}"${aspectAttr}>
+${bg}
+<video src="${safeSrc}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${safeLabel}"></video>
+${button}
+</figure>`;
+  });
+
+  eleventy.addShortcode('projectAppStoreTicker', (background, ...cardSrcs) => {
+    const bgSrc = String(background || '').replace(/"/g, '');
+    const cards = cardSrcs
+      .map((src) => String(src || '').trim())
+      .filter(Boolean)
+      .map((src, index) => {
+        const safe = src.replace(/"/g, '');
+        return `<li class="appstore-ticker__item"><img src="${safe}" alt="App Store card ${index + 1}" draggable="false" decoding="async"></li>`;
+      })
+      .join('');
+    if (!bgSrc || !cards) return '';
+    return `<figure class="project-figure project-figure--appstore-ticker" data-appstore-ticker>
+<img class="project-figure__bg" src="${bgSrc}" alt="" decoding="async" aria-hidden="true">
+<div class="appstore-ticker" aria-label="App Store cards">
+<div class="appstore-ticker__viewport">
+<div class="appstore-ticker__track" data-appstore-track>
+<ul class="appstore-ticker__list">${cards}</ul>
+</div>
+</div>
+</div>
+</figure>`;
+  });
+
+  eleventy.addShortcode('projectPhoneStage', (background, ...srcs) => {
+    const bgSrc = String(background || '').trim().replace(/"/g, '');
+    const frameSrc = '/media/baton-branding/iphone-frame.png';
+    const flags = new Set();
+    const mediaSrcs = [];
+    for (const raw of srcs) {
+      const value = String(raw || '').trim();
+      if (!value) continue;
+      if (/^(before-after|soft-clip)$/i.test(value)) {
+        flags.add(value.toLowerCase());
+        continue;
+      }
+      mediaSrcs.push(value);
+    }
+    const showLabels = flags.has('before-after');
+    const softClip = flags.has('soft-clip');
+    const labels = ['Before', 'After'];
+    const phones = mediaSrcs
+      .map((src, index) => {
+        const safe = src.replace(/"/g, '');
+        const isVideo = /\.(webm|mp4|mov)(\?|#|$)/i.test(safe);
+        const label = showLabels ? (labels[index] || '') : '';
+        const labelClass = label
+          ? ` project-phone__label--${label.toLowerCase()}`
+          : '';
+        const labelHtml = label
+          ? `<span class="project-phone__label${labelClass}">${label}</span>`
+          : '';
+        const alt = label || (isVideo ? 'iPhone screen recording' : `iPhone screen ${index + 1}`);
+        // Studio empty-state only: hide awkward top of screen recording
+        const curtain = isVideo && mediaSrcs.length === 1
+          ? `<span class="project-phone__screen-curtain" aria-hidden="true"></span>`
+          : '';
+        const screen = isVideo
+          ? `<video class="project-phone__screen project-phone__screen--video" src="${safe}" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" aria-label="${alt}"></video>
+${curtain}`
+          : `<img class="project-phone__screen" src="${safe}" alt="${alt}" decoding="async" loading="lazy">`;
+        return `<div class="project-phone">
+<div class="project-phone__device">
+<div class="project-phone__screen-wrap">
+${screen}
+</div>
+<img class="project-phone__chrome" src="${frameSrc}" alt="" decoding="async" aria-hidden="true">
+</div>
+${labelHtml}
+</div>`;
+      })
+      .join('');
+    if (!phones) return '';
+    const bg = bgSrc
+      ? `<img class="project-figure__bg" src="${bgSrc}" alt="" decoding="async" aria-hidden="true">`
+      : '';
+    const bgClass = bgSrc ? ' project-figure--phones-bg' : '';
+    const singleClass = mediaSrcs.length === 1 ? ' project-figure--phones-single' : '';
+    const softClass = softClip ? ' project-figure--phones-soft' : '';
+    const hasVideo = mediaSrcs.some((src) => /\.(webm|mp4|mov)(\?|#|$)/i.test(src));
+    const videoClass = hasVideo ? ' project-figure--phones-video' : '';
+    return `<figure class="project-figure project-figure--phones${bgClass}${singleClass}${softClass}${videoClass}" aria-label="iPhone screens">
+${bg}
+<div class="project-phones">${phones}</div>
 </figure>`;
   });
 

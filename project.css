@@ -332,6 +332,318 @@ body[data-page="project"] .site-header {
   object-fit: cover;
 }
 
+.project-figure--autoplay-natural {
+  aspect-ratio: auto;
+  min-height: 0;
+  background: #111;
+}
+
+.project-figure--autoplay-natural video {
+  position: static;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.project-figure--autoplay-stage {
+  aspect-ratio: 2 / 1;
+  min-height: 0;
+  background: #0a0a0a;
+}
+
+.project-figure--autoplay-stage .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+.project-figure--autoplay-stage video {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: 0;
+  width: 90%;
+  height: auto;
+  max-height: 92%;
+  transform: translateX(-50%);
+  object-fit: contain;
+  border-radius: 18px 18px 0 0;
+}
+
+.project-figure--appstore-ticker {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.project-figure--appstore-ticker .project-figure__bg,
+.project-section__media > .project-figure--appstore-ticker .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+  filter: brightness(0.72);
+}
+
+.project-figure--appstore-ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(0, 0, 0, 0.38);
+  pointer-events: none;
+}
+
+.appstore-ticker {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.appstore-ticker.is-dragging {
+  cursor: grabbing;
+}
+
+.appstore-ticker__viewport {
+  width: 100%;
+  height: 82%;
+  overflow: hidden;
+  padding-left: clamp(1rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+}
+
+.appstore-ticker__track {
+  --appstore-gap: clamp(0.75rem, 1.6vw, 1.25rem);
+  display: flex;
+  height: 100%;
+  width: max-content;
+  gap: var(--appstore-gap);
+  will-change: transform;
+}
+
+.appstore-ticker__list {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: var(--appstore-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.appstore-ticker__item {
+  flex: 0 0 auto;
+  height: 100%;
+  margin: 0;
+}
+
+.appstore-ticker__item img,
+.project-section__media > .project-figure--appstore-ticker .appstore-ticker__item img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  border-radius: 18px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.project-figure--phones {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: min(42vh, 440px);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(44, 43, 40, 0.03), transparent 42%),
+    #e8e6e3;
+  box-shadow:
+    inset 0 0 0 1px rgba(44, 43, 40, 0.1),
+    inset 0 8px 18px rgba(44, 43, 40, 0.04);
+  /* Locked from temp phone debug */
+  --phone-lift: 111px;
+  --phone-label-gap: 29px;
+}
+
+.project-figure--phones-bg {
+  background: #04140c;
+  box-shadow: none;
+}
+
+.project-figure--phones-bg .project-figure__bg,
+.project-section__media > .project-figure--phones-bg .project-figure__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  pointer-events: none;
+  filter: brightness(0.7);
+}
+
+.project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.project-section__media > .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: brightness(0.92);
+}
+
+.project-phones {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(1rem, 2.8vw, 2rem);
+  padding: 0 clamp(0.75rem, 2.5vw, 1.75rem) var(--phone-lift, 111px);
+  box-sizing: border-box;
+}
+
+.project-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--phone-label-gap, 29px);
+  width: min(48%, 18rem);
+  flex: 0 0 auto;
+  /* Tall enough that ~40% of the device sits above the stage and clips */
+  margin-bottom: 0;
+}
+
+.project-phone__device {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 417 / 850;
+  /* 40% of device height ≈ 81.5% of width (margin % is width-based) */
+  margin-top: -81.53%;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.35));
+}
+
+.project-phone__screen-wrap {
+  position: absolute;
+  /* Matches transparent screen hole in iphone-frame.png */
+  left: 5.28%;
+  top: 2.24%;
+  width: 89.69%;
+  height: 95.29%;
+  overflow: hidden;
+  border-radius: 12% / 5.5%;
+  background: #000;
+  z-index: 0;
+}
+
+.project-phone__screen,
+.project-section__media > .project-figure--phones .project-phone__screen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 0;
+}
+
+.project-phone__screen--video {
+  pointer-events: none;
+}
+
+.project-phone__screen-curtain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: var(--phone-screen-curtain, 6%);
+  background: #1a1a1a;
+  pointer-events: none;
+}
+
+.project-figure--phones-video {
+  --phone-screen-curtain: 0%;
+}
+
+.project-figure--phones-single.project-figure--phones-video {
+  --phone-screen-curtain: 6%;
+}
+
+.project-figure--phones-soft .project-phone__device {
+  /* ~20% of device height clipped (vs ~40% default) */
+  margin-top: -40.77%;
+}
+
+.project-figure--phones-soft {
+  --phone-lift: 72px;
+  --phone-label-gap: 0px;
+}
+
+.project-figure--phones-single .project-phone {
+  width: auto;
+  height: 98%;
+  max-width: none;
+}
+
+.project-figure--phones-single .project-phones {
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.4rem, 1.2vw, 0.75rem);
+}
+
+.project-figure--phones-single .project-phone__device {
+  width: auto;
+  height: 100%;
+  aspect-ratio: 417 / 850;
+  margin-top: 0;
+}
+
+.project-phone__chrome,
+.project-section__media > .project-figure--phones .project-phone__chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  border-radius: 0;
+}
+
+.project-phone__label {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  margin: 0;
+  color: #fff;
+  font-family: "Geist", sans-serif;
+  font-size: clamp(0.78rem, 1.5vw, 0.95rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.project-phone__label--before {
+  opacity: 0.55;
+}
+
+.project-phone__label--after {
+  opacity: 1;
+}
+
 .video-sound {
   position: absolute;
   right: 0.75rem;
@@ -559,4 +871,51 @@ body[data-page="project"] .site-header {
     opacity: 1;
     animation: none;
   }
+}
+
+/* TEMP preview — light green Baton backgrounds (easy to remove) */
+.project-figure--autoplay-stage,
+.project-figure--appstore-ticker,
+.project-figure--phones-bg {
+  background: #d8eadc !important;
+}
+
+.project-figure--autoplay-stage .project-figure__bg,
+.project-figure--appstore-ticker .project-figure__bg,
+.project-section__media > .project-figure--appstore-ticker .project-figure__bg,
+.project-figure--phones-bg .project-figure__bg,
+.project-section__media > .project-figure--phones-bg .project-figure__bg,
+.project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.project-section__media > .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: brightness(1.85) contrast(0.9) saturate(1.08) !important;
+}
+
+.project-figure--appstore-ticker::after {
+  opacity: 0 !important;
+}
+
+/* TEMP preview — Baton: hide copy only on media sections; keep text-only sections */
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__title,
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__body,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__title,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__body {
+  display: none !important;
+}
+
+/* Match SellRaze consecutive video gap (collapsed figure margins ≈ one clamp) */
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media),
+body.temp-baton-media-only .project-section:has(.project-section__media) {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+}
+
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media):first-child,
+body.temp-baton-media-only .project-section:has(.project-section__media):first-child {
+  margin-top: 0;
+}
+
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__media,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__media,
+body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-figure,
+body.temp-baton-media-only .project-section:has(.project-section__media) .project-figure {
+  margin: 0;
 }
