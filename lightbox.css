@@ -1,3 +1,5 @@
+@import url('/components/chirper-promo.css');
+
 /* Project lightbox — work grid opens in-place instead of a separate page.
  *
  * Nomenclature:
@@ -340,16 +342,19 @@ body.lightbox-locked .site-header {
 }
 
 .lightbox__cover {
+  --cover-height: min(
+    calc(var(--lightbox-cover-width) / var(--lightbox-cover-ratio, 1.2)),
+    calc(100dvh - 2.5rem)
+  );
+  --cover-top-space: calc((100dvh - var(--cover-height)) / 2);
   box-sizing: border-box;
   display: grid;
   flex: 0 0 auto;
-  min-height: 100%;
-  min-height: 100dvh;
   place-items: center;
   width: 100%;
   overflow-anchor: none;
-  padding-top: max(1.25rem, env(safe-area-inset-top));
-  padding-bottom: 1.25rem;
+  padding-top: max(1.25rem, env(safe-area-inset-top), var(--cover-top-space));
+  padding-bottom: 0;
 }
 
 .lightbox__title {
@@ -464,13 +469,13 @@ body.lightbox-locked .site-header {
   margin: 0 auto;
   padding: 0 0 6rem;
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(-24px);
   transition:
-    opacity 640ms var(--lightbox-ease-out) 280ms,
-    transform 800ms var(--lightbox-ease) 220ms;
+    opacity 450ms var(--lightbox-ease-out) 350ms,
+    transform 600ms var(--lightbox-ease) 350ms;
 }
 
-.lightbox.is-open.is-settled .lightbox__case {
+.lightbox.is-open:not(.is-pre):not(.is-closing) .lightbox__case {
   opacity: 1;
   transform: none;
 }
@@ -877,6 +882,15 @@ body.lightbox-locked .site-header {
   width: auto;
   height: 98%;
   max-width: none;
+}
+
+.lightbox .project-figure--phones-zoom {
+  overflow: hidden;
+}
+
+.lightbox .project-figure--phones-zoom .project-phone__device {
+  transform-origin: 50% 100%;
+  transition: none;
 }
 
 .lightbox .project-figure--phones-single .project-phones {
@@ -1416,8 +1430,8 @@ body.lightbox-locked .site-header {
   }
 
   .lightbox__cover {
-    padding-top: max(4.5rem, env(safe-area-inset-top));
-    padding-bottom: 1.25rem;
+    padding-top: max(4.5rem, env(safe-area-inset-top), var(--cover-top-space));
+    padding-bottom: 0;
   }
 
   .lightbox[data-style="tilt"] .lightbox__rail--left,
@@ -1437,13 +1451,14 @@ body.lightbox-locked .site-header {
   align-items: flex-end;
   justify-content: center;
   padding-bottom: max(1.35rem, env(safe-area-inset-bottom));
-  color: #f4f1ec;
+  color: #fff;
+  mix-blend-mode: difference;
   pointer-events: none;
   opacity: 0;
   transform: translateY(10px);
   transition:
-    opacity 480ms var(--lightbox-ease-out),
-    transform 480ms var(--lightbox-ease-out);
+    opacity 280ms var(--lightbox-ease-out),
+    transform 280ms var(--lightbox-ease-out);
 }
 
 .lightbox__hint[hidden] {
@@ -1466,49 +1481,58 @@ body.lightbox-locked .site-header {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0.42rem;
+  gap: 0.65rem;
   margin: 0;
-  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
   border: 0;
+  border-radius: 4px;
   background: transparent;
-  color: inherit;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+  color: #fff;
+  opacity: 0.8;
   font: inherit;
   pointer-events: auto;
   cursor: pointer;
+  transition: opacity 200ms ease;
+}
+
+.lightbox__hint-btn:hover,
+.lightbox__hint-btn:focus-visible {
+  opacity: 1;
+}
+
+.lightbox__hint-btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
 }
 
 .lightbox__hint-copy {
-  font-family: var(--sans, "Geist Mono", ui-monospace, monospace);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(244, 241, 236, 0.48);
-  animation: hint-copy-fade 1.55s ease-in-out infinite;
+  font-family: "Geist", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.035em;
+  color: inherit;
 }
 
 .lightbox__hint-mark {
   position: relative;
   display: block;
-  width: 12px;
-  height: 12px;
+  order: 1;
+  width: 7px;
+  height: 7px;
   flex-shrink: 0;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  animation: hint-bounce 1.55s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  animation: hint-bounce 1.8s ease-in-out infinite;
 }
 
 @keyframes hint-bounce {
-  0%, 100% { transform: rotate(45deg) translate(-2px, -2px); opacity: 0.35; }
-  45%, 60% { transform: rotate(45deg) translate(2px, 2px); opacity: 1; }
-}
-
-@keyframes hint-copy-fade {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  0%, 100% { transform: translateY(-2px) rotate(45deg); }
+  50% { transform: translateY(2px) rotate(45deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1562,20 +1586,28 @@ body.lightbox-locked .site-header {
 }
 
 /* TEMP preview — light green Baton backgrounds (easy to remove) */
-.lightbox .project-figure--autoplay-stage,
-.lightbox .project-figure--appstore-ticker,
-.lightbox .project-figure--phones-bg {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--autoplay-stage,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-bg,
+body.temp-baton-media-only .lightbox .project-figure--autoplay-stage,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker,
+body.temp-baton-media-only .lightbox .project-figure--phones-bg {
   background: #d8eadc !important;
 }
 
-.lightbox .project-figure--autoplay-stage .project-figure__bg,
-.lightbox .project-figure--appstore-ticker .project-figure__bg,
-.lightbox .project-figure--phones-bg .project-figure__bg,
-.lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--autoplay-stage .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="baton-branding"] .lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--autoplay-stage .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .lightbox .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
   filter: brightness(1.85) contrast(0.9) saturate(1.08) !important;
 }
 
-.lightbox .project-figure--appstore-ticker::after {
+body[data-project-slug="baton-branding"] .lightbox .project-figure--appstore-ticker::after,
+body.temp-baton-media-only .lightbox .project-figure--appstore-ticker::after {
   opacity: 0 !important;
 }
 
@@ -1609,4 +1641,125 @@ body.temp-baton-media-only .lightbox .project-section:has(.project-section__medi
 body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-figure,
 body.temp-baton-media-only .project-section:has(.project-section__media) .project-figure {
   margin: 0;
+}
+
+/* Chirper: tighter gap between section media and title */
+.lightbox[data-project="chirper"] .project-section__media > .project-figure,
+body[data-project-slug="chirper"] .project-section__media > .project-figure {
+  margin: 0;
+}
+
+.lightbox[data-project="chirper"] .project-section__media,
+body[data-project-slug="chirper"] .project-section__media {
+  margin-bottom: 0.9rem;
+}
+
+/* Chirper intro: match tall thumbnail width + 4:5 crop */
+.lightbox[data-project="chirper"] #trim-bird-audio-automatically .project-figure--autoplay,
+body[data-project-slug="chirper"] #trim-bird-audio-automatically .project-figure--autoplay {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+/* Chirper remaining frames: match Merlin import stage (5:6) */
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--gray,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--gray,
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--plain,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--plain,
+.lightbox[data-project="chirper"] .project-section__media > .project-figure--phones,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  min-height: 0;
+}
+
+/* Chirper Merlin import: shorter stage, phone scales to fit */
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+  background: transparent;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-bg .project-figure__bg,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: none !important;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-video,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-video {
+  --phone-screen-curtain: 0%;
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phone,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phone {
+  height: 92%;
+}
+
+/* Adjust each clip: larger frame, clipped at bottom */
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones {
+  container-type: size;
+}
+
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phone {
+  height: 119%;
+  transform: translateY(9.72cqh);
+}
+
+.lightbox[data-project="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #adjust-each-clip .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #filter-by-confidence .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #export-by-species .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phones,
+.lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phones {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
 }

@@ -1,0 +1,32 @@
+[data-project-embed="plenty/video"] {
+  width: 100%;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+}
+
+.plenty-video-frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  padding: clamp(1rem, 6%, 4rem);
+  overflow: hidden;
+  border-radius: 8px;
+  background: #a75c24 url('/media/plenty/apples-bg-blurred.jpg') center / cover;
+}
+
+.plenty-video-frame__player {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 200px;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 8px;
+  background: #111;
+  box-shadow: 0 12px 40px rgba(25, 20, 12, 0.3);
+}
+
+.plenty-video-frame__player:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}

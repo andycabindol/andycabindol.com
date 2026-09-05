@@ -6,7 +6,7 @@ facts:
   - label: Role
     value: "Product & Visual Designer"
   - label: Year
-    value: "2024"
+    value: "2025"
 projectTags: "Brand · Product · Motion"
 cardLayout: wide
 thumbnail: /media/baton-branding/thumbnail.mp4

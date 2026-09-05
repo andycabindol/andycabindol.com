@@ -590,10 +590,13 @@ body[data-page="project"] .site-header {
   --phone-label-gap: 0px;
 }
 
-.project-figure--phones-single .project-phone {
-  width: auto;
-  height: 98%;
-  max-width: none;
+.project-figure--phones-zoom {
+  overflow: hidden;
+}
+
+.project-figure--phones-zoom .project-phone__device {
+  transform-origin: 50% 100%;
+  transition: none;
 }
 
 .project-figure--phones-single .project-phones {
@@ -874,23 +877,34 @@ body[data-page="project"] .site-header {
 }
 
 /* TEMP preview — light green Baton backgrounds (easy to remove) */
-.project-figure--autoplay-stage,
-.project-figure--appstore-ticker,
-.project-figure--phones-bg {
+body[data-project-slug="baton-branding"] .project-figure--autoplay-stage,
+body[data-project-slug="baton-branding"] .project-figure--appstore-ticker,
+body[data-project-slug="baton-branding"] .project-figure--phones-bg,
+body.temp-baton-media-only .project-figure--autoplay-stage,
+body.temp-baton-media-only .project-figure--appstore-ticker,
+body.temp-baton-media-only .project-figure--phones-bg {
   background: #d8eadc !important;
 }
 
-.project-figure--autoplay-stage .project-figure__bg,
-.project-figure--appstore-ticker .project-figure__bg,
-.project-section__media > .project-figure--appstore-ticker .project-figure__bg,
-.project-figure--phones-bg .project-figure__bg,
-.project-section__media > .project-figure--phones-bg .project-figure__bg,
-.project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
-.project-section__media > .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+body[data-project-slug="baton-branding"] .project-figure--autoplay-stage .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-figure--appstore-ticker .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-section__media > .project-figure--appstore-ticker .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-section__media > .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="baton-branding"] .project-section__media > .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .project-figure--autoplay-stage .project-figure__bg,
+body.temp-baton-media-only .project-figure--appstore-ticker .project-figure__bg,
+body.temp-baton-media-only .project-section__media > .project-figure--appstore-ticker .project-figure__bg,
+body.temp-baton-media-only .project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .project-section__media > .project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body.temp-baton-media-only .project-section__media > .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
   filter: brightness(1.85) contrast(0.9) saturate(1.08) !important;
 }
 
-.project-figure--appstore-ticker::after {
+body[data-project-slug="baton-branding"] .project-figure--appstore-ticker::after,
+body.temp-baton-media-only .project-figure--appstore-ticker::after {
   opacity: 0 !important;
 }
 
@@ -918,4 +932,88 @@ body.temp-baton-media-only .project-section:has(.project-section__media) .projec
 body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-figure,
 body.temp-baton-media-only .project-section:has(.project-section__media) .project-figure {
   margin: 0;
+}
+
+/* Chirper: tighter gap between section media and title */
+body[data-project-slug="chirper"] .project-section__media > .project-figure {
+  margin: 0;
+}
+
+body[data-project-slug="chirper"] .project-section__media {
+  margin-bottom: 0.9rem;
+}
+
+/* Chirper intro: match tall thumbnail width + 4:5 crop */
+body[data-project-slug="chirper"] #trim-bird-audio-automatically .project-figure--autoplay {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+/* Chirper remaining frames: match Merlin import stage (5:6) */
+body[data-project-slug="chirper"] .project-section__media > .project-figure--gray,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--plain,
+body[data-project-slug="chirper"] .project-section__media > .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  min-height: 0;
+}
+
+/* Chirper Merlin import: shorter stage, phone scales to fit */
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones {
+  aspect-ratio: 5 / 6;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+  background: transparent;
+}
+
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-bg .project-figure__bg,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-bg .project-figure__bg {
+  filter: none !important;
+}
+
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single.project-figure--phones-video,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single.project-figure--phones-video {
+  --phone-screen-curtain: 0%;
+}
+
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phone,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phone {
+  height: 92%;
+}
+
+/* Adjust each clip: larger frame, clipped at bottom */
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones {
+  container-type: size;
+}
+
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phone {
+  height: 119%;
+  transform: translateY(9.72cqh);
+}
+
+body[data-project-slug="chirper"] #import-audio-directly-from-merlin .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #adjust-each-clip .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #filter-by-confidence .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #export-by-species .project-figure--phones-single .project-phones,
+body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phones {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
 }
