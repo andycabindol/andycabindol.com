@@ -102,7 +102,9 @@ body.lightbox-locked {
 
 .site-stage,
 .ascii-field-wrap {
-  transition: transform calc(var(--motion-enter-scale-ms) * 1ms) var(--motion-enter-scale-ease);
+  transition:
+    transform calc(var(--motion-enter-scale-ms) * 1ms) var(--motion-enter-scale-ease),
+    filter calc(var(--motion-enter-scale-ms) * 1ms) var(--motion-enter-scale-ease);
 }
 
 .site-stage {
@@ -112,6 +114,8 @@ body.lightbox-locked {
 body.lightbox-open .site-stage,
 body.lightbox-open .ascii-field-wrap {
   transform: scale(var(--motion-scale));
+  /* Blur the page itself — backdrop-filter alone often won't paint until scroll. */
+  filter: blur(14px);
 }
 
 body.lightbox-open .ascii-field-wrap {
@@ -121,7 +125,10 @@ body.lightbox-open .ascii-field-wrap {
 body.lightbox-closing .site-stage,
 body.lightbox-closing .ascii-field-wrap {
   transform: none;
-  transition: transform calc(var(--motion-exit-scale-ms) * 1ms) var(--motion-exit-scale-ease);
+  filter: none;
+  transition:
+    transform calc(var(--motion-exit-scale-ms) * 1ms) var(--motion-exit-scale-ease),
+    filter calc(var(--motion-exit-scale-ms) * 1ms) var(--motion-exit-scale-ease);
 }
 
 body.lightbox-open .brand-marquee__track,
@@ -219,8 +226,9 @@ body.lightbox-locked .site-header {
   inset: 0;
   opacity: 0;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(14px) saturate(1.1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  /* Stage is blurred via filter; keep a light backdrop-filter as a fallback. */
+  backdrop-filter: blur(2px) saturate(1.05);
+  -webkit-backdrop-filter: blur(2px) saturate(1.05);
   transform: translateZ(0);
   backface-visibility: hidden;
   transition: opacity 620ms var(--lightbox-ease-out);
@@ -1548,6 +1556,7 @@ body.lightbox-locked .site-header {
   body.lightbox-open .site-stage,
   body.lightbox-open .ascii-field-wrap {
     transform: none;
+    filter: blur(14px);
   }
 }
 
