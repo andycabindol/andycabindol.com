@@ -7,9 +7,15 @@ Static portfolio site built with [Eleventy](https://www.11ty.dev/).
 ```bash
 npm install
 npm run migrate:projects   # one-time seed only — overwrites projects/*.md; do not run in deploy
-npm run dev                # local preview at http://localhost:8080
-npm run build              # output to _site/
+npm run dev                # local preview with all ordered projects at http://localhost:8080
+npm run build              # clean production output to _site/; only projects with thumbnails
 ```
+
+Production includes projects with a `thumbnail` or a `cover` (the work grid's fallback).
+Projects with neither remain available in development, but are excluded from production
+cards, overlays, project navigation, metadata, and generated project pages. Adding a
+thumbnail or cover makes the project eligible for the next production build. Production
+builds clear `_site/` first so old development pages cannot remain in the deployed output.
 
 ## Adding a project
 

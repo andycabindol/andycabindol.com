@@ -2,6 +2,7 @@ const markdownIt = require('markdown-it');
 const fs = require('node:fs');
 const path = require('node:path');
 const { projectDescription, projectOgImage } = require('./_utils/project-seo');
+const { isProjectVisible } = require('./_utils/project-visibility');
 
 function loadProjectOrder() {
   return JSON.parse(
@@ -133,6 +134,7 @@ module.exports = function eleventyConfig(eleventy) {
       .getFilteredByGlob('projects/*.md')
       .filter((item) => !item.inputPath.includes('_template'))
       .filter((item) => projectOrder.includes(item.fileSlug))
+      .filter((item) => isProjectVisible(item.data))
       .sort((a, b) => {
         const aIndex = projectSortIndex(a.fileSlug, projectOrder, a.data.order ?? 0);
         const bIndex = projectSortIndex(b.fileSlug, projectOrder, b.data.order ?? 0);

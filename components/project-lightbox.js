@@ -483,7 +483,7 @@
     hintTimer = window.setTimeout(() => {
       if (!canShowScrollHint()) return;
       syncScrollHint();
-    }, reduceMotion() ? 80 : 920);
+    }, reduceMotion() ? 80 : 120);
   }
 
   function fillChrome(slug) {
@@ -1019,6 +1019,8 @@
       const toRect = measureFigure(sourceCard);
       observeContentWidth();
       setOriginFromRect(fromRect);
+      fillCase(slug);
+      lightboxLenis?.resize?.();
 
       if (media && fromRect?.width && toRect?.width) {
         makeFlyer(media, toRect);
@@ -1052,7 +1054,6 @@
       shell.classList.add('is-settled');
       openSlug = slug;
       opening = false;
-      fillCase(slug);
       lightboxLenis?.resize?.();
       scheduleScrollHint();
 
