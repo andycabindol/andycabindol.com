@@ -37,8 +37,13 @@
 }
 
 .chirper-promo__title > span {
-  display: block;
   white-space: nowrap;
+}
+
+@container (max-width: 560px) {
+  .chirper-promo__title > span {
+    display: block;
+  }
 }
 
 .chirper-promo__title em {
