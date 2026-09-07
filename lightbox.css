@@ -1620,14 +1620,6 @@ body.temp-baton-media-only .lightbox .project-figure--appstore-ticker::after {
   opacity: 0 !important;
 }
 
-/* TEMP preview — Baton: hide copy only on media sections; keep text-only sections */
-body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__title,
-body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__body,
-body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__title,
-body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__body {
-  display: none !important;
-}
-
 /* Match SellRaze consecutive video gap (collapsed figure margins ≈ one clamp) */
 body[data-project-slug="baton-branding"] .lightbox .project-section:has(.project-section__media),
 body.temp-baton-media-only .lightbox .project-section:has(.project-section__media),
@@ -1771,4 +1763,107 @@ body[data-project-slug="chirper"] #export-by-species .project-figure--phones-sin
 .lightbox[data-project="chirper"] #share-to-instagram .project-figure--phones-single .project-phones,
 body[data-project-slug="chirper"] #share-to-instagram .project-figure--phones-single .project-phones {
   padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+/* Lightbox: media sections use hover bottom-sheet captions (always on for touch / narrow) */
+.lightbox .project-section:has(.project-section__media) {
+  position: relative;
+  margin: clamp(1.15rem, 2.6vw, 1.65rem) 0 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.lightbox .project-section:has(.project-section__media):first-child {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.lightbox .project-section:has(.project-section__media) > .project-section__media {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  min-width: 0;
+}
+
+.lightbox .project-section:has(.project-section__media) > .project-section__media > .project-figure {
+  margin: 0;
+  border-radius: 0;
+}
+
+.lightbox .project-section:has(.project-section__media) .video-sound {
+  z-index: 4;
+}
+
+.lightbox .project-section:has(.project-section__media) .project-section__copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: none;
+  margin: 0;
+  padding: 1.1rem 1rem 0.95rem;
+  background: rgba(28, 25, 22, 0.45);
+  border-top: 1px solid rgba(244, 241, 236, 0.1);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.22);
+  color: rgba(244, 241, 236, 0.92);
+  pointer-events: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* Desktop / trackpad: hide until hover */
+@media (hover: hover) and (pointer: fine) {
+  .lightbox .project-section:has(.project-section__media) .project-section__copy {
+    transform: translateY(110%);
+    opacity: 0;
+    transition:
+      opacity 200ms var(--lightbox-ease-out),
+      transform 280ms var(--lightbox-ease-out);
+  }
+
+  .lightbox .project-section:has(.project-section__media):is(:hover, :focus-within) .project-section__copy {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Phones / narrow lightbox: always show the sheet */
+@media (max-width: 860px) {
+  .lightbox .project-section:has(.project-section__media) .project-section__copy {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.lightbox .project-section:has(.project-section__media) .project-section__title {
+  max-width: calc(100% - 6.75rem);
+  margin: 0;
+  color: #f4f1ec;
+  font-size: clamp(0.92rem, 1.55vw, 1.08rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.lightbox .project-section:has(.project-section__media) .project-section__body {
+  max-width: calc(100% - 6.75rem);
+  color: rgba(244, 241, 236, 0.72);
+  font-size: clamp(0.75rem, 1.25vw, 0.86rem);
+  line-height: 1.4;
+}
+
+.lightbox .project-section:has(.project-section__media) .project-section__body > :not(.project-grid):not(.project-figure):not(.project-media-row) {
+  max-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox .project-section:has(.project-section__media) .project-section__copy {
+    transform: none;
+    transition: opacity 120ms linear;
+  }
 }
