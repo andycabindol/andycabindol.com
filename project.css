@@ -267,6 +267,10 @@ body[data-page="project"] .site-header {
   border-radius: 8px;
 }
 
+.project-section__copy {
+  display: contents;
+}
+
 .project-section__title {
   max-width: 42rem;
   margin: 0 0 0.4rem;
@@ -906,14 +910,6 @@ body.temp-baton-media-only .project-section__media > .project-figure--phones-sin
 body[data-project-slug="baton-branding"] .project-figure--appstore-ticker::after,
 body.temp-baton-media-only .project-figure--appstore-ticker::after {
   opacity: 0 !important;
-}
-
-/* TEMP preview — Baton: hide copy only on media sections; keep text-only sections */
-body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__title,
-body[data-project-slug="baton-branding"] .project-section:has(.project-section__media) .project-section__body,
-body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__title,
-body.temp-baton-media-only .project-section:has(.project-section__media) .project-section__body {
-  display: none !important;
 }
 
 /* Match SellRaze consecutive video gap (collapsed figure margins ≈ one clamp) */

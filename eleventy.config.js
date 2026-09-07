@@ -219,16 +219,21 @@ module.exports = function eleventyConfig(eleventy) {
       }
     }
 
-    const media = mediaParts.length
-      ? `<div class="project-section__media">${mediaParts.join('\n')}</div>`
-      : '';
-
-    return `<section class="project-section" id="${sectionId}" data-section-label="${label}">
-${media}
+    const copy = `<div class="project-section__copy">
 <h2 class="project-section__title">${label}</h2>
 <div class="project-section__body">
 ${body}
 </div>
+</div>`;
+
+    const media = mediaParts.length
+      ? `<div class="project-section__media">${mediaParts.join('\n')}
+${copy}
+</div>`
+      : copy;
+
+    return `<section class="project-section" id="${sectionId}" data-section-label="${label}">
+${media}
 </section>`;
   });
 
