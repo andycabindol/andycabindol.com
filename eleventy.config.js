@@ -80,8 +80,10 @@ module.exports = function eleventyConfig(eleventy) {
   eleventy.addPassthroughCopy('case-study.js');
   // Prevent GitHub Pages from re-running Jekyll on the built site.
   eleventy.addPassthroughCopy('.nojekyll');
+  eleventy.addPassthroughCopy('linkedin-banner.html');
 
   eleventy.ignores.add('index.html');
+  eleventy.ignores.add('linkedin-banner.html');
   eleventy.ignores.add('about.html');
   eleventy.ignores.add('project.html');
   eleventy.ignores.add('README.md');

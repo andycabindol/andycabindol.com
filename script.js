@@ -45,35 +45,11 @@ const frameLoop = (() => {
   };
 })();
 
-function initSmoothScroll() {
-  if (prefersReducedMotion) {
-    return null;
+/** Lenis only applies wheel/trackpad deltas inside raf — keep one shared driver alive. */
+function ensureLenisRaf() {
+  if (prefersReducedMotion || window.__workFrameTask) {
+    return;
   }
-  if (typeof Lenis !== 'function') {
-    return null;
-  }
-  if (window.__lenis) {
-    return window.__lenis;
-  }
-
-  document.documentElement.classList.add('lenis');
-
-  const glassContent = document.querySelector('body.nav-glass-live .nav-glass__content');
-  const stage = document.querySelector('.site-stage');
-  const lenis =
-    glassContent && stage
-      ? new Lenis({
-          wrapper: glassContent,
-          content: stage,
-          lerp: 0.08,
-          smoothWheel: true,
-        })
-      : new Lenis({
-          lerp: 0.08,
-          smoothWheel: true,
-        });
-
-  window.__lenis = lenis;
 
   function workFrameTask(time) {
     window.__lenis?.raf(time);
@@ -83,23 +59,59 @@ function initSmoothScroll() {
   window.__workFrameTask = workFrameTask;
   frameLoop.add(workFrameTask);
   window.__frameLoop = frameLoop;
+}
 
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const href = link.getAttribute('href');
-      if (!href || href === '#') {
+window.__ensureLenisRaf = ensureLenisRaf;
+
+function initSmoothScroll() {
+  if (prefersReducedMotion) {
+    return null;
+  }
+  if (typeof Lenis !== 'function') {
+    return null;
+  }
+
+  if (!window.__lenis) {
+    document.documentElement.classList.add('lenis');
+
+    const glassContent = document.querySelector('body.nav-glass-live .nav-glass__content');
+    const stage = document.querySelector('.site-stage');
+    window.__lenis =
+      glassContent && stage
+        ? new Lenis({
+            wrapper: glassContent,
+            content: stage,
+            lerp: 0.08,
+            smoothWheel: true,
+          })
+        : new Lenis({
+            lerp: 0.08,
+            smoothWheel: true,
+          });
+
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      if (link.dataset.lenisAnchorBound === 'true') {
         return;
       }
-      const target = document.querySelector(href);
-      if (!target) {
-        return;
-      }
-      event.preventDefault();
-      lenis.scrollTo(target, { offset: -72 });
+      link.dataset.lenisAnchorBound = 'true';
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#') {
+          return;
+        }
+        const target = document.querySelector(href);
+        if (!target) {
+          return;
+        }
+        event.preventDefault();
+        window.__lenis?.scrollTo(target, { offset: -72 });
+      });
     });
-  });
+  }
 
-  return lenis;
+  // Always re-attach raf — nav-glass may recreate Lenis after stop() cleared the driver.
+  ensureLenisRaf();
+  return window.__lenis;
 }
 
 function randomRange(min, max) {
@@ -605,6 +617,13 @@ function getPortfolioGaps() {
 function getPortfolioColumnCount() {
   if (window.matchMedia('(max-width: 600px)').matches) {
     return 1;
+  }
+  const grid = document.querySelector('#work .portfolio-grid');
+  if (grid?.classList.contains('portfolio-grid--cols-3')) {
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      return 2;
+    }
+    return 3;
   }
   return 2;
 }
@@ -3017,11 +3036,46 @@ initAsciiField();
 initCursorBubble();
 
 window.sitePages = window.sitePages || {};
+function bootPlaygroundPage() {
+  if (document.body.dataset.page !== 'playground') {
+    return;
+  }
+
+  randomizeIntroTitleWords();
+  bindIntroTitleHover();
+  bindIntroTitleReplay();
+  bindPortfolioMasonry();
+  window.MediaSkeleton?.initAll?.();
+  initSmoothScroll();
+  bindContactButtons();
+  bindWorkGradientOrb();
+
+  const startHeavy = () => {
+    if (document.body.dataset.page !== 'playground') {
+      return;
+    }
+    window.CreamyOrb?.ensureAlive?.();
+  };
+
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(startHeavy, { timeout: 320 });
+  } else {
+    window.setTimeout(startHeavy, 0);
+  }
+}
+
+function stopPlaygroundPage() {
+  stopWorkPage();
+}
+
 window.sitePages.work = { boot: bootWorkPage, stop: stopWorkPage };
+window.sitePages.playground = { boot: bootPlaygroundPage, stop: stopPlaygroundPage };
 window.sitePages.about = { boot: bootAboutPage, stop: stopAboutPage };
 
 if (document.body.dataset.page === 'work') {
   bootWorkPage();
+} else if (document.body.dataset.page === 'playground') {
+  bootPlaygroundPage();
 } else if (document.body.dataset.page === 'about') {
   bootAboutPage();
 }

@@ -1,0 +1,70 @@
+---
+layout: layouts/base.njk
+permalink: /playground/index.html
+pageId: playground
+activeNav: playground
+title: Playground — Andy Cabindol
+pageTitle: Playground — Andy Cabindol
+description: WIPs and one-off experiments that I'm playing around with
+canonical: https://andycabindol.com/playground/
+stylesheet: styles.css
+fontUrl: https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap
+og:
+  url: https://andycabindol.com/playground/
+  title: Playground — Andy Cabindol
+  description: WIPs and one-off experiments that I'm playing around with
+  image: https://andycabindol.com/preview.png
+  imageAlt: Andy Cabindol — Playground
+jsonLd:
+  "@context": "https://schema.org"
+  "@type": "CollectionPage"
+  name: Playground
+  url: https://andycabindol.com/playground/
+  description: WIPs and one-off experiments that I'm playing around with
+---
+<main id="page-main">
+  <section class="intro">
+    <div class="hero-gradient" aria-hidden="true">
+      <div class="hero-gradient-orb">
+        <div class="hero-gradient-layer hero-gradient-layer--a"></div>
+        <div class="hero-gradient-layer hero-gradient-layer--b"></div>
+        <div class="hero-gradient-layer hero-gradient-layer--c"></div>
+      </div>
+    </div>
+    <div class="intro-layout">
+      <div class="intro-content">
+        <h1 class="intro-title">
+          <span class="intro-title__word" style="--i: 0">Playground</span>
+        </h1>
+        <p class="intro-lede">
+          WIPs and one-off experiments that I'm playing around with
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="work" class="portfolio">
+    <div class="portfolio-grid portfolio-grid--cols-3">
+      {% set playgroundItems = [
+        { title: "Vocollision Website", layout: "tall" },
+        { title: "Wedding Website", layout: "wide" },
+        { title: "Powerlifting Sheet Viewer App", layout: "square" },
+        { title: "Tangible Particle Mesh", layout: "portrait" },
+        { title: "Eczema Essay Video", layout: "wide" },
+        { title: "Kraft Gamified Concept", layout: "square" }
+      ] %}
+      {% for item in playgroundItems %}
+      <article class="project-item project-item--placeholder">
+        <div class="project-link">
+          <div class="project-media project-media--{{ item.layout }}">
+            <div class="project-placeholder" aria-hidden="true"></div>
+          </div>
+          <div class="project-meta">
+            <h2 class="project-title">{{ item.title }}</h2>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</main>

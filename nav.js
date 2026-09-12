@@ -1,6 +1,7 @@
 const NAV_STATE_KEY = 'site-nav-state';
 const PAGE_ROUTES = {
   work: { url: '/', styles: '/styles.css' },
+  playground: { url: '/playground/', styles: '/styles.css' },
   about: { url: '/about/', styles: '/about.css' },
   project: {
     url: document.body?.dataset.page === 'project'
@@ -264,7 +265,7 @@ function wait(ms) {
 
 function getCurrentPage() {
   const page = document.body.dataset.page;
-  if (page === 'about' || page === 'project' || page === 'case-study') {
+  if (page === 'about' || page === 'playground' || page === 'project' || page === 'case-study') {
     return page;
   }
   return 'work';
@@ -274,6 +275,9 @@ function getPageFromUrl(url) {
   const path = new URL(url, window.location.href).pathname;
   if (path.endsWith('about.html') || /\/about\/?$/.test(path)) {
     return 'about';
+  }
+  if (path.endsWith('playground.html') || /\/playground\/?$/.test(path)) {
+    return 'playground';
   }
   if (path.includes('/case-studies/')) {
     return 'case-study';
