@@ -90,6 +90,10 @@ module.exports = function eleventyConfig(eleventy) {
   eleventy.ignores.add('projects/_template.md');
   eleventy.ignores.add('node_modules/**');
   eleventy.ignores.add('_site/**');
+  // Play page is local/dev only until it's ready to ship.
+  if (process.env.NODE_ENV === 'production') {
+    eleventy.ignores.add('playground.njk');
+  }
 
   eleventy.addWatchTarget('./_data/projectOrder.json');
   eleventy.addWatchTarget('./scripts/creamy-orb-source.js');

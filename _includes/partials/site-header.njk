@@ -12,7 +12,9 @@
       <nav class="site-nav" aria-label="Primary">
         <span class="site-nav-indicator" aria-hidden="true"></span>
         <a href="/" class="site-nav-item{% if activeNav == 'work' %} site-nav-item--active{% endif %}" data-nav="work"{% if activeNav == 'work' %} aria-current="page"{% endif %}>Work</a>
+        {% if env.showPlayground %}
         <a href="/playground/" class="site-nav-item{% if activeNav == 'playground' %} site-nav-item--active{% endif %}" data-nav="playground"{% if activeNav == 'playground' %} aria-current="page"{% endif %}>Play</a>
+        {% endif %}
         <a href="/about/" class="site-nav-item{% if activeNav == 'about' %} site-nav-item--active{% endif %}" data-nav="about"{% if activeNav == 'about' %} aria-current="page"{% endif %}>About</a>
         <button type="button" class="site-nav-item site-nav-link contact-button" data-email="andy.cabindol@gmail.com">Contact</button>
       </nav>

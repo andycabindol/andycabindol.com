@@ -10,9 +10,11 @@ eleventyExcludeFromCollections: true
   <url>
     <loc>{{ site.url }}/about/</loc>
   </url>
+  {%- if env.showPlayground %}
   <url>
     <loc>{{ site.url }}/playground/</loc>
   </url>
+  {%- endif %}
   {%- for project in collections.projects %}
   <url>
     <loc>{{ site.url }}/case-studies/{{ project.fileSlug }}/</loc>
