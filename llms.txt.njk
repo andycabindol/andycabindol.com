@@ -9,7 +9,9 @@ eleventyExcludeFromCollections: true
 ## Main pages
 
 - [Portfolio]({{ site.url }}/)
+{%- if env.showPlayground %}
 - [Playground]({{ site.url }}/playground/)
+{%- endif %}
 - [About]({{ site.url }}/about/)
 - [Projects index (JSON)]({{ site.url }}/projects.json)
 
