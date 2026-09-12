@@ -61,6 +61,7 @@ body.nav-glass-live .nav-glass-root {
 body.nav-glass-live .nav-glass__content {
   overflow: hidden;
   height: 100%;
+  touch-action: pan-y;
   /* Must be opaque — page --bg is on <html>, outside the canvas capture. */
   background: var(--bg, #fbfaf9);
 }

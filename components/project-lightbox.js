@@ -421,20 +421,22 @@
     if (!wrapper || !content) return;
     if (reduceMotion() || typeof window.Lenis !== 'function') return;
 
-    lightboxLenis = new window.Lenis({
-      wrapper,
-      content,
-      eventsTarget: shell,
-      lerp: 0.08,
-      smoothWheel: true,
-    });
+    const create = window.__createSiteLenis;
+    lightboxLenis = create
+      ? create({
+          wrapper,
+          content,
+          eventsTarget: shell,
+        })
+      : new window.Lenis({
+          wrapper,
+          content,
+          eventsTarget: shell,
+          lerp: 0.12,
+          smoothWheel: true,
+          autoRaf: true,
+        });
     lightboxLenis.on('scroll', onLightboxScroll);
-
-    const tick = (time) => {
-      lightboxLenis?.raf(time);
-      lightboxRaf = requestAnimationFrame(tick);
-    };
-    lightboxRaf = requestAnimationFrame(tick);
   }
 
   function hideScrollHint(immediate = false) {
