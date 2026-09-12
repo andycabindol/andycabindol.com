@@ -29,8 +29,7 @@
   };
 
   function rebindLenis(wrapper, contentEl) {
-    // Glass locks html/body overflow — without a live Lenis raf, trackpad scroll dies.
-    // Reduced motion: skip Lenis and use native overflow on the capture host.
+    // Glass locks html/body overflow. Reduced motion → native scroll on the host.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       try {
         window.__lenis?.destroy?.();
@@ -55,15 +54,26 @@
       /* ignore */
     }
 
-    const lenis = new Lenis({
-      wrapper,
-      content: contentEl,
-      lerp: 0.08,
-      smoothWheel: true,
-    });
+    // eventsTarget: window — Windows/Chrome trackpads often don't deliver wheel
+    // to descendants of <canvas layoutsubtree>; listening on the wrapper alone freezes scroll.
+    const create = window.__createSiteLenis;
+    const lenis = create
+      ? create({
+          wrapper,
+          content: contentEl,
+          eventsTarget: window,
+        })
+      : new Lenis({
+          wrapper,
+          content: contentEl,
+          eventsTarget: window,
+          lerp: 0.12,
+          smoothWheel: true,
+          autoRaf: true,
+        });
     window.__lenis = lenis;
     lenis.scrollTo(scroll, { immediate: true });
-    // initSmoothScroll may have run before glass (or been cleared on page stop).
+    requestAnimationFrame(() => lenis.resize?.());
     window.__ensureLenisRaf?.();
     return lenis;
   }
@@ -84,10 +94,14 @@
     } catch {
       /* ignore */
     }
-    window.__lenis = new Lenis({
-      lerp: 0.08,
-      smoothWheel: true,
-    });
+    const create = window.__createSiteLenis;
+    window.__lenis = create
+      ? create()
+      : new Lenis({
+          lerp: 0.12,
+          smoothWheel: true,
+          autoRaf: true,
+        });
     window.__ensureLenisRaf?.();
   }
 

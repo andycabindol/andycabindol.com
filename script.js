@@ -45,14 +45,40 @@ const frameLoop = (() => {
   };
 })();
 
-/** Lenis only applies wheel/trackpad deltas inside raf — keep one shared driver alive. */
+/**
+ * Shared Lenis factory.
+ * autoRaf: Lenis owns its loop (avoids frozen scroll when our frame task is dropped).
+ * Glass hosts listen on window — wheel/trackpad often never reaches nodes inside <canvas layoutsubtree>, especially on Windows.
+ */
+function createSiteLenis(overrides = {}) {
+  if (typeof Lenis !== 'function') {
+    return null;
+  }
+
+  const lenis = new Lenis({
+    lerp: 0.12,
+    smoothWheel: true,
+    wheelMultiplier: 1,
+    autoRaf: true,
+    ...overrides,
+  });
+
+  lenis.on('scroll', () => {
+    window.__navUpdate?.();
+  });
+
+  return lenis;
+}
+
+window.__createSiteLenis = createSiteLenis;
+
+/** @deprecated kept so nav-glass / older callers stay safe; autoRaf makes this a no-op for scrolling. */
 function ensureLenisRaf() {
   if (prefersReducedMotion || window.__workFrameTask) {
     return;
   }
 
-  function workFrameTask(time) {
-    window.__lenis?.raf(time);
+  function workFrameTask() {
     window.__navUpdate?.();
   }
 
@@ -78,16 +104,13 @@ function initSmoothScroll() {
     const stage = document.querySelector('.site-stage');
     window.__lenis =
       glassContent && stage
-        ? new Lenis({
+        ? createSiteLenis({
             wrapper: glassContent,
             content: stage,
-            lerp: 0.08,
-            smoothWheel: true,
+            // Capture wheel at window — content lives under the glass canvas host.
+            eventsTarget: window,
           })
-        : new Lenis({
-            lerp: 0.08,
-            smoothWheel: true,
-          });
+        : createSiteLenis();
 
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       if (link.dataset.lenisAnchorBound === 'true') {
@@ -109,7 +132,6 @@ function initSmoothScroll() {
     });
   }
 
-  // Always re-attach raf — nav-glass may recreate Lenis after stop() cleared the driver.
   ensureLenisRaf();
   return window.__lenis;
 }
