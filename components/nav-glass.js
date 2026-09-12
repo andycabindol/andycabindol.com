@@ -29,7 +29,24 @@
   };
 
   function rebindLenis(wrapper, contentEl) {
-    if (typeof Lenis !== 'function') return null;
+    // Glass locks html/body overflow — without a live Lenis raf, trackpad scroll dies.
+    // Reduced motion: skip Lenis and use native overflow on the capture host.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      try {
+        window.__lenis?.destroy?.();
+      } catch {
+        /* ignore */
+      }
+      window.__lenis = null;
+      wrapper.style.overflow = 'auto';
+      return null;
+    }
+
+    if (typeof Lenis !== 'function') {
+      wrapper.style.overflow = 'auto';
+      return null;
+    }
+
     const prev = window.__lenis;
     const scroll = prev?.scroll ?? window.scrollY ?? 0;
     try {
@@ -46,11 +63,22 @@
     });
     window.__lenis = lenis;
     lenis.scrollTo(scroll, { immediate: true });
+    // initSmoothScroll may have run before glass (or been cleared on page stop).
+    window.__ensureLenisRaf?.();
     return lenis;
   }
 
   function restoreDocumentLenis() {
     if (typeof Lenis !== 'function') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      try {
+        window.__lenis?.destroy?.();
+      } catch {
+        /* ignore */
+      }
+      window.__lenis = null;
+      return;
+    }
     try {
       window.__lenis?.destroy?.();
     } catch {
@@ -60,6 +88,7 @@
       lerp: 0.08,
       smoothWheel: true,
     });
+    window.__ensureLenisRaf?.();
   }
 
   function boot() {

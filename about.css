@@ -338,19 +338,8 @@ body {
   50% { transform: translateY(4px); opacity: 1; }
 }
 
-/* Intro appears only after hero is fully expanded */
-
-.about-intro[hidden] {
-  display: none !important;
-}
-
-.about-intro:not([hidden]) {
-  display: block;
-}
-
 /* Shared section chrome */
 
-.about-intro,
 .about-quotes,
 .about-awards,
 .about-chapter,
@@ -389,29 +378,11 @@ body {
   transform: translateY(0);
 }
 
-/* Intro */
-
-.about-intro {
-  padding-top: var(--section-space-tight);
-  padding-bottom: 0;
-  text-align: center;
-}
-
-.about-intro__title {
-  margin-inline: auto;
-  max-width: 14ch;
-  font-family: var(--display);
-  font-size: clamp(2.75rem, 8vw, 5.5rem);
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
-  text-wrap: balance;
-}
-
 /* Quotes — scrolling marquee */
 
 .about-quotes {
   overflow: visible;
+  padding-top: var(--section-space-tight);
 }
 
 .about-quotes__marquee {

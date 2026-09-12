@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>LinkedIn banner — Andy Cabindol</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3e8d4;
+      --text: #2c2b28;
+      --text-muted: #666666;
+      --blue: #3b95ff;
+      --border: rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    .toolbar {
+      width: min(1584px, 100%);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem 1.5rem;
+    }
+
+    .toolbar p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .toolbar strong {
+      display: block;
+      margin-bottom: 0.2rem;
+      color: var(--text);
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 0.01em;
+      padding: 0.55rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: rgba(59, 149, 255, 0.45);
+      color: var(--blue);
+    }
+
+    button.is-primary {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
+    button.is-primary:hover {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .stage {
+      position: relative;
+      width: min(1584px, 100%);
+      aspect-ratio: 1584 / 396;
+      background: var(--bg);
+      box-shadow: 0 0 0 1px var(--border);
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .stage.is-dragging {
+      cursor: grabbing;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .photo-zone {
+      display: none;
+      position: absolute;
+      left: 4.2%;
+      bottom: -18%;
+      width: 16.5%;
+      aspect-ratio: 1;
+      border: 1.5px dashed rgba(44, 43, 40, 0.28);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .photo-zone span {
+      position: absolute;
+      left: 50%;
+      top: 18%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(44, 43, 40, 0.45);
+      white-space: nowrap;
+    }
+
+    .stage.is-guide .photo-zone {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <p>
+      <strong>LinkedIn personal banner · 1584 × 396 px</strong>
+      More balls start on the right, then fall straight down. Tap an empty spot to drop a ball, or drag a ball to stir.
+    </p>
+    <div class="actions">
+      <button type="button" id="guide">Show photo zone</button>
+      <button type="button" id="drop">Drop again</button>
+      <button type="button" id="add-12">Add 12</button>
+      <button type="button" id="add-24">Add 24</button>
+      <button type="button" class="is-primary" id="save">Save JPG</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="banner" width="1584" height="396" aria-label="LinkedIn banner, 1584 by 396 pixels"></canvas>
+    <div class="photo-zone" aria-hidden="true"><span>Profile photo</span></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+  <script>
+    const W = 1584;
+    const H = 396;
+    const BG = '#f3e8d4';
+    const BLUE = '#3b95ff';
+    const BALL_COUNT = 64;
+    const EDGE = 18;
+    const EXPORT_SCALE = 3;
+
+    const canvas = document.getElementById('banner');
+    const stage = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha: false, colorSpace: 'srgb' });
+
+    function previewScale() {
+      const rect = stage.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      if (!rect.width) return dpr;
+      return (rect.width * dpr) / W;
+    }
+
+    function syncPreviewCanvas() {
+      const rect = stage.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(1, Math.round(rect.width * dpr));
+      const height = Math.max(1, Math.round(rect.height * dpr));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+    }
+
+    const {
+      Engine,
+      World,
+      Bodies,
+      Body,
+      Events,
+      Runner,
+    } = Matter;
+
+    const engine = Engine.create({
+      gravity: { x: 0, y: 1.05 },
+      enableSleeping: true,
+    });
+    const world = engine.world;
+    const runner = Runner.create();
+
+    let balls = [];
+    let pointer = null;
+    let pointerId = null;
+    let gesture = null;
+
+    function pickRadius() {
+      const sizes = [5, 8, 14, 26, 42, 62];
+      const weights = [7, 5, 3, 2, 2, 1];
+      const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
+      let roll = Math.random() * weightSum;
+      for (let i = 0; i < sizes.length; i += 1) {
+        roll -= weights[i];
+        if (roll <= 0) return sizes[i] * (0.96 + Math.random() * 0.08);
+      }
+      return sizes[0];
+    }
+
+    function rightStartX(r) {
+      const minX = W * 0.52 + r;
+      const maxX = W - EDGE - r - 8;
+      return minX + Math.random() * Math.max(8, maxX - minX);
+    }
+
+    function clearBalls() {
+      if (!balls.length) return;
+      World.remove(world, balls);
+      balls = [];
+    }
+
+    function makeBall(r, x, y) {
+      const ball = Bodies.circle(x, y, r, {
+        restitution: 0.36,
+        friction: 0.28,
+        frictionAir: 0.014,
+        density: 0.0014 + (r / 62) * 0.002,
+        slop: 0.02,
+        label: 'ball',
+      });
+      Body.setVelocity(ball, {
+        x: (Math.random() - 0.5) * 0.6,
+        y: 0.2 + Math.random() * 1.1,
+      });
+      return ball;
+    }
+
+    function addBalls(count) {
+      const spawned = [];
+      for (let i = 0; i < count; i += 1) {
+        const r = pickRadius();
+        const x = rightStartX(r);
+        const y = -r - 16 - Math.random() * (H * 1.6);
+        spawned.push(makeBall(r, x, y));
+      }
+      balls = balls.concat(spawned);
+      World.add(world, spawned);
+    }
+
+    function spawnBalls() {
+      clearBalls();
+      addBalls(BALL_COUNT);
+    }
+
+    function buildWorld() {
+      World.clear(world, false);
+      balls = [];
+
+      const thickness = 160;
+      const walls = [
+        Bodies.rectangle(W / 2, H + thickness / 2 - EDGE, W + thickness * 2, thickness, {
+          isStatic: true,
+          friction: 0.55,
+          label: 'ground',
+        }),
+        Bodies.rectangle(-thickness / 2, H / 2, thickness, H * 4, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(W + thickness / 2 - EDGE, H / 2, thickness, H * 4, { isStatic: true, label: 'wall' }),
+        Bodies.rectangle(W / 2, -H * 1.8, W + thickness * 2, thickness, { isStatic: true, label: 'ceiling' }),
+      ];
+      World.add(world, walls);
+      spawnBalls();
+    }
+
+    function drawBall(target, ball) {
+      const { x, y } = ball.position;
+      const r = ball.circleRadius;
+
+      target.beginPath();
+      target.arc(x, y, r, 0, Math.PI * 2);
+      target.fillStyle = BLUE;
+      target.fill();
+    }
+
+    function paint(target, scale) {
+      target.setTransform(scale, 0, 0, scale, 0, 0);
+      target.imageSmoothingEnabled = false;
+      target.fillStyle = BG;
+      target.fillRect(0, 0, W, H);
+      for (const ball of balls) drawBall(target, ball);
+      target.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
+    function containBalls() {
+      for (const ball of balls) {
+        const r = ball.circleRadius;
+        const maxX = W - EDGE - r;
+        const maxY = H - EDGE - r;
+        const minX = r + 4;
+        let { x, y } = ball.position;
+        let vx = ball.velocity.x;
+        let vy = ball.velocity.y;
+        let moved = false;
+
+        if (x > maxX) {
+          x = maxX;
+          vx = Math.min(vx, 0);
+          moved = true;
+        }
+        if (y > maxY) {
+          y = maxY;
+          vy = Math.min(vy, 0);
+          moved = true;
+        }
+        if (x < minX) {
+          x = minX;
+          vx = Math.max(vx, 0);
+          moved = true;
+        }
+        if (!moved) continue;
+
+        Body.setPosition(ball, { x, y });
+        Body.setVelocity(ball, { x: vx, y: vy });
+      }
+    }
+
+    function ballAt(point) {
+      for (let i = balls.length - 1; i >= 0; i -= 1) {
+        const ball = balls[i];
+        const dx = ball.position.x - point.x;
+        const dy = ball.position.y - point.y;
+        if (dx * dx + dy * dy <= ball.circleRadius * ball.circleRadius) return ball;
+      }
+      return null;
+    }
+
+    function spawnAt(point) {
+      let r = pickRadius();
+      const maxR = Math.min(point.x - 4, W - EDGE - point.x, H - EDGE - point.y);
+      if (maxR < 5) return;
+      r = Math.min(r, maxR);
+      const ball = makeBall(r, point.x, point.y);
+      Body.setVelocity(ball, { x: 0, y: 0.4 });
+      balls.push(ball);
+      World.add(world, ball);
+    }
+
+    function draw() {
+      syncPreviewCanvas();
+      paint(ctx, previewScale());
+    }
+
+    function pointerToWorld(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: ((event.clientX - rect.left) / rect.width) * W,
+        y: ((event.clientY - rect.top) / rect.height) * H,
+      };
+    }
+
+    function stir(origin, strength) {
+      for (const ball of balls) {
+        const dx = ball.position.x - origin.x;
+        const dy = ball.position.y - origin.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const radius = 220;
+        if (dist > radius) continue;
+        const t = 1 - dist / radius;
+        const smooth = t * t * (3 - 2 * t);
+        Body.setVelocity(ball, {
+          x: ball.velocity.x + (dx / dist) * strength * smooth,
+          y: ball.velocity.y + (dy / dist) * strength * smooth,
+        });
+        if (ball.isSleeping) Body.set(ball, { isSleeping: false });
+      }
+    }
+
+    Events.on(engine, 'beforeUpdate', () => {
+      if (!pointer) return;
+      stir(pointer, 0.85);
+    });
+
+    Events.on(engine, 'afterUpdate', () => {
+      containBalls();
+      draw();
+    });
+
+    stage.addEventListener('pointerdown', (event) => {
+      const point = pointerToWorld(event);
+      const hit = Boolean(ballAt(point));
+      gesture = {
+        id: event.pointerId,
+        start: point,
+        hit,
+        moved: false,
+      };
+      if (!hit) return;
+
+      pointer = point;
+      pointerId = event.pointerId;
+      stage.classList.add('is-dragging');
+      stage.setPointerCapture(event.pointerId);
+      stir(pointer, 7);
+    });
+
+    stage.addEventListener('pointermove', (event) => {
+      if (!gesture || event.pointerId !== gesture.id) return;
+      const point = pointerToWorld(event);
+      if (Math.hypot(point.x - gesture.start.x, point.y - gesture.start.y) > 8) {
+        gesture.moved = true;
+      }
+      if (!gesture.hit || pointerId !== event.pointerId) return;
+      pointer = point;
+    });
+
+    function endPointer(event) {
+      if (!gesture || event.pointerId !== gesture.id) return;
+      if (!gesture.hit && !gesture.moved) spawnAt(gesture.start);
+      gesture = null;
+      pointer = null;
+      pointerId = null;
+      stage.classList.remove('is-dragging');
+    }
+
+    stage.addEventListener('pointerup', endPointer);
+    stage.addEventListener('pointercancel', endPointer);
+
+    document.getElementById('drop').addEventListener('click', () => {
+      spawnBalls();
+    });
+
+    document.getElementById('add-12').addEventListener('click', () => {
+      addBalls(12);
+    });
+
+    document.getElementById('add-24').addEventListener('click', () => {
+      addBalls(24);
+    });
+
+    document.getElementById('guide').addEventListener('click', (event) => {
+      const on = stage.classList.toggle('is-guide');
+      event.currentTarget.textContent = on ? 'Hide photo zone' : 'Show photo zone';
+    });
+
+    document.getElementById('save').addEventListener('click', () => {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = W * EXPORT_SCALE;
+      exportCanvas.height = H * EXPORT_SCALE;
+      const exportCtx = exportCanvas.getContext('2d', { alpha: false, colorSpace: 'srgb' });
+      paint(exportCtx, EXPORT_SCALE);
+      exportCanvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'andy-linkedin-banner.jpg';
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/jpeg', 1);
+    });
+
+    window.addEventListener('resize', draw);
+
+    buildWorld();
+    Runner.run(runner, engine);
+    draw();
+  </script>
+</body>
+</html>
