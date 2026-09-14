@@ -421,21 +421,17 @@
     if (!wrapper || !content) return;
     if (reduceMotion() || typeof window.Lenis !== 'function') return;
 
-    const create = window.__createSiteLenis;
-    lightboxLenis = create
-      ? create({
-          wrapper,
-          content,
-          eventsTarget: shell,
-        })
-      : new window.Lenis({
-          wrapper,
-          content,
-          eventsTarget: shell,
-          lerp: 0.12,
-          smoothWheel: true,
-          autoRaf: true,
-        });
+    // Dedicated instance — do not reuse createSiteLenis (that hooks page nav updates).
+    lightboxLenis = new window.Lenis({
+      wrapper,
+      content,
+      eventsTarget: shell,
+      lerp: 0.12,
+      smoothWheel: true,
+      autoRaf: true,
+      // Page Lenis may still listen on window while stopped; never steal lightbox wheel.
+      prevent: (node) => !shell.contains(node),
+    });
     lightboxLenis.on('scroll', onLightboxScroll);
   }
 
@@ -680,14 +676,19 @@
 
   function lockPage(lock) {
     const root = document.documentElement;
+    const lenis = window.__lenis;
     if (lock) {
       const gap = Math.max(0, window.innerWidth - root.clientWidth);
       root.style.setProperty('--lightbox-scrollbar-gap', `${gap}px`);
       document.body.classList.add('lightbox-locked');
-      window.__lenis?.stop?.();
+      // Freeze scroll BEFORE the stage scale — mid-lerp + transform = jump/glitch.
+      if (lenis) {
+        lenis.scrollTo(lenis.scroll, { immediate: true });
+        lenis.stop();
+      }
       return;
     }
-    window.__lenis?.start?.();
+    lenis?.start?.();
     document.body.classList.remove('lightbox-locked');
     root.style.removeProperty('--lightbox-scrollbar-gap');
   }
@@ -1010,11 +1011,12 @@
     try {
       hintUsed = false;
       hideScrollHint(true);
+      // Stop page Lenis before scaling .site-stage (fillChrome → setProjectMode).
+      lockPage(true);
       fillChrome(slug);
       shell.removeAttribute('hidden');
       shell.classList.add('is-open', 'is-pre');
       shell.dataset.style = 'morph';
-      lockPage(true);
       startLightboxLenis();
       scrollLightboxTo(0, { immediate: true });
 
@@ -1077,8 +1079,8 @@
         shell.style.visibility = '';
         shell.style.pointerEvents = '';
       }
-      lockPage(false);
       setProjectMode(false);
+      lockPage(false);
       throw error;
     }
   }
@@ -1090,8 +1092,8 @@
       cleanupFlyers();
       restoreAdoptedMedia();
       stopLightboxLenis();
-      lockPage(false);
       setProjectMode(false);
+      lockPage(false);
       return;
     }
 
@@ -1129,10 +1131,11 @@
       shell.setAttribute('hidden', '');
       shell.style.visibility = '';
       shell.style.pointerEvents = '';
-      lockPage(false);
 
       sourceCard?.classList.remove('is-lightbox-source');
+      // Unscale the stage before restarting page Lenis.
       setProjectMode(false);
+      lockPage(false);
 
       openSlug = null;
       opening = false;
