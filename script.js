@@ -60,6 +60,8 @@ function createSiteLenis(overrides = {}) {
     smoothWheel: true,
     wheelMultiplier: 1,
     autoRaf: true,
+    // Let lightbox (and nested scrollers) keep their own wheel while page Lenis is stopped.
+    prevent: (node) => Boolean(node.closest?.('.lightbox, [data-lenis-prevent]')),
     ...overrides,
   });
 
