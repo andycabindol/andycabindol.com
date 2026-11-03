@@ -670,8 +670,6 @@
     }
     setProjectPill(on ? title : '');
     window.__navApplyState?.();
-    if (on) window.__navGlass?.pause?.();
-    else window.__navGlass?.resume?.();
   }
 
   function lockPage(lock) {
@@ -1037,11 +1035,9 @@
         if (adoptedMedia?.node !== media) {
           media.style.visibility = 'hidden';
         }
-        window.__navGlass?.pause?.();
       } else {
         ensureCoverFromCard(sourceCard);
         syncContentWidth();
-        window.__navGlass?.pause?.();
       }
 
       shell.classList.remove('is-pre');

@@ -18,23 +18,25 @@
 
   function initFooterPhysics() {
     const stage = document.querySelector('[data-footer-physics]');
-    const canvas = stage?.querySelector('.footer-wordmark__physics');
+    const layer = stage?.querySelector('.footer-wordmark__physics');
     const wordmark = stage?.querySelector('.footer-wordmark');
-    if (!stage || !canvas || !wordmark || typeof Matter === 'undefined') {
+    if (!stage || !layer || !wordmark || typeof Matter === 'undefined') {
       return false;
     }
 
     if (prefersReducedMotion()) {
-      canvas.hidden = true;
+      layer.hidden = true;
       return true;
     }
+
+    layer.hidden = false;
+    layer.replaceChildren();
 
     const {
       Engine,
       World,
       Bodies,
       Body,
-      Mouse,
       Events,
       Runner,
       Query,
@@ -47,26 +49,30 @@
     const world = engine.world;
     const runner = Runner.create();
 
-    let mouse = null;
     let cursorBall = null;
     let balls = [];
+    let ballEls = [];
     let walls = [];
     let textBody = null;
     let pointerInside = false;
+    let pointerX = 0;
+    let pointerY = 0;
     let rafDraw = 0;
     let destroyed = false;
     let lastScrollY = 0;
     let scrollBoost = 0;
+    let resizeTimer = 0;
 
-    const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
     const getScrollY = () => window.__lenis?.scroll ?? window.scrollY ?? 0;
 
     function clearWorld() {
       World.clear(world, false);
       balls = [];
+      ballEls = [];
       walls = [];
       textBody = null;
       cursorBall = null;
+      layer.replaceChildren();
     }
 
     function measure() {
@@ -83,25 +89,6 @@
           w: Math.max(40, textRect.width),
           h: Math.max(20, textRect.height * 0.72),
         },
-      };
-    }
-
-    function syncCanvas(w, h) {
-      const ratio = dpr();
-      canvas.width = Math.round(w * ratio);
-      canvas.height = Math.round(h * ratio);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      return ctx;
-    }
-
-    function pointerToLocal(event) {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
       };
     }
 
@@ -128,6 +115,7 @@
 
     function spawnBalls({ w, h, text }) {
       const spawned = [];
+      const els = [];
       const sizes = [10, 14, 18, 22, 26, 32, 40, 50, 58];
       const weights = [2, 3, 4, 4, 4, 3, 3, 2, 2];
       const weightSum = weights.reduce((a, b) => a + b, 0);
@@ -149,6 +137,8 @@
       const leftRoom = Math.max(0, textLeft - 8);
       const rightRoom = Math.max(0, w - textRight - 8);
       const topRoom = Math.max(0, textTop - 8);
+
+      const frag = document.createDocumentFragment();
 
       for (let i = 0; i < BALL_COUNT; i += 1) {
         const r = pickRadius();
@@ -182,16 +172,28 @@
         x = Math.min(w - r - 4, Math.max(r + 4, x));
         y = Math.min(h - r - 4, Math.max(r + 4, y));
 
-        spawned.push(
-          Bodies.circle(x, y, r, {
-            restitution: 0.68,
-            friction: 0.05,
-            frictionAir: 0.01,
-            density: 0.0016,
-            label: 'ball',
-          }),
-        );
+        const body = Bodies.circle(x, y, r, {
+          restitution: 0.68,
+          friction: 0.05,
+          frictionAir: 0.01,
+          density: 0.0016,
+          label: 'ball',
+        });
+
+        const el = document.createElement('span');
+        el.className = 'footer-ball';
+        el.style.width = `${r * 2}px`;
+        el.style.height = `${r * 2}px`;
+        el.style.background = BLUE;
+        el.style.transform = `translate(${x - r}px, ${y - r}px)`;
+        frag.appendChild(el);
+
+        spawned.push(body);
+        els.push(el);
       }
+
+      layer.appendChild(frag);
+      ballEls = els;
       return spawned;
     }
 
@@ -205,12 +207,7 @@
         return;
       }
 
-      if (mouse) {
-        Mouse.clearSourceEvents(mouse);
-        mouse = null;
-      }
       clearWorld();
-      syncCanvas(w, h);
 
       const thickness = 100;
       walls = [
@@ -244,43 +241,29 @@
 
       balls = spawnBalls({ w, h, text });
       World.add(world, [...walls, textBody, cursorBall, ...balls]);
-
-      mouse = Mouse.create(canvas);
-      mouse.pixelRatio = dpr();
     }
 
     function draw() {
       if (destroyed) return;
-      const { w, h } = measure();
-      const ctx = canvas.getContext('2d');
-      const ratio = dpr();
-      if (canvas.width !== Math.round(w * ratio) || canvas.height !== Math.round(h * ratio)) {
-        syncCanvas(w, h);
-      } else {
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      }
 
-      ctx.clearRect(0, 0, w, h);
-
-      for (const ball of balls) {
-        ctx.beginPath();
-        ctx.arc(ball.position.x, ball.position.y, ball.circleRadius, 0, Math.PI * 2);
-        ctx.fillStyle = BLUE;
-        ctx.fill();
+      for (let i = 0; i < balls.length; i += 1) {
+        const ball = balls[i];
+        const el = ballEls[i];
+        if (!el) continue;
+        const r = ball.circleRadius;
+        el.style.transform = `translate(${ball.position.x - r}px, ${ball.position.y - r}px)`;
       }
 
       rafDraw = requestAnimationFrame(draw);
     }
 
     Events.on(engine, 'beforeUpdate', () => {
-      if (!cursorBall || !mouse) return;
+      if (!cursorBall) return;
 
-      // Subtle scroll couple — mostly a small lift on scroll-up
       const scrollY = getScrollY();
       const scrollDy = scrollY - lastScrollY;
       lastScrollY = scrollY;
 
-      // scrollDy < 0 = scrolling up → negative Matter y = lift
       if (scrollDy < -0.5) {
         scrollBoost = scrollBoost * 0.5 + scrollDy * SCROLL_COUPLE;
       } else {
@@ -309,8 +292,8 @@
         return;
       }
 
-      const pos = mouse.position;
-      if (!pos || Number.isNaN(pos.x)) return;
+      const pos = { x: pointerX, y: pointerY };
+      if (Number.isNaN(pos.x) || Number.isNaN(pos.y)) return;
 
       const vx = (pos.x - cursorBall.position.x) * CURSOR_FOLLOW;
       const vy = (pos.y - cursorBall.position.y) * CURSOR_FOLLOW;
@@ -358,24 +341,50 @@
       }
     });
 
-    const onEnter = () => {
-      pointerInside = true;
-    };
-    const onLeave = () => {
-      pointerInside = false;
-      if (cursorBall) Body.setVelocity(cursorBall, { x: 0, y: 0 });
+    function syncPointerFromEvent(event) {
+      const rect = layer.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) {
+        pointerInside = false;
+        return null;
+      }
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const inside =
+        event.clientX >= rect.left
+        && event.clientX <= rect.right
+        && event.clientY >= rect.top
+        && event.clientY <= rect.bottom;
+      pointerInside = inside;
+      if (inside) {
+        pointerX = x;
+        pointerY = y;
+      }
+      return inside ? { x, y } : null;
+    }
+
+    const onPointerMove = (event) => {
+      const wasInside = pointerInside;
+      syncPointerFromEvent(event);
+      if (wasInside && !pointerInside && cursorBall) {
+        Body.setVelocity(cursorBall, { x: 0, y: 0 });
+      }
     };
     const onPointerDown = (event) => {
       if (event.button !== 0) return;
-      const { x, y } = pointerToLocal(event);
-      burstAt(x, y);
+      const local = syncPointerFromEvent(event);
+      if (!local) return;
+      burstAt(local.x, local.y);
+    };
+    const onPointerLeaveWindow = () => {
+      pointerInside = false;
+      if (cursorBall) Body.setVelocity(cursorBall, { x: 0, y: 0 });
     };
 
-    canvas.addEventListener('pointerenter', onEnter);
-    canvas.addEventListener('pointerleave', onLeave);
-    canvas.addEventListener('pointerdown', onPointerDown);
+    // Layer is pointer-events: none; track pointer from document instead.
+    document.addEventListener('pointermove', onPointerMove, { passive: true });
+    document.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('blur', onPointerLeaveWindow);
 
-    let resizeTimer = 0;
     const onResize = () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
@@ -390,7 +399,6 @@
       draw();
     });
 
-    // Fonts can change wordmark bounds after first paint
     if (document.fonts?.ready) {
       document.fonts.ready.then(() => {
         if (!destroyed) build();
@@ -408,11 +416,10 @@
         Runner.stop(runner);
         ro.disconnect();
         window.removeEventListener('resize', onResize);
-        canvas.removeEventListener('pointerenter', onEnter);
-        canvas.removeEventListener('pointerleave', onLeave);
-        canvas.removeEventListener('pointerdown', onPointerDown);
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerdown', onPointerDown);
+        window.removeEventListener('blur', onPointerLeaveWindow);
         window.clearTimeout(resizeTimer);
-        if (mouse) Mouse.clearSourceEvents(mouse);
         clearWorld();
         window.__footerPhysics = null;
       },
@@ -428,8 +435,8 @@
     window.__footerPhysics?.destroy?.();
 
     if (prefersReducedMotion()) {
-      const canvas = document.querySelector('.footer-wordmark__physics');
-      if (canvas) canvas.hidden = true;
+      const layer = document.querySelector('.footer-wordmark__physics');
+      if (layer) layer.hidden = true;
       return;
     }
 
@@ -444,9 +451,9 @@
     }
 
     const stage = document.querySelector('[data-footer-physics]');
-    const canvas = stage?.querySelector('.footer-wordmark__physics');
+    const layer = stage?.querySelector('.footer-wordmark__physics');
     const wordmark = stage?.querySelector('.footer-wordmark');
-    if (!stage || !canvas || !wordmark) {
+    if (!stage || !layer || !wordmark) {
       if (attempt < 50) window.setTimeout(retry, 50);
       return;
     }

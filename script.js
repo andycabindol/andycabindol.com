@@ -48,7 +48,6 @@ const frameLoop = (() => {
 /**
  * Shared Lenis factory.
  * autoRaf: Lenis owns its loop (avoids frozen scroll when our frame task is dropped).
- * Glass hosts listen on window — wheel/trackpad often never reaches nodes inside <canvas layoutsubtree>, especially on Windows.
  */
 function createSiteLenis(overrides = {}) {
   if (typeof Lenis !== 'function') {
@@ -74,7 +73,6 @@ function createSiteLenis(overrides = {}) {
 
 window.__createSiteLenis = createSiteLenis;
 
-/** @deprecated kept so nav-glass / older callers stay safe; autoRaf makes this a no-op for scrolling. */
 function ensureLenisRaf() {
   if (prefersReducedMotion || window.__workFrameTask) {
     return;
@@ -101,18 +99,7 @@ function initSmoothScroll() {
 
   if (!window.__lenis) {
     document.documentElement.classList.add('lenis');
-
-    const glassContent = document.querySelector('body.nav-glass-live .nav-glass__content');
-    const stage = document.querySelector('.site-stage');
-    window.__lenis =
-      glassContent && stage
-        ? createSiteLenis({
-            wrapper: glassContent,
-            content: stage,
-            // Capture wheel at window — content lives under the glass canvas host.
-            eventsTarget: window,
-          })
-        : createSiteLenis();
+    window.__lenis = createSiteLenis();
 
     document.querySelectorAll('a[href^="#"]').forEach((link) => {
       if (link.dataset.lenisAnchorBound === 'true') {
